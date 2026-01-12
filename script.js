@@ -260,6 +260,160 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   // ========================================
+  // Testimonials Carousel with Dots & Autoplay
+  // ========================================
+  class TestimonialsCarousel {
+    constructor() {
+      this.track = document.getElementById("testimonialsTrack");
+      this.prevBtn = document.getElementById("testimonialsPrev");
+      this.nextBtn = document.getElementById("testimonialsNext");
+      this.dotsContainer = document.getElementById("testimonialsDots");
+
+      if (!this.track) return;
+
+      this.slides = Array.from(this.track.children);
+      this.currentIndex = 0;
+      this.autoplayInterval = 5000;
+      this.autoplayTimer = null;
+      this.isTransitioning = false;
+
+      this.init();
+    }
+
+    init() {
+      this.createDots();
+      this.setupButtons();
+      this.setupKeyboardNavigation();
+      this.startAutoplay();
+      this.updateSlide();
+    }
+
+    createDots() {
+      this.slides.forEach((_, index) => {
+        const dot = document.createElement("button");
+        dot.classList.add("testimonial-dot");
+        dot.setAttribute("role", "tab");
+        dot.setAttribute("aria-label", `Go to testimonial ${index + 1}`);
+        dot.setAttribute("aria-selected", index === 0 ? "true" : "false");
+
+        if (index === 0) dot.classList.add("active");
+
+        dot.addEventListener("click", () => {
+          this.goToSlide(index);
+          this.resetAutoplay();
+        });
+
+        this.dotsContainer.appendChild(dot);
+      });
+    }
+
+    setupButtons() {
+      if (this.prevBtn) {
+        this.prevBtn.addEventListener("click", () => {
+          this.prev();
+          this.resetAutoplay();
+        });
+      }
+
+      if (this.nextBtn) {
+        this.nextBtn.addEventListener("click", () => {
+          this.next();
+          this.resetAutoplay();
+        });
+      }
+    }
+
+    setupKeyboardNavigation() {
+      document.addEventListener("keydown", (e) => {
+        if (!this.isInViewport()) return;
+
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          this.prev();
+          this.resetAutoplay();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          this.next();
+          this.resetAutoplay();
+        }
+      });
+    }
+
+    isInViewport() {
+      const rect = this.track.getBoundingClientRect();
+      return rect.top < window.innerHeight && rect.bottom > 0;
+    }
+
+    updateSlide() {
+      if (this.isTransitioning) return;
+      this.isTransitioning = true;
+
+      const offset = -this.currentIndex * 100;
+      this.track.style.transform = `translateX(${offset}%)`;
+
+      // Update dots
+      const dots = this.dotsContainer.querySelectorAll(".testimonial-dot");
+      dots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === this.currentIndex);
+        dot.setAttribute("aria-selected", index === this.currentIndex ? "true" : "false");
+      });
+
+      // Update ARIA live region
+      this.track.setAttribute("aria-live", "polite");
+
+      setTimeout(() => {
+        this.isTransitioning = false;
+      }, 500);
+    }
+
+    goToSlide(index) {
+      this.currentIndex = index;
+      this.updateSlide();
+    }
+
+    next() {
+      this.currentIndex = (this.currentIndex + 1) % this.slides.length;
+      this.updateSlide();
+    }
+
+    prev() {
+      this.currentIndex =
+        (this.currentIndex - 1 + this.slides.length) % this.slides.length;
+      this.updateSlide();
+    }
+
+    startAutoplay() {
+      this.autoplayTimer = setInterval(() => {
+        this.next();
+      }, this.autoplayInterval);
+    }
+
+    stopAutoplay() {
+      if (this.autoplayTimer) {
+        clearInterval(this.autoplayTimer);
+        this.autoplayTimer = null;
+      }
+    }
+
+    resetAutoplay() {
+      this.stopAutoplay();
+      this.startAutoplay();
+    }
+  }
+
+  // Initialize Testimonials Carousel
+  const testimonialsCarousel = new TestimonialsCarousel();
+
+  // Pause autoplay when user is interacting with the page
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && testimonialsCarousel) {
+      testimonialsCarousel.stopAutoplay();
+    } else if (testimonialsCarousel) {
+      testimonialsCarousel.startAutoplay();
+    }
+  });
+
+  // ========================================
   // Product Modal
   // ========================================
   const modal = document.getElementById("productModal");
@@ -360,7 +514,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .team-member"
+    ".gallery-section, .products-section, .partners-section, .about-item, .testimonials-section, .team-member"
   );
 
   const revealObserver = new IntersectionObserver(
@@ -411,7 +565,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Show elements that should be visible on load
   setTimeout(() => {
     document
-      .querySelectorAll(".gallery-section, .products-section")
+      .querySelectorAll(".gallery-section, .products-section, .testimonials-section")
       .forEach((el) => {
         if (el.getBoundingClientRect().top < window.innerHeight) {
           el.classList.add("visible");
