@@ -403,59 +403,123 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ========================================
-  // Testimonials Carousel
+  // Customer Reviews Timeline
   // ========================================
-  const testimonialsSection = document.querySelector(".testimonials-section");
+  const reviewsSection = document.querySelector(".testimonials-section");
 
-  if (testimonialsSection) {
-    const slides = document.querySelectorAll(".testimonial-slide");
-    const dots = document.querySelectorAll(".testimonial-dots .dot");
-    let currentTestimonial = 0;
-    let testimonialInterval = null;
+  if (reviewsSection) {
+    const reviews = [
+      { name: "Naide Kiraz", comment: "Organik ve doğal ürün severlere şiddetle tavsiye ediyorum. Harika bir deneyim!" },
+      { name: "Zafer Hinislioğlu", comment: "Kaliteli ve güvenilir ürünler. Ailecek kullanıyoruz, herkese tavsiye ederiz." },
+      { name: "Aslı Kılınç", comment: "Çam balının tadı muhteşem! Doğallığı hemen belli oluyor, teşekkürler Beeonia." },
+      { name: "Özlem Duraydın", comment: "Yıllardır aradığım doğal balı sonunda buldum. Katkısız ve lezzetli." },
+      { name: "Av. Demet Kozacıoğlu", comment: "Profesyonel hizmet ve üstün kalite. Arı ürünleri konusunda güvenilir bir adres." },
+      { name: "Semra Çangiri", comment: "Propolisin faydalarını görünce çok şaşırdım. Bağışıklık sistemim güçlendi." },
+      { name: "Nilay Bilgin", comment: "Her sabah kahvaltıda balınızı yiyoruz. Enerji dolu başlıyoruz güne!" },
+      { name: "Yusuf Güdücü", comment: "Yamanlar Dağı'ndan gelen bu bal gerçekten eşsiz. Tadına doyum olmuyor." },
+      { name: "Rabia Gören", comment: "Çocuklarıma gönül rahatlığıyla yedirebileceğim doğal ürünler." },
+      { name: "Ferhat Karaca", comment: "Arıcılık konusundaki tutkunuz ürünlerinize yansıyor. Tebrikler!" },
+      { name: "Soner Çoruk", comment: "Hediye olarak aldım, alan da veren de memnun kaldı." },
+      { name: "İpek Aydın", comment: "Polen ve bal karışımı enerji bombası gibi! Sporcular için ideal." },
+      { name: "İbrahim Zaralioğlu", comment: "Doğal ve saf ürünler arıyorsanız doğru adrestesiniz." },
+      { name: "Hakan Adıyaman", comment: "Bal kavanozunu açtığımda gelen o doğal koku... Muhteşem!" },
+      { name: "Hakan Demirtel", comment: "Sürdürülebilir arıcılık anlayışınız takdire şayan. Devamını bekliyoruz." }
+    ];
 
-    function showTestimonial(index) {
-      // Remove active class from all slides and dots
-      slides.forEach((slide) => slide.classList.remove("active"));
-      dots.forEach((dot) => dot.classList.remove("active"));
+    const timelineTrack = document.getElementById("timelineTrack");
+    const reviewText = document.getElementById("reviewText");
+    let currentIndex = 0;
+    let reviewInterval = null;
 
-      // Add active class to current slide and dot
-      slides[index].classList.add("active");
-      dots[index].classList.add("active");
-      currentTestimonial = index;
+    // Get initials from name
+    function getInitials(name) {
+      const parts = name.split(" ");
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
     }
 
-    function nextTestimonial() {
-      const next = (currentTestimonial + 1) % slides.length;
-      showTestimonial(next);
+    // Get color class based on index
+    function getColorClass(index) {
+      return "color-" + ((index % 8) + 1);
     }
 
-    function startTestimonialAutoplay() {
-      stopTestimonialAutoplay();
-      testimonialInterval = setInterval(nextTestimonial, 5000);
+    // Create timeline items
+    function createTimelineItems() {
+      timelineTrack.innerHTML = "";
+
+      // Show 3 items: prev, active, next
+      const prevIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+      const nextIndex = (currentIndex + 1) % reviews.length;
+      const indices = [prevIndex, currentIndex, nextIndex];
+      const classes = ["prev", "active", "next"];
+
+      indices.forEach((idx, i) => {
+        const review = reviews[idx];
+        const item = document.createElement("div");
+        item.className = `timeline-item ${classes[i]}`;
+        item.innerHTML = `
+          <div class="review-avatar ${getColorClass(idx)}">${getInitials(review.name)}</div>
+          <div class="reviewer-info">
+            <span class="reviewer-name">${review.name}</span>
+            <div class="reviewer-stars">
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+              <span class="star">★</span>
+            </div>
+          </div>
+        `;
+        timelineTrack.appendChild(item);
+      });
     }
 
-    function stopTestimonialAutoplay() {
-      if (testimonialInterval) {
-        clearInterval(testimonialInterval);
-        testimonialInterval = null;
+    // Update review text with fade animation
+    function updateReviewText() {
+      reviewText.classList.add("fade-out");
+
+      setTimeout(() => {
+        reviewText.textContent = reviews[currentIndex].comment;
+        reviewText.classList.remove("fade-out");
+        reviewText.classList.add("fade-in");
+
+        setTimeout(() => {
+          reviewText.classList.remove("fade-in");
+        }, 400);
+      }, 400);
+    }
+
+    // Go to next review
+    function nextReview() {
+      currentIndex = (currentIndex + 1) % reviews.length;
+      createTimelineItems();
+      updateReviewText();
+    }
+
+    // Start autoplay
+    function startReviewAutoplay() {
+      stopReviewAutoplay();
+      reviewInterval = setInterval(nextReview, 3000);
+    }
+
+    // Stop autoplay
+    function stopReviewAutoplay() {
+      if (reviewInterval) {
+        clearInterval(reviewInterval);
+        reviewInterval = null;
       }
     }
 
-    // Dot click handlers
-    dots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        showTestimonial(index);
-        stopTestimonialAutoplay();
-        startTestimonialAutoplay();
-      });
-    });
-
-    // Start autoplay
-    startTestimonialAutoplay();
+    // Initialize
+    createTimelineItems();
+    reviewText.textContent = reviews[currentIndex].comment;
+    startReviewAutoplay();
 
     // Pause on hover
-    testimonialsSection.addEventListener("mouseenter", stopTestimonialAutoplay);
-    testimonialsSection.addEventListener("mouseleave", startTestimonialAutoplay);
+    reviewsSection.addEventListener("mouseenter", stopReviewAutoplay);
+    reviewsSection.addEventListener("mouseleave", startReviewAutoplay);
   }
 
   // ========================================
