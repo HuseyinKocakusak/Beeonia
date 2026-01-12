@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .team-member"
+    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section"
   );
 
   const revealObserver = new IntersectionObserver(
@@ -401,6 +401,62 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("img").forEach((img) => {
     img.addEventListener("dragstart", (e) => e.preventDefault());
   });
+
+  // ========================================
+  // Testimonials Carousel
+  // ========================================
+  const testimonialsSection = document.querySelector(".testimonials-section");
+
+  if (testimonialsSection) {
+    const slides = document.querySelectorAll(".testimonial-slide");
+    const dots = document.querySelectorAll(".testimonial-dots .dot");
+    let currentTestimonial = 0;
+    let testimonialInterval = null;
+
+    function showTestimonial(index) {
+      // Remove active class from all slides and dots
+      slides.forEach((slide) => slide.classList.remove("active"));
+      dots.forEach((dot) => dot.classList.remove("active"));
+
+      // Add active class to current slide and dot
+      slides[index].classList.add("active");
+      dots[index].classList.add("active");
+      currentTestimonial = index;
+    }
+
+    function nextTestimonial() {
+      const next = (currentTestimonial + 1) % slides.length;
+      showTestimonial(next);
+    }
+
+    function startTestimonialAutoplay() {
+      stopTestimonialAutoplay();
+      testimonialInterval = setInterval(nextTestimonial, 5000);
+    }
+
+    function stopTestimonialAutoplay() {
+      if (testimonialInterval) {
+        clearInterval(testimonialInterval);
+        testimonialInterval = null;
+      }
+    }
+
+    // Dot click handlers
+    dots.forEach((dot, index) => {
+      dot.addEventListener("click", () => {
+        showTestimonial(index);
+        stopTestimonialAutoplay();
+        startTestimonialAutoplay();
+      });
+    });
+
+    // Start autoplay
+    startTestimonialAutoplay();
+
+    // Pause on hover
+    testimonialsSection.addEventListener("mouseenter", stopTestimonialAutoplay);
+    testimonialsSection.addEventListener("mouseleave", startTestimonialAutoplay);
+  }
 
   // ========================================
   // Initial Setup

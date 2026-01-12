@@ -767,6 +767,102 @@ button {
 }
 
 /* ========================================
+   Testimonials Section
+   ======================================== */
+.testimonials-section {
+    padding: 4rem 2rem;
+    margin-bottom: 2rem;
+}
+
+.testimonials-container {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.testimonial-slide {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.testimonial-slide.active {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+}
+
+.quote-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 1.5rem;
+    color: var(--accent-gold);
+    opacity: 0.4;
+}
+
+.quote-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.testimonial-text {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-author {
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.testimonial-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+}
+
+.testimonial-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    padding: 0;
+}
+
+.testimonial-dots .dot:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.testimonial-dots .dot.active {
+    background: var(--accent-gold);
+    width: 12px;
+    height: 12px;
+}
+
+/* ========================================
    Footer
    ======================================== */
 .footer {
@@ -999,6 +1095,18 @@ button {
     .footer-nav {
         gap: 1rem;
     }
+
+    .testimonials-container {
+        min-height: 300px;
+    }
+
+    .testimonial-slide {
+        padding: 1.5rem;
+    }
+
+    .testimonial-text {
+        font-size: 1.1rem;
+    }
 }
 
 /* Mobile Small */
@@ -1074,6 +1182,19 @@ button {
     
     .footer-logo img {
         width: 90px;
+    }
+
+    .testimonial-slide {
+        padding: 1rem;
+    }
+
+    .testimonial-text {
+        font-size: 1rem;
+    }
+
+    .quote-icon {
+        width: 32px;
+        height: 32px;
     }
 }
 
@@ -1157,7 +1278,8 @@ button {
 .products-section,
 .partners-section,
 .about-item,
-.team-member {
+.team-member,
+.testimonials-section {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -1167,7 +1289,8 @@ button {
 .products-section.visible,
 .partners-section.visible,
 .about-item.visible,
-.team-member.visible {
+.team-member.visible,
+.testimonials-section.visible {
     opacity: 1;
     transform: translateY(0);
 }
