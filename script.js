@@ -405,9 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   // Customer Reviews Timeline
   // ========================================
-  const reviewsSection = document.querySelector(".testimonials-section");
-
-  if (reviewsSection) {
+  (function initReviews() {
     const reviews = [
       { name: "Naide Kiraz", comment: "Organik ve doğal ürün severlere şiddetle tavsiye ediyorum. Harika bir deneyim!" },
       { name: "Zafer Hinislioğlu", comment: "Kaliteli ve güvenilir ürünler. Ailecek kullanıyoruz, herkese tavsiye ederiz." },
@@ -428,6 +426,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const timelineTrack = document.getElementById("timelineTrack");
     const reviewText = document.getElementById("reviewText");
+    const reviewsSection = document.querySelector(".testimonials-section");
+
+    if (!timelineTrack || !reviewText || !reviewsSection) {
+      return;
+    }
+
     let currentIndex = 0;
     let reviewInterval = null;
 
@@ -455,23 +459,35 @@ document.addEventListener("DOMContentLoaded", function () {
       const indices = [prevIndex, currentIndex, nextIndex];
       const classes = ["prev", "active", "next"];
 
-      indices.forEach((idx, i) => {
+      indices.forEach(function(idx, i) {
         const review = reviews[idx];
         const item = document.createElement("div");
-        item.className = `timeline-item ${classes[i]}`;
-        item.innerHTML = `
-          <div class="review-avatar ${getColorClass(idx)}">${getInitials(review.name)}</div>
-          <div class="reviewer-info">
-            <span class="reviewer-name">${review.name}</span>
-            <div class="reviewer-stars">
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
-              <span class="star">★</span>
-            </div>
-          </div>
-        `;
+        item.className = "timeline-item " + classes[i];
+
+        const avatar = document.createElement("div");
+        avatar.className = "review-avatar " + getColorClass(idx);
+        avatar.textContent = getInitials(review.name);
+
+        const info = document.createElement("div");
+        info.className = "reviewer-info";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "reviewer-name";
+        nameSpan.textContent = review.name;
+
+        const starsDiv = document.createElement("div");
+        starsDiv.className = "reviewer-stars";
+        for (let s = 0; s < 5; s++) {
+          const star = document.createElement("span");
+          star.className = "star";
+          star.textContent = "★";
+          starsDiv.appendChild(star);
+        }
+
+        info.appendChild(nameSpan);
+        info.appendChild(starsDiv);
+        item.appendChild(avatar);
+        item.appendChild(info);
         timelineTrack.appendChild(item);
       });
     }
@@ -480,12 +496,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function updateReviewText() {
       reviewText.classList.add("fade-out");
 
-      setTimeout(() => {
+      setTimeout(function() {
         reviewText.textContent = reviews[currentIndex].comment;
         reviewText.classList.remove("fade-out");
         reviewText.classList.add("fade-in");
 
-        setTimeout(() => {
+        setTimeout(function() {
           reviewText.classList.remove("fade-in");
         }, 400);
       }, 400);
@@ -520,7 +536,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Pause on hover
     reviewsSection.addEventListener("mouseenter", stopReviewAutoplay);
     reviewsSection.addEventListener("mouseleave", startReviewAutoplay);
-  }
+  })();
 
   // ========================================
   // Initial Setup
