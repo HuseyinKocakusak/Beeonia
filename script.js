@@ -407,21 +407,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   (function initReviews() {
     const reviews = [
-      { name: "Naide Kiraz", comment: "Organik ve doğal ürün severlere şiddetle tavsiye ediyorum. Harika bir deneyim!" },
-      { name: "Zafer Hinislioğlu", comment: "Kaliteli ve güvenilir ürünler. Ailecek kullanıyoruz, herkese tavsiye ederiz." },
-      { name: "Aslı Kılınç", comment: "Çam balının tadı muhteşem! Doğallığı hemen belli oluyor, teşekkürler Beeonia." },
-      { name: "Özlem Duraydın", comment: "Yıllardır aradığım doğal balı sonunda buldum. Katkısız ve lezzetli." },
-      { name: "Av. Demet Kozacıoğlu", comment: "Profesyonel hizmet ve üstün kalite. Arı ürünleri konusunda güvenilir bir adres." },
-      { name: "Semra Çangiri", comment: "Propolisin faydalarını görünce çok şaşırdım. Bağışıklık sistemim güçlendi." },
-      { name: "Nilay Bilgin", comment: "Her sabah kahvaltıda balınızı yiyoruz. Enerji dolu başlıyoruz güne!" },
-      { name: "Yusuf Güdücü", comment: "Yamanlar Dağı'ndan gelen bu bal gerçekten eşsiz. Tadına doyum olmuyor." },
-      { name: "Rabia Gören", comment: "Çocuklarıma gönül rahatlığıyla yedirebileceğim doğal ürünler." },
-      { name: "Ferhat Karaca", comment: "Arıcılık konusundaki tutkunuz ürünlerinize yansıyor. Tebrikler!" },
-      { name: "Soner Çoruk", comment: "Hediye olarak aldım, alan da veren de memnun kaldı." },
-      { name: "İpek Aydın", comment: "Polen ve bal karışımı enerji bombası gibi! Sporcular için ideal." },
-      { name: "İbrahim Zaralioğlu", comment: "Doğal ve saf ürünler arıyorsanız doğru adrestesiniz." },
-      { name: "Hakan Adıyaman", comment: "Bal kavanozunu açtığımda gelen o doğal koku... Muhteşem!" },
-      { name: "Hakan Demirtel", comment: "Sürdürülebilir arıcılık anlayışınız takdire şayan. Devamını bekliyoruz." }
+      { name: "Naide Kiraz", comment: "Organik ve doğal ürün severlere şiddetle tavsiye ediyorum. Harika bir deneyim!", date: "23 January, 2026", url: "#" },
+      { name: "Zafer Hinislioğlu", comment: "Kaliteli ve güvenilir ürünler. Ailecek kullanıyoruz, herkese tavsiye ederiz.", date: "18 January, 2026", url: "#" },
+      { name: "Aslı Kılınç", comment: "Çam balının tadı muhteşem! Doğallığı hemen belli oluyor, teşekkürler Beeonia.", date: "12 January, 2026", url: "#" },
+      { name: "Özlem Duraydın", comment: "Yıllardır aradığım doğal balı sonunda buldum. Katkısız ve lezzetli.", date: "5 January, 2026", url: "#" },
+      { name: "Av. Demet Kozacıoğlu", comment: "Profesyonel hizmet ve üstün kalite. Arı ürünleri konusunda güvenilir bir adres.", date: "28 December, 2025", url: "#" },
+      { name: "Semra Çangiri", comment: "Propolisin faydalarını görünce çok şaşırdım. Bağışıklık sistemim güçlendi.", date: "20 December, 2025", url: "#" },
+      { name: "Nilay Bilgin", comment: "Her sabah kahvaltıda balınızı yiyoruz. Enerji dolu başlıyoruz güne!", date: "15 December, 2025", url: "#" },
+      { name: "Yusuf Güdücü", comment: "Yamanlar Dağı'ndan gelen bu bal gerçekten eşsiz. Tadına doyum olmuyor.", date: "8 December, 2025", url: "#" },
+      { name: "Rabia Gören", comment: "Çocuklarıma gönül rahatlığıyla yedirebileceğim doğal ürünler.", date: "1 December, 2025", url: "#" },
+      { name: "Ferhat Karaca", comment: "Arıcılık konusundaki tutkunuz ürünlerinize yansıyor. Tebrikler!", date: "25 November, 2025", url: "#" },
+      { name: "Soner Çoruk", comment: "Hediye olarak aldım, alan da veren de memnun kaldı.", date: "18 November, 2025", url: "#" },
+      { name: "İpek Aydın", comment: "Polen ve bal karışımı enerji bombası gibi! Sporcular için ideal.", date: "10 November, 2025", url: "#" },
+      { name: "İbrahim Zaralioğlu", comment: "Doğal ve saf ürünler arıyorsanız doğru adrestesiniz.", date: "3 November, 2025", url: "#" },
+      { name: "Hakan Adıyaman", comment: "Bal kavanozunu açtığımda gelen o doğal koku... Muhteşem!", date: "27 October, 2025", url: "#" },
+      { name: "Hakan Demirtel", comment: "Sürdürülebilir arıcılık anlayışınız takdire şayan. Devamını bekliyoruz.", date: "20 October, 2025", url: "#" }
     ];
 
     const timelineTrack = document.getElementById("timelineTrack");
@@ -489,22 +489,18 @@ document.addEventListener("DOMContentLoaded", function () {
         reviewTextCard.className = "review-text-card";
         reviewTextCard.textContent = review.comment;
 
-        // Add stars at bottom of card
-        const cardStars = document.createElement("div");
-        cardStars.className = "card-stars";
-        for (let s = 0; s < 5; s++) {
-          const star = document.createElement("span");
-          star.className = "star";
-          star.textContent = "★";
-          cardStars.appendChild(star);
-        }
+        // Add clickable date at bottom of card
+        const dateLink = document.createElement("a");
+        dateLink.className = "review-date-link";
+        dateLink.href = review.url;
+        dateLink.textContent = review.date;
 
         info.appendChild(nameSpan);
         info.appendChild(starsDiv);
         item.appendChild(avatar);
         item.appendChild(info);
         item.appendChild(reviewTextCard);
-        item.appendChild(cardStars);
+        item.appendChild(dateLink);
         timelineTrack.appendChild(item);
       });
     }
@@ -534,6 +530,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // Go to previous review
+    function prevReview() {
+      currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+      createTimelineItems();
+    }
+
     // Initialize
     createTimelineItems();
     startReviewAutoplay();
@@ -541,6 +543,79 @@ document.addEventListener("DOMContentLoaded", function () {
     // Pause on hover
     reviewsSection.addEventListener("mouseenter", stopReviewAutoplay);
     reviewsSection.addEventListener("mouseleave", startReviewAutoplay);
+
+    // Keyboard navigation (left/right arrow keys)
+    document.addEventListener("keydown", function(e) {
+      // Check if reviews section is visible in viewport
+      const rect = reviewsSection.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!isVisible) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        stopReviewAutoplay();
+        nextReview();
+        startReviewAutoplay();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        stopReviewAutoplay();
+        prevReview();
+        startReviewAutoplay();
+      }
+    });
+
+    // Mouse drag support for horizontal scrolling
+    let isDragging = false;
+    let startX = 0;
+    let hasDragged = false;
+
+    timelineTrack.addEventListener("mousedown", function(e) {
+      isDragging = true;
+      hasDragged = false;
+      startX = e.clientX;
+      timelineTrack.style.cursor = "grabbing";
+      stopReviewAutoplay();
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", function(e) {
+      if (!isDragging) return;
+
+      const diff = e.clientX - startX;
+      if (Math.abs(diff) > 10) {
+        hasDragged = true;
+      }
+    });
+
+    document.addEventListener("mouseup", function(e) {
+      if (!isDragging) return;
+
+      isDragging = false;
+      timelineTrack.style.cursor = "grab";
+
+      const diff = startX - e.clientX;
+      const threshold = 50;
+
+      if (diff > threshold) {
+        nextReview();
+      } else if (diff < -threshold) {
+        prevReview();
+      }
+
+      startReviewAutoplay();
+    });
+
+    // Set initial cursor style for drag indication
+    timelineTrack.style.cursor = "grab";
+
+    // Prevent click events on links when dragging
+    timelineTrack.addEventListener("click", function(e) {
+      if (hasDragged) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
   })();
 
   // ========================================

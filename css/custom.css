@@ -811,6 +811,12 @@ button {
     gap: 2rem;
     width: 100%;
     max-width: 1000px;
+    cursor: grab;
+    user-select: none;
+}
+
+.timeline-track:active {
+    cursor: grabbing;
 }
 
 .timeline-item {
@@ -946,20 +952,32 @@ button {
     color: var(--text-primary);
 }
 
-.timeline-item .card-stars {
-    display: flex;
-    gap: 4px;
-    justify-content: center;
+/* Review date link styling */
+.review-date-link {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-decoration: none;
     margin-top: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.timeline-item .card-stars .star {
-    font-size: 1.1rem;
+.review-date-link:hover {
     color: var(--accent-gold);
+    background: rgba(201, 162, 39, 0.1);
 }
 
-.timeline-item.active .card-stars .star {
-    font-size: 1.3rem;
+.timeline-item.active .review-date-link {
+    font-size: 0.95rem;
+    color: var(--accent-gold-light);
+}
+
+.timeline-item.active .review-date-link:hover {
+    color: var(--accent-gold);
+    background: rgba(201, 162, 39, 0.15);
 }
 
 .review-stars {
@@ -1066,12 +1084,12 @@ button {
         font-size: 0.95rem;
     }
 
-    .timeline-item .card-stars .star {
-        font-size: 1rem;
+    .review-date-link {
+        font-size: 0.8rem;
     }
 
-    .timeline-item.active .card-stars .star {
-        font-size: 1.15rem;
+    .timeline-item.active .review-date-link {
+        font-size: 0.9rem;
     }
 }
 
@@ -1128,12 +1146,13 @@ button {
         font-size: 0.9rem;
     }
 
-    .timeline-item .card-stars .star {
-        font-size: 0.9rem;
+    .review-date-link {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
     }
 
-    .timeline-item.active .card-stars .star {
-        font-size: 1.05rem;
+    .timeline-item.active .review-date-link {
+        font-size: 0.85rem;
     }
 }
 
