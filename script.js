@@ -360,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section"
+    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section, .faq-section"
   );
 
   const revealObserver = new IntersectionObserver(
@@ -616,6 +616,64 @@ document.addEventListener("DOMContentLoaded", function () {
         e.stopPropagation();
       }
     }, true);
+  })();
+
+  // ========================================
+  // FAQ Accordion
+  // ========================================
+  (function initFAQ() {
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    if (faqItems.length === 0) return;
+
+    faqItems.forEach(function(item) {
+      const question = item.querySelector(".faq-question");
+
+      if (question) {
+        question.addEventListener("click", function() {
+          const isActive = item.classList.contains("active");
+
+          // Close all other items (accordion behavior)
+          faqItems.forEach(function(otherItem) {
+            if (otherItem !== item) {
+              otherItem.classList.remove("active");
+              const otherQuestion = otherItem.querySelector(".faq-question");
+              if (otherQuestion) {
+                otherQuestion.setAttribute("aria-expanded", "false");
+              }
+            }
+          });
+
+          // Toggle current item
+          item.classList.toggle("active");
+          question.setAttribute("aria-expanded", !isActive);
+        });
+
+        // Keyboard accessibility
+        question.addEventListener("keydown", function(e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            question.click();
+          }
+        });
+      }
+    });
+
+    // Allow opening multiple items with Shift+Click
+    faqItems.forEach(function(item) {
+      const question = item.querySelector(".faq-question");
+
+      if (question) {
+        question.addEventListener("click", function(e) {
+          if (e.shiftKey) {
+            // Just toggle this item without closing others
+            e.stopImmediatePropagation();
+            item.classList.toggle("active");
+            question.setAttribute("aria-expanded", item.classList.contains("active"));
+          }
+        });
+      }
+    });
   })();
 
   // ========================================
