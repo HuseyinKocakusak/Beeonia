@@ -1200,7 +1200,7 @@ button {
    ======================================== */
 .footer {
   background: var(--bg-footer);
-  padding: 3rem 2rem 3rem 0rem;
+  padding: 3rem 2rem;
 }
 
 .footer-container {
@@ -1220,13 +1220,6 @@ button {
   height: auto;
 }
 
-/* Desktop: Center footer logo with left padding */
-@media (min-width: 769px) {
-  .footer-logo img {
-    margin-left: 14rem;
-  }
-}
-
 .footer-main {
   flex: 1;
   display: flex;
@@ -1234,6 +1227,18 @@ button {
   align-items: center;
   gap: 1.52rem;
   justify-content: flex-start;
+}
+
+/* Desktop: Center both footer sections together */
+@media (min-width: 769px) {
+  .footer-container {
+    justify-content: center;
+  }
+
+  .footer-main {
+    flex: 0 0 auto;
+    min-width: 320px;
+  }
 }
 
 .back-to-top {
