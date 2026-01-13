@@ -540,6 +540,26 @@ document.addEventListener("DOMContentLoaded", function () {
     createTimelineItems();
     startReviewAutoplay();
 
+    // Button controls for reviews carousel
+    const reviewsPrevBtn = document.getElementById("reviewsPrev");
+    const reviewsNextBtn = document.getElementById("reviewsNext");
+
+    if (reviewsPrevBtn) {
+      reviewsPrevBtn.addEventListener("click", function() {
+        stopReviewAutoplay();
+        prevReview();
+        startReviewAutoplay();
+      });
+    }
+
+    if (reviewsNextBtn) {
+      reviewsNextBtn.addEventListener("click", function() {
+        stopReviewAutoplay();
+        nextReview();
+        startReviewAutoplay();
+      });
+    }
+
     // Pause on hover
     reviewsSection.addEventListener("mouseenter", stopReviewAutoplay);
     reviewsSection.addEventListener("mouseleave", startReviewAutoplay);
