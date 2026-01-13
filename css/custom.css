@@ -776,6 +776,17 @@ button {
   max-width: 1000px;
   cursor: grab;
   user-select: none;
+  transition: transform 0.5s ease;
+}
+
+/* Reviews carousel wrapper */
+.reviews-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 60px;
 }
 
 .timeline-track:active {
