@@ -787,6 +787,25 @@ button {
   justify-content: center;
   gap: 1rem;
   padding: 0 60px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Reviews carousel specific button styling */
+.reviews-carousel .carousel-btn {
+  position: relative;
+  top: auto;
+  transform: none;
+  flex-shrink: 0;
+}
+
+.reviews-carousel .carousel-btn.prev {
+  left: auto;
+}
+
+.reviews-carousel .carousel-btn.next {
+  right: auto;
 }
 
 .timeline-track:active {
@@ -976,6 +995,11 @@ button {
 
 /* Responsive Design for Reviews */
 @media (max-width: 900px) {
+  .reviews-carousel {
+    padding: 0 20px;
+    gap: 0.5rem;
+  }
+
   .timeline-track {
     gap: 1.5rem;
   }
@@ -1026,6 +1050,16 @@ button {
 }
 
 @media (max-width: 768px) {
+  .reviews-carousel {
+    padding: 0 10px;
+    gap: 0.5rem;
+  }
+
+  .reviews-carousel .carousel-btn {
+    width: 40px;
+    height: 40px;
+  }
+
   .timeline-track {
     gap: 1rem;
   }
@@ -1084,6 +1118,21 @@ button {
 }
 
 @media (max-width: 480px) {
+  .reviews-carousel {
+    padding: 0 5px;
+    gap: 0.25rem;
+  }
+
+  .reviews-carousel .carousel-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .reviews-carousel .carousel-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
   .reviews-container {
     padding: 1.5rem 0.5rem;
   }
