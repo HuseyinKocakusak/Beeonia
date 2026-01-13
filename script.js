@@ -484,34 +484,40 @@ document.addEventListener("DOMContentLoaded", function () {
           starsDiv.appendChild(star);
         }
 
+        // Add review text inside the card
+        const reviewTextCard = document.createElement("p");
+        reviewTextCard.className = "review-text-card";
+        reviewTextCard.textContent = review.comment;
+
+        // Add stars at bottom of card
+        const cardStars = document.createElement("div");
+        cardStars.className = "card-stars";
+        for (let s = 0; s < 5; s++) {
+          const star = document.createElement("span");
+          star.className = "star";
+          star.textContent = "★";
+          cardStars.appendChild(star);
+        }
+
         info.appendChild(nameSpan);
         info.appendChild(starsDiv);
         item.appendChild(avatar);
         item.appendChild(info);
+        item.appendChild(reviewTextCard);
+        item.appendChild(cardStars);
         timelineTrack.appendChild(item);
       });
     }
 
-    // Update review text with fade animation
+    // Update review text with fade animation - no longer needed
     function updateReviewText() {
-      reviewText.classList.add("fade-out");
-
-      setTimeout(function() {
-        reviewText.textContent = reviews[currentIndex].comment;
-        reviewText.classList.remove("fade-out");
-        reviewText.classList.add("fade-in");
-
-        setTimeout(function() {
-          reviewText.classList.remove("fade-in");
-        }, 400);
-      }, 400);
+      // Text is now inside cards, no separate update needed
     }
 
     // Go to next review
     function nextReview() {
       currentIndex = (currentIndex + 1) % reviews.length;
       createTimelineItems();
-      updateReviewText();
     }
 
     // Start autoplay
@@ -530,7 +536,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize
     createTimelineItems();
-    reviewText.textContent = reviews[currentIndex].comment;
     startReviewAutoplay();
 
     // Pause on hover
