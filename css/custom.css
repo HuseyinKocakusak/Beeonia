@@ -1218,7 +1218,13 @@ button {
 .footer-logo img {
   width: 216px;
   height: auto;
-  margin-left: 14rem;
+}
+
+/* Desktop: Center footer logo with left padding */
+@media (min-width: 769px) {
+  .footer-logo img {
+    margin-left: 14rem;
+  }
 }
 
 .footer-main {
