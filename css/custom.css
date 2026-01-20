@@ -1964,39 +1964,12 @@ button {
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-.mascot-popup.visible {
   opacity: 1;
   visibility: visible;
 }
 
-.mascot-popup-close {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--bg-primary);
-  border: 2px solid var(--accent-gold);
-  color: var(--accent-gold);
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10001;
-  transition: var(--transition-smooth);
-  line-height: 1;
-}
-
-.mascot-popup-close:hover {
-  background: var(--accent-gold);
-  color: var(--bg-primary);
+.mascot-popup.dragging {
+  user-select: none;
 }
 
 .mascot-speech-bubble {
@@ -2007,6 +1980,16 @@ button {
   padding: 16px 18px;
   position: relative;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8) translateX(20px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.mascot-speech-bubble.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1) translateX(0);
 }
 
 .mascot-speech-bubble::after {
@@ -2040,12 +2023,28 @@ button {
 
 .mascot-image {
   flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.mascot-image:hover {
+  transform: scale(1.05);
+}
+
+.mascot-image:active {
+  transform: scale(0.95);
+}
+
+.mascot-popup.dragging .mascot-image {
+  cursor: grabbing;
+  transform: scale(1.1);
 }
 
 .mascot-image img {
   width: 90px;
   height: auto;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  pointer-events: none;
 }
 
 /* Mascot Popup Responsive */
@@ -2069,14 +2068,6 @@ button {
 
   .mascot-image img {
     width: 60px;
-  }
-
-  .mascot-popup-close {
-    width: 24px;
-    height: 24px;
-    font-size: 1rem;
-    top: -6px;
-    right: -6px;
   }
 
   .mascot-speech-bubble::after {

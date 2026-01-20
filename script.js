@@ -718,37 +718,131 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
 
   // ========================================
-  // Mascot Popup
+  // Mascot Popup with Toggle and Drag
   // ========================================
   (function initMascotPopup() {
     const mascotPopup = document.getElementById("mascotPopup");
-    const mascotCloseBtn = document.getElementById("mascotPopupClose");
+    const mascotImage = document.getElementById("mascotImage");
+    const speechBubble = document.getElementById("mascotSpeechBubble");
     const mascotText = mascotPopup ? mascotPopup.querySelector(".mascot-text") : null;
 
-    if (!mascotPopup || !mascotCloseBtn) return;
+    if (!mascotPopup || !mascotImage || !speechBubble) return;
 
-    // Check if popup was already shown
-    const popupShown = localStorage.getItem("beeoniaMascotPopupShown");
+    let isDragging = false;
+    let hasDragged = false;
+    let startX, startY;
+    let initialRight, initialBottom;
 
-    if (popupShown) {
-      mascotPopup.style.display = "none";
-      return;
-    }
-
-    // Show popup after 5 seconds
+    // Show speech bubble after 3 seconds on first load
     setTimeout(function() {
-      mascotPopup.classList.add("visible");
-    }, 5000);
+      speechBubble.classList.add("visible");
+    }, 3000);
 
-    // Close button handler
-    mascotCloseBtn.addEventListener("click", function() {
-      mascotPopup.classList.remove("visible");
-      localStorage.setItem("beeoniaMascotPopupShown", "true");
+    // Toggle speech bubble on mascot click
+    mascotImage.addEventListener("click", function(e) {
+      if (!hasDragged) {
+        speechBubble.classList.toggle("visible");
+      }
+      hasDragged = false;
+    });
 
-      // Remove from DOM after fade out animation
-      setTimeout(function() {
-        mascotPopup.style.display = "none";
-      }, 500);
+    // Drag functionality - Mouse events
+    mascotImage.addEventListener("mousedown", function(e) {
+      e.preventDefault();
+      isDragging = true;
+      hasDragged = false;
+
+      startX = e.clientX;
+      startY = e.clientY;
+
+      const rect = mascotPopup.getBoundingClientRect();
+      initialRight = window.innerWidth - rect.right;
+      initialBottom = window.innerHeight - rect.bottom;
+
+      mascotPopup.classList.add("dragging");
+    });
+
+    document.addEventListener("mousemove", function(e) {
+      if (!isDragging) return;
+
+      const deltaX = startX - e.clientX;
+      const deltaY = startY - e.clientY;
+
+      // Mark as dragged if moved more than 5px
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDragged = true;
+      }
+
+      let newRight = initialRight + deltaX;
+      let newBottom = initialBottom + deltaY;
+
+      // Keep within viewport bounds
+      const popupRect = mascotPopup.getBoundingClientRect();
+      const maxRight = window.innerWidth - popupRect.width;
+      const maxBottom = window.innerHeight - popupRect.height;
+
+      newRight = Math.max(0, Math.min(newRight, maxRight));
+      newBottom = Math.max(0, Math.min(newBottom, maxBottom));
+
+      mascotPopup.style.right = newRight + "px";
+      mascotPopup.style.bottom = newBottom + "px";
+    });
+
+    document.addEventListener("mouseup", function() {
+      if (isDragging) {
+        isDragging = false;
+        mascotPopup.classList.remove("dragging");
+      }
+    });
+
+    // Drag functionality - Touch events for mobile
+    mascotImage.addEventListener("touchstart", function(e) {
+      isDragging = true;
+      hasDragged = false;
+
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+
+      const rect = mascotPopup.getBoundingClientRect();
+      initialRight = window.innerWidth - rect.right;
+      initialBottom = window.innerHeight - rect.bottom;
+
+      mascotPopup.classList.add("dragging");
+    }, { passive: true });
+
+    document.addEventListener("touchmove", function(e) {
+      if (!isDragging) return;
+
+      const touch = e.touches[0];
+      const deltaX = startX - touch.clientX;
+      const deltaY = startY - touch.clientY;
+
+      // Mark as dragged if moved more than 5px
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDragged = true;
+      }
+
+      let newRight = initialRight + deltaX;
+      let newBottom = initialBottom + deltaY;
+
+      // Keep within viewport bounds
+      const popupRect = mascotPopup.getBoundingClientRect();
+      const maxRight = window.innerWidth - popupRect.width;
+      const maxBottom = window.innerHeight - popupRect.height;
+
+      newRight = Math.max(0, Math.min(newRight, maxRight));
+      newBottom = Math.max(0, Math.min(newBottom, maxBottom));
+
+      mascotPopup.style.right = newRight + "px";
+      mascotPopup.style.bottom = newBottom + "px";
+    }, { passive: true });
+
+    document.addEventListener("touchend", function() {
+      if (isDragging) {
+        isDragging = false;
+        mascotPopup.classList.remove("dragging");
+      }
     });
 
     // Update text on language change
