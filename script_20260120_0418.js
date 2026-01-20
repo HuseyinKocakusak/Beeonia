@@ -995,8 +995,23 @@ document.addEventListener("DOMContentLoaded", function () {
       if (isDragging) {
         isDragging = false;
         mascotPopup.classList.remove("dragging");
+        updateBubblePosition();
       }
     });
+
+    // Function to update bubble position based on mascot position
+    function updateBubblePosition() {
+      const popupRect = mascotPopup.getBoundingClientRect();
+      const mascotCenterX = popupRect.left + popupRect.width / 2;
+      const screenCenterX = window.innerWidth / 2;
+
+      // If mascot is on the left side of the screen, flip the bubble to the right
+      if (mascotCenterX < screenCenterX) {
+        mascotPopup.classList.add("flipped");
+      } else {
+        mascotPopup.classList.remove("flipped");
+      }
+    }
 
     // Drag functionality - Touch events for mobile
     mascotImage.addEventListener(
@@ -1053,6 +1068,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (isDragging) {
         isDragging = false;
         mascotPopup.classList.remove("dragging");
+        updateBubblePosition();
       }
     });
 
