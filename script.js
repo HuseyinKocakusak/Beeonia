@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update HTML lang attribute
     document.documentElement.lang = lang === "tr" ? "tr" : "en";
+
+    // Dispatch language change event for reviews section
+    document.dispatchEvent(new CustomEvent("languageChanged", { detail: { lang: lang } }));
   }
 
   langBtns.forEach((btn) => {
@@ -407,21 +410,32 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   (function initReviews() {
     const reviews = [
-      { name: "Naide Kiraz", comment: "Organik ve doğal ürün severlere şiddetle tavsiye ediyorum. Harika bir deneyim!", date: "23 January, 2026", url: "#" },
-      { name: "Zafer Hinislioğlu", comment: "Kaliteli ve güvenilir ürünler. Ailecek kullanıyoruz, herkese tavsiye ederiz.", date: "18 January, 2026", url: "#" },
-      { name: "Aslı Kılınç", comment: "Çam balının tadı muhteşem! Doğallığı hemen belli oluyor, teşekkürler Beeonia.", date: "12 January, 2026", url: "#" },
-      { name: "Özlem Duraydın", comment: "Yıllardır aradığım doğal balı sonunda buldum. Katkısız ve lezzetli.", date: "5 January, 2026", url: "#" },
-      { name: "Av. Demet Kozacıoğlu", comment: "Profesyonel hizmet ve üstün kalite. Arı ürünleri konusunda güvenilir bir adres.", date: "28 December, 2025", url: "#" },
-      { name: "Semra Çangiri", comment: "Propolisin faydalarını görünce çok şaşırdım. Bağışıklık sistemim güçlendi.", date: "20 December, 2025", url: "#" },
-      { name: "Nilay Bilgin", comment: "Her sabah kahvaltıda balınızı yiyoruz. Enerji dolu başlıyoruz güne!", date: "15 December, 2025", url: "#" },
-      { name: "Yusuf Güdücü", comment: "Yamanlar Dağı'ndan gelen bu bal gerçekten eşsiz. Tadına doyum olmuyor.", date: "8 December, 2025", url: "#" },
-      { name: "Rabia Gören", comment: "Çocuklarıma gönül rahatlığıyla yedirebileceğim doğal ürünler.", date: "1 December, 2025", url: "#" },
-      { name: "Ferhat Karaca", comment: "Arıcılık konusundaki tutkunuz ürünlerinize yansıyor. Tebrikler!", date: "25 November, 2025", url: "#" },
-      { name: "Soner Çoruk", comment: "Hediye olarak aldım, alan da veren de memnun kaldı.", date: "18 November, 2025", url: "#" },
-      { name: "İpek Aydın", comment: "Polen ve bal karışımı enerji bombası gibi! Sporcular için ideal.", date: "10 November, 2025", url: "#" },
-      { name: "İbrahim Zaralioğlu", comment: "Doğal ve saf ürünler arıyorsanız doğru adrestesiniz.", date: "3 November, 2025", url: "#" },
-      { name: "Hakan Adıyaman", comment: "Bal kavanozunu açtığımda gelen o doğal koku... Muhteşem!", date: "27 October, 2025", url: "#" },
-      { name: "Hakan Demirtel", comment: "Sürdürülebilir arıcılık anlayışınız takdire şayan. Devamını bekliyoruz.", date: "20 October, 2025", url: "#" }
+      { name: "Hakan Adıyaman", commentTr: "Gerçekten harika bir bal, emeğinize sağlık 🍯✨ Doğallığı ilk kaşıkta hissediliyor, teşekkürler! Gerçek bal arayanlara gönül rahatlığıyla öneririm. Muhteşem bir ürün!", commentEn: "Truly wonderful honey, thank you for your effort 🍯✨ You can feel the naturalness from the first spoon, thanks! I wholeheartedly recommend it to those looking for real honey. An amazing product!", date: "29 November, 2025", url: "#" },
+      { name: "Zafer Hinislioğlu", commentTr: "Siparişimiz hızlı bir şekilde ulaştı. Gerçek anlamda Doğal-Bio bal tadabildiğimiz için şanslıyız, tavsiye ediyoruz. Guvenilirliği ve tazeliği için emeğinize sağlık. Alın ve aldırın, Afiyet olsun...", commentEn: "Our order arrived quickly. We are lucky to be able to taste truly Natural-Bio honey, we recommend it. Thank you for your effort for its reliability and freshness. Buy it and have others buy it, Enjoy...", date: "31 December, 2025", url: "#" },
+      { name: "İmam Karadağ", commentTr: "Arkadaşlar burdaki ürünler bir harika herkese tavsiye ederim", commentEn: "Friends, the products here are wonderful, I recommend them to everyone", date: "13 January, 2026", url: "#" },
+      { name: "Hakan Demirtel", commentTr: "Muhteşem. Tam özlediğimiz tat. Bu lezzet bizi çocukluğumuzda yediğimiz o lezzetli, kıvamlı, katkısız, katıksız mis kokulu bal tadıyla yeniden buluşturdu. Ellerinize, emeğinize sağlık.", commentEn: "Magnificent. Exactly the taste we missed. This flavor reunited us with that delicious, thick, pure, unadulterated, fragrant honey taste we had in our childhood. Thank you for your effort.", date: "17 December, 2025", url: "#" },
+      { name: "Yusuf Güdücü", commentTr: "Gerçek bir bilimcinin verdiği güven ve eşsiz lezzetiyle kahvaltıların Seda Sayanı. Emeğinize sağlık Ege Arıcılık 🐝", commentEn: "The Seda Sayan of breakfasts with the trust of a real scientist and its unique taste. Thank you for your effort Ege Beekeeping 🐝", date: "20 December, 2025", url: "#" },
+      { name: "Rasim Rabia Gören", commentTr: "Orjinal bal buna denir çocuklarımıza güvenle yediriyoruz ve yiyiyoruz şiddetle tavsiye ederim herkez bir şans verip almalı emeklerinize sağlık 👏👏", commentEn: "This is what original honey is called, we feed our children with confidence and eat it ourselves, I strongly recommend it, everyone should give it a chance and buy it, thank you for your effort 👏👏", date: "1 September, 2025", url: "#" },
+      { name: "ka.cerit", commentTr: "Hayıt balı EFSANEYMIS denemeniz lazım", commentEn: "Chaste tree honey IS LEGENDARY you must try it", date: "18 September, 2025", url: "#" },
+      { name: "Kadir Gören", commentTr: "Dünyanın en güzel balıdır bu, ellerinize sağlık.", commentEn: "This is the most beautiful honey in the world, thank you.", date: "13 September, 2025", url: "#" },
+      { name: "Kiraz Naide", commentTr: "Emeklerinize sağlık balı sizden almakla doğru tercih yapmışız", commentEn: "Thank you for your effort, we made the right choice by buying honey from you", date: "5 September, 2025", url: "#" },
+      { name: "Aslı Kılınç", commentTr: "Doğal ve özlediğimiz gerçek bal lezzeti 👍 Gönül rahatlığıyla tavsiye ederim💯", commentEn: "Natural and the real honey taste we missed 👍 I recommend it with peace of mind💯", date: "3 September, 2025", url: "#" },
+      { name: "Av. Demet Kozacıoğlu", commentTr: "Güvenilir ellerden doğal bal almak isteyen herkese tavsiye ederim , teşekkürler 🙏🏻", commentEn: "I recommend it to everyone who wants to buy natural honey from reliable hands, thank you 🙏🏻", date: "2 September, 2025", url: "#" },
+      { name: "Nilay Bilgin", commentTr: "Lezzetli, doğal, güvenli.", commentEn: "Delicious, natural, safe.", date: "3 September, 2025", url: "#" },
+      { name: "Semra Çangiri", commentTr: "Lezzeti ve aroması çok güzel. Emeklerinize sağlık. Doğal bal yemek isteyenler kaçırmasın.", commentEn: "Its taste and aroma are very nice. Thank you for your effort. Those who want to eat natural honey should not miss it.", date: "4 September, 2025", url: "#" },
+      { name: "Prof. Dr. Zafer Kozacıoğlu", commentTr: "Ege arıcılık tan son mahsül balımızı aldık. Bebeğimiz ve biz güvenle ve lezzetle yiyoruz. Bu devirde güvenle önemli.. Osman bey e teşekkürlerimi sunuyorum..", commentEn: "We got our last harvest honey from Ege Beekeeping. Our baby and we eat it safely and deliciously. Trust is important in this day and age.. I offer my thanks to Mr. Osman..", date: "11 August, 2025", url: "#" },
+      { name: "Nevin Çiftlikçi", commentTr: "Gözü kapalı güvenebileceğimiz tek adres.Çok teşekkürler 🙏", commentEn: "The only address we can trust blindly. Thank you very much 🙏", date: "26 August, 2025", url: "#" },
+      { name: "Kaan Kılınç", commentTr: "Kavanoz bal ve petek baldan aldık çok memnun kaldık gerçekten çok doğal", commentEn: "We bought jar honey and comb honey, we were very satisfied, really very natural", date: "20 August, 2025", url: "#" },
+      { name: "Ayşe Aydın", commentTr: "Emeğinize sağlık 👏 doğallığı ve tadı mükemmel 🌻", commentEn: "Thank you for your effort 👏 its naturalness and taste are perfect 🌻", date: "27 August, 2025", url: "#" },
+      { name: "Hakan Bilgin", commentTr: "Hayıt balını kullandık. Aroması nadir, lezzeti mükemmeldi. Üreten arkadaşların emeklerine sağlık", commentEn: "We used chaste tree honey. Its aroma is rare, its taste was perfect. Thank you to the friends who produced it", date: "22 August, 2025", url: "#" },
+      { name: "Erim Kılınç", commentTr: "Hem petek balı hemde kavanoz balından aldım, birinci sınıf Rahmetli dedemin kovanları olduğu için çocukluğumun lezzetine tekrar kavuşmuş oldum", commentEn: "I bought both comb honey and jar honey, first class. Since my late grandfather had beehives, I was reunited with the taste of my childhood", date: "20 August, 2025", url: "#" },
+      { name: "Faruk Kurt", commentTr: "Çok beğendim. Çok güvenilir emeklerinize sağlık 👏", commentEn: "I loved it. Very reliable, thank you for your effort 👏", date: "29 August, 2025", url: "#" },
+      { name: "Ferhat Karaca", commentTr: "Harika olmuş emeklerinize sağlık 👏", commentEn: "It turned out great, thank you for your effort 👏", date: "29 August, 2025", url: "#" },
+      { name: "Özlem Duraydın", commentTr: "Çok lezzetli mükemmel bir bal.Emeğinize sağlık👏", commentEn: "A very delicious, perfect honey. Thank you for your effort👏", date: "12 August, 2025", url: "#" },
+      { name: "İpek Aydın", commentTr: "Ellerinize sağlık çok kaliteli ve lezzetliydi 👏🏻", commentEn: "Thank you, it was very high quality and delicious 👏🏻", date: "10 August, 2025", url: "#" },
+      { name: "Diş Hekimi Soner Çoruk", commentTr: "Gerçek bal için teşekkürler", commentEn: "Thank you for real honey", date: "15 August, 2025", url: "#" },
+      { name: "Mehmet_112", commentTr: "Ellerinize sağlık çok lezzetli bir bal, hayırlı hasatlarınınız olsun", commentEn: "Thank you, very delicious honey, may you have blessed harvests", date: "30 July, 2025", url: "#" },
+      { name: "İbrahim Zaralıoğlu", commentTr: "Göndermiş olduğunuz bal elime ulaştı. Tadı kokusu harika elinize emeğinize sağlık", commentEn: "The honey you sent has arrived. Its taste and smell are wonderful, thank you for your effort", date: "18 October, 2025", url: "#" }
     ];
 
     const timelineTrack = document.getElementById("timelineTrack");
@@ -487,7 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Add review text inside the card
         const reviewTextCard = document.createElement("p");
         reviewTextCard.className = "review-text-card";
-        reviewTextCard.textContent = review.comment;
+        reviewTextCard.textContent = currentLang === "tr" ? review.commentTr : review.commentEn;
 
         // Add clickable date at bottom of card
         const dateLink = document.createElement("a");
@@ -539,6 +553,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialize
     createTimelineItems();
     startReviewAutoplay();
+
+    // Listen for language change to update reviews
+    document.addEventListener("languageChanged", function() {
+      createTimelineItems();
+    });
 
     // Button controls for reviews carousel
     const reviewsPrevBtn = document.getElementById("reviewsPrev");
