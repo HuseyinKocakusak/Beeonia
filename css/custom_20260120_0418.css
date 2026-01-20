@@ -2047,6 +2047,32 @@ button {
   pointer-events: none;
 }
 
+/* Mascot Popup - Flipped state (when on left side of screen) */
+.mascot-popup.flipped {
+  flex-direction: row-reverse;
+}
+
+.mascot-popup.flipped .mascot-speech-bubble {
+  transform: scale(0.8) translateX(-20px);
+}
+
+.mascot-popup.flipped .mascot-speech-bubble.visible {
+  transform: scale(1) translateX(0);
+}
+
+/* Flip the pointer to the left side */
+.mascot-popup.flipped .mascot-speech-bubble::after {
+  right: auto;
+  left: -12px;
+  border-color: transparent var(--accent-gold) transparent transparent;
+}
+
+.mascot-popup.flipped .mascot-speech-bubble::before {
+  right: auto;
+  left: -9px;
+  border-color: transparent var(--bg-secondary) transparent transparent;
+}
+
 /* Mascot Popup Responsive */
 @media (max-width: 768px) {
   .mascot-popup {
@@ -2079,6 +2105,17 @@ button {
   .mascot-speech-bubble::before {
     right: -7px;
     bottom: 21px;
+    border-width: 7px;
+  }
+
+  /* Flipped state for mobile */
+  .mascot-popup.flipped .mascot-speech-bubble::after {
+    left: -10px;
+    border-width: 8px;
+  }
+
+  .mascot-popup.flipped .mascot-speech-bubble::before {
+    left: -7px;
     border-width: 7px;
   }
 }
