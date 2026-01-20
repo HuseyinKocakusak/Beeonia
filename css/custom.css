@@ -1952,3 +1952,142 @@ button {
     font-size: 0.7rem;
   }
 }
+
+/* ========================================
+   Mascot Popup
+   ======================================== */
+.mascot-popup {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.mascot-popup.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mascot-popup-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+  border: 2px solid var(--accent-gold);
+  color: var(--accent-gold);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10001;
+  transition: var(--transition-smooth);
+  line-height: 1;
+}
+
+.mascot-popup-close:hover {
+  background: var(--accent-gold);
+  color: var(--bg-primary);
+}
+
+.mascot-speech-bubble {
+  max-width: 280px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent-gold);
+  border-radius: 16px;
+  padding: 16px 18px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.mascot-speech-bubble::after {
+  content: "";
+  position: absolute;
+  right: -12px;
+  bottom: 30px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--accent-gold);
+}
+
+.mascot-speech-bubble::before {
+  content: "";
+  position: absolute;
+  right: -9px;
+  bottom: 31px;
+  border-width: 9px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--bg-secondary);
+  z-index: 1;
+}
+
+.mascot-text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mascot-image {
+  flex-shrink: 0;
+}
+
+.mascot-image img {
+  width: 90px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+/* Mascot Popup Responsive */
+@media (max-width: 768px) {
+  .mascot-popup {
+    right: 12px;
+    bottom: 12px;
+    gap: 8px;
+  }
+
+  .mascot-speech-bubble {
+    max-width: 220px;
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .mascot-text {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .mascot-image img {
+    width: 60px;
+  }
+
+  .mascot-popup-close {
+    width: 24px;
+    height: 24px;
+    font-size: 1rem;
+    top: -6px;
+    right: -6px;
+  }
+
+  .mascot-speech-bubble::after {
+    right: -10px;
+    bottom: 20px;
+    border-width: 8px;
+  }
+
+  .mascot-speech-bubble::before {
+    right: -7px;
+    bottom: 21px;
+    border-width: 7px;
+  }
+}

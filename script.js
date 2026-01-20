@@ -507,6 +507,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const dateLink = document.createElement("a");
         dateLink.className = "review-date-link";
         dateLink.href = review.url;
+        dateLink.target = "_blank";
+        dateLink.rel = "noopener noreferrer";
         dateLink.textContent = review.date;
 
         info.appendChild(nameSpan);
@@ -711,6 +713,49 @@ document.addEventListener("DOMContentLoaded", function () {
             question.setAttribute("aria-expanded", item.classList.contains("active"));
           }
         });
+      }
+    });
+  })();
+
+  // ========================================
+  // Mascot Popup
+  // ========================================
+  (function initMascotPopup() {
+    const mascotPopup = document.getElementById("mascotPopup");
+    const mascotCloseBtn = document.getElementById("mascotPopupClose");
+    const mascotText = mascotPopup ? mascotPopup.querySelector(".mascot-text") : null;
+
+    if (!mascotPopup || !mascotCloseBtn) return;
+
+    // Check if popup was already shown
+    const popupShown = localStorage.getItem("beeoniaMascotPopupShown");
+
+    if (popupShown) {
+      mascotPopup.style.display = "none";
+      return;
+    }
+
+    // Show popup after 5 seconds
+    setTimeout(function() {
+      mascotPopup.classList.add("visible");
+    }, 5000);
+
+    // Close button handler
+    mascotCloseBtn.addEventListener("click", function() {
+      mascotPopup.classList.remove("visible");
+      localStorage.setItem("beeoniaMascotPopupShown", "true");
+
+      // Remove from DOM after fade out animation
+      setTimeout(function() {
+        mascotPopup.style.display = "none";
+      }, 500);
+    });
+
+    // Update text on language change
+    document.addEventListener("languageChanged", function(e) {
+      if (mascotText) {
+        const lang = e.detail.lang;
+        mascotText.textContent = mascotText.getAttribute("data-" + lang);
       }
     });
   })();
