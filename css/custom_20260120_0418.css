@@ -776,7 +776,14 @@ button {
   max-width: 1000px;
   cursor: grab;
   user-select: none;
-  transition: transform 0.5s ease;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  /* Note: transition is controlled via JS for drag feedback */
+}
+
+/* Disable transition during drag for real-time feedback */
+.timeline-track.dragging {
+  transition: none !important;
 }
 
 /* Reviews carousel wrapper */
@@ -1966,10 +1973,17 @@ button {
   gap: 12px;
   opacity: 1;
   visibility: visible;
+  /* GPU acceleration for smooth movement */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  /* Prevent scroll interference on touch devices */
+  touch-action: none;
 }
 
 .mascot-popup.dragging {
   user-select: none;
+  /* Disable transitions during drag for immediate feedback */
+  transition: none !important;
 }
 
 .mascot-speech-bubble {
@@ -2023,8 +2037,13 @@ button {
 
 .mascot-image {
   flex-shrink: 0;
-  cursor: pointer;
+  cursor: grab;
   transition: transform 0.2s ease;
+  /* Prevent default touch behaviors */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .mascot-image:hover {
@@ -2033,6 +2052,7 @@ button {
 
 .mascot-image:active {
   transform: scale(0.95);
+  cursor: grabbing;
 }
 
 .mascot-popup.dragging .mascot-image {

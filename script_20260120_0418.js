@@ -800,46 +800,206 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    // Mouse drag support for horizontal scrolling
+    // ========================================
+    // Enhanced Touch/Swipe with Drag Feedback & Momentum
+    // ========================================
     let isDragging = false;
     let startX = 0;
+    let currentDragX = 0;
     let hasDragged = false;
+    let dragStartTime = 0;
+    let lastMoveX = 0;
+    let velocity = 0;
+    let animationFrame = null;
 
-    timelineTrack.addEventListener("mousedown", function (e) {
+    // Track dimensions for drag calculation
+    function getCardWidth() {
+      const activeCard = timelineTrack.querySelector(".timeline-item.active");
+      return activeCard ? activeCard.offsetWidth + 32 : 320; // 32px gap
+    }
+
+    // Apply drag transform with GPU acceleration
+    function applyDragTransform(deltaX) {
+      // Add resistance at edges
+      const resistance = 0.4;
+      const maxDrag = getCardWidth() * 1.2;
+
+      if (Math.abs(deltaX) > maxDrag) {
+        deltaX = deltaX > 0
+          ? maxDrag + (deltaX - maxDrag) * resistance
+          : -maxDrag + (deltaX + maxDrag) * resistance;
+      }
+
+      timelineTrack.style.transform = `translate3d(${deltaX}px, 0, 0)`;
+    }
+
+    // Reset transform with smooth animation
+    function resetTransform(animate = true) {
+      if (animate) {
+        timelineTrack.style.transition = "transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      }
+      timelineTrack.style.transform = "translate3d(0, 0, 0)";
+
+      if (animate) {
+        setTimeout(function() {
+          timelineTrack.style.transition = "";
+        }, 350);
+      }
+    }
+
+    // Animate slide transition
+    function animateSlideTransition(direction) {
+      const cardWidth = getCardWidth();
+      const targetX = direction === "next" ? -cardWidth : cardWidth;
+
+      // Animate to target position
+      timelineTrack.style.transition = "transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+      timelineTrack.style.transform = `translate3d(${targetX}px, 0, 0)`;
+
+      setTimeout(function() {
+        // Update content
+        timelineTrack.style.transition = "";
+        timelineTrack.style.transform = "";
+
+        if (direction === "next") {
+          currentIndex = (currentIndex + 1) % reviews.length;
+        } else {
+          currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+        }
+        createTimelineItems();
+      }, 300);
+    }
+
+    // Handle drag start (mouse & touch)
+    function handleDragStart(clientX) {
       isDragging = true;
       hasDragged = false;
-      startX = e.clientX;
-      timelineTrack.style.cursor = "grabbing";
-      stopReviewAutoplay();
-      e.preventDefault();
-    });
+      startX = clientX;
+      currentDragX = 0;
+      dragStartTime = Date.now();
+      lastMoveX = clientX;
+      velocity = 0;
 
-    document.addEventListener("mousemove", function (e) {
+      timelineTrack.style.cursor = "grabbing";
+      timelineTrack.classList.add("dragging");
+      stopReviewAutoplay();
+
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    }
+
+    // Handle drag move (mouse & touch)
+    function handleDragMove(clientX) {
       if (!isDragging) return;
 
-      const diff = e.clientX - startX;
-      if (Math.abs(diff) > 10) {
+      const now = Date.now();
+      const deltaTime = now - dragStartTime;
+
+      currentDragX = clientX - startX;
+
+      // Calculate velocity for momentum
+      if (deltaTime > 0) {
+        velocity = (clientX - lastMoveX) / Math.max(deltaTime / 16, 1);
+      }
+      lastMoveX = clientX;
+      dragStartTime = now;
+
+      if (Math.abs(currentDragX) > 10) {
         hasDragged = true;
       }
-    });
 
-    document.addEventListener("mouseup", function (e) {
+      // Apply transform with requestAnimationFrame for smooth rendering
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+      animationFrame = requestAnimationFrame(function() {
+        applyDragTransform(currentDragX);
+      });
+    }
+
+    // Handle drag end (mouse & touch)
+    function handleDragEnd() {
       if (!isDragging) return;
 
       isDragging = false;
       timelineTrack.style.cursor = "grab";
+      timelineTrack.classList.remove("dragging");
 
-      const diff = startX - e.clientX;
-      const threshold = 50;
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
 
-      if (diff > threshold) {
-        nextReview();
-      } else if (diff < -threshold) {
-        prevReview();
+      const cardWidth = getCardWidth();
+      const threshold = cardWidth * 0.25; // 25% of card width
+      const velocityThreshold = 0.5; // pixels per frame
+
+      // Determine action based on drag distance and velocity (momentum)
+      let shouldSlide = false;
+      let direction = null;
+
+      // Check velocity (momentum) - if fast enough, slide even with small drag
+      if (Math.abs(velocity) > velocityThreshold) {
+        shouldSlide = true;
+        direction = velocity < 0 ? "next" : "prev";
+      }
+      // Check drag distance
+      else if (Math.abs(currentDragX) > threshold) {
+        shouldSlide = true;
+        direction = currentDragX < 0 ? "next" : "prev";
+      }
+
+      if (shouldSlide && direction) {
+        animateSlideTransition(direction);
+      } else {
+        // Snap back to original position
+        resetTransform(true);
       }
 
       startReviewAutoplay();
+    }
+
+    // Mouse events
+    timelineTrack.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      handleDragStart(e.clientX);
     });
+
+    document.addEventListener("mousemove", function (e) {
+      handleDragMove(e.clientX);
+    });
+
+    document.addEventListener("mouseup", function () {
+      handleDragEnd();
+    });
+
+    // Touch events with passive: false to allow preventDefault
+    timelineTrack.addEventListener(
+      "touchstart",
+      function (e) {
+        handleDragStart(e.touches[0].clientX);
+      },
+      { passive: true }
+    );
+
+    timelineTrack.addEventListener(
+      "touchmove",
+      function (e) {
+        if (isDragging && hasDragged) {
+          e.preventDefault(); // Prevent scroll while swiping horizontally
+        }
+        handleDragMove(e.touches[0].clientX);
+      },
+      { passive: false }
+    );
+
+    timelineTrack.addEventListener(
+      "touchend",
+      function () {
+        handleDragEnd();
+      },
+      { passive: true }
+    );
 
     // Set initial cursor style for drag indication
     timelineTrack.style.cursor = "grab";
@@ -919,7 +1079,7 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
 
   // ========================================
-  // Mascot Popup with Toggle and Drag
+  // Mascot Popup with Toggle and Drag (GPU-Accelerated)
   // ========================================
   (function initMascotPopup() {
     const mascotPopup = document.getElementById("mascotPopup");
@@ -934,7 +1094,42 @@ document.addEventListener("DOMContentLoaded", function () {
     let isDragging = false;
     let hasDragged = false;
     let startX, startY;
-    let initialRight, initialBottom;
+    let currentX = 0, currentY = 0; // Current transform offset
+    let targetX = 0, targetY = 0; // Target position during drag
+    let animationFrame = null;
+
+    // Get initial position from CSS (right: 20px, bottom: 20px)
+    const initialRight = 20;
+    const initialBottom = 20;
+
+    // Calculate base position (bottom-right corner)
+    function getBasePosition() {
+      const popupRect = mascotPopup.getBoundingClientRect();
+      return {
+        baseRight: initialRight,
+        baseBottom: initialBottom,
+        width: popupRect.width,
+        height: popupRect.height
+      };
+    }
+
+    // Apply transform with GPU acceleration
+    function applyTransform(x, y) {
+      mascotPopup.style.transform = `translate3d(${-x}px, ${-y}px, 0)`;
+    }
+
+    // Animation loop for smooth movement
+    function updatePosition() {
+      if (!isDragging) {
+        animationFrame = null;
+        return;
+      }
+
+      // Apply transform directly (already calculated in move handler)
+      applyTransform(currentX, currentY);
+
+      animationFrame = requestAnimationFrame(updatePosition);
+    }
 
     // Show speech bubble after 3 seconds on first load
     setTimeout(function () {
@@ -947,56 +1142,6 @@ document.addEventListener("DOMContentLoaded", function () {
         speechBubble.classList.toggle("visible");
       }
       hasDragged = false;
-    });
-
-    // Drag functionality - Mouse events
-    mascotImage.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-      isDragging = true;
-      hasDragged = false;
-
-      startX = e.clientX;
-      startY = e.clientY;
-
-      const rect = mascotPopup.getBoundingClientRect();
-      initialRight = window.innerWidth - rect.right;
-      initialBottom = window.innerHeight - rect.bottom;
-
-      mascotPopup.classList.add("dragging");
-    });
-
-    document.addEventListener("mousemove", function (e) {
-      if (!isDragging) return;
-
-      const deltaX = startX - e.clientX;
-      const deltaY = startY - e.clientY;
-
-      // Mark as dragged if moved more than 5px
-      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-        hasDragged = true;
-      }
-
-      let newRight = initialRight + deltaX;
-      let newBottom = initialBottom + deltaY;
-
-      // Keep within viewport bounds
-      const popupRect = mascotPopup.getBoundingClientRect();
-      const maxRight = window.innerWidth - popupRect.width;
-      const maxBottom = window.innerHeight - popupRect.height;
-
-      newRight = Math.max(0, Math.min(newRight, maxRight));
-      newBottom = Math.max(0, Math.min(newBottom, maxBottom));
-
-      mascotPopup.style.right = newRight + "px";
-      mascotPopup.style.bottom = newBottom + "px";
-    });
-
-    document.addEventListener("mouseup", function () {
-      if (isDragging) {
-        isDragging = false;
-        mascotPopup.classList.remove("dragging");
-        updateBubblePosition();
-      }
     });
 
     // Function to update bubble position based on mascot position
@@ -1013,24 +1158,111 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // Calculate bounded position
+    function getBoundedPosition(deltaX, deltaY) {
+      const base = getBasePosition();
+
+      // Calculate new position (transform moves opposite to right/bottom)
+      let newX = currentX + deltaX;
+      let newY = currentY + deltaY;
+
+      // Calculate bounds
+      // Right bound: can't go beyond left edge (transform moves left when positive)
+      const maxX = window.innerWidth - base.baseRight - base.width;
+      // Left bound: can't go beyond right edge
+      const minX = -base.baseRight;
+      // Bottom bound: can't go beyond top edge
+      const maxY = window.innerHeight - base.baseBottom - base.height;
+      // Top bound: can't go beyond bottom edge
+      const minY = -base.baseBottom;
+
+      newX = Math.max(minX, Math.min(newX, maxX));
+      newY = Math.max(minY, Math.min(newY, maxY));
+
+      return { x: newX, y: newY };
+    }
+
+    // Handle drag start (shared for mouse and touch)
+    function handleDragStart(clientX, clientY) {
+      isDragging = true;
+      hasDragged = false;
+      startX = clientX;
+      startY = clientY;
+
+      mascotPopup.classList.add("dragging");
+
+      // Start animation loop
+      if (!animationFrame) {
+        animationFrame = requestAnimationFrame(updatePosition);
+      }
+    }
+
+    // Handle drag move (shared for mouse and touch)
+    function handleDragMove(clientX, clientY) {
+      if (!isDragging) return;
+
+      const deltaX = startX - clientX;
+      const deltaY = startY - clientY;
+
+      // Mark as dragged if moved more than 5px
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDragged = true;
+      }
+
+      // Calculate bounded position
+      const bounded = getBoundedPosition(deltaX - (currentX - targetX), deltaY - (currentY - targetY));
+      targetX = bounded.x;
+      targetY = bounded.y;
+
+      // Update current position directly for immediate feedback
+      currentX = targetX;
+      currentY = targetY;
+    }
+
+    // Handle drag end (shared for mouse and touch)
+    function handleDragEnd() {
+      if (!isDragging) return;
+
+      isDragging = false;
+      mascotPopup.classList.remove("dragging");
+
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+
+      // Final position update
+      applyTransform(currentX, currentY);
+      updateBubblePosition();
+    }
+
+    // Drag functionality - Mouse events
+    mascotImage.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!isDragging) return;
+      handleDragMove(e.clientX, e.clientY);
+      // Direct update for mouse (no need for rAF loop on desktop)
+      applyTransform(currentX, currentY);
+    });
+
+    document.addEventListener("mouseup", function () {
+      handleDragEnd();
+    });
+
     // Drag functionality - Touch events for mobile
+    // IMPORTANT: Using passive: false to allow preventDefault for scroll blocking
     mascotImage.addEventListener(
       "touchstart",
       function (e) {
-        isDragging = true;
-        hasDragged = false;
-
+        e.preventDefault(); // Prevent scroll on touch start
         const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-
-        const rect = mascotPopup.getBoundingClientRect();
-        initialRight = window.innerWidth - rect.right;
-        initialBottom = window.innerHeight - rect.bottom;
-
-        mascotPopup.classList.add("dragging");
+        handleDragStart(touch.clientX, touch.clientY);
       },
-      { passive: true },
+      { passive: false }
     );
 
     document.addEventListener(
@@ -1038,39 +1270,29 @@ document.addEventListener("DOMContentLoaded", function () {
       function (e) {
         if (!isDragging) return;
 
+        e.preventDefault(); // CRITICAL: Prevent page scroll while dragging mascot
+
         const touch = e.touches[0];
-        const deltaX = startX - touch.clientX;
-        const deltaY = startY - touch.clientY;
-
-        // Mark as dragged if moved more than 5px
-        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-          hasDragged = true;
-        }
-
-        let newRight = initialRight + deltaX;
-        let newBottom = initialBottom + deltaY;
-
-        // Keep within viewport bounds
-        const popupRect = mascotPopup.getBoundingClientRect();
-        const maxRight = window.innerWidth - popupRect.width;
-        const maxBottom = window.innerHeight - popupRect.height;
-
-        newRight = Math.max(0, Math.min(newRight, maxRight));
-        newBottom = Math.max(0, Math.min(newBottom, maxBottom));
-
-        mascotPopup.style.right = newRight + "px";
-        mascotPopup.style.bottom = newBottom + "px";
+        handleDragMove(touch.clientX, touch.clientY);
       },
-      { passive: true },
+      { passive: false }
     );
 
-    document.addEventListener("touchend", function () {
-      if (isDragging) {
-        isDragging = false;
-        mascotPopup.classList.remove("dragging");
-        updateBubblePosition();
-      }
-    });
+    document.addEventListener(
+      "touchend",
+      function () {
+        handleDragEnd();
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchcancel",
+      function () {
+        handleDragEnd();
+      },
+      { passive: true }
+    );
 
     // Update text on language change
     document.addEventListener("languageChanged", function (e) {
