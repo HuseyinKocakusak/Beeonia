@@ -1733,7 +1733,7 @@ button {
 }
 
 .faq-answer-content {
-  padding: 0 1.5rem 1.5rem 4.5rem;
+  padding: 1rem 1.5rem 1.5rem 4.5rem;
 }
 
 .faq-answer-content p {
@@ -1892,7 +1892,7 @@ button {
   }
 
   .faq-answer-content {
-    padding: 0 1rem 1rem 3rem;
+    padding: 0.8rem 1rem 1rem 3rem;
   }
 
   .faq-answer-content p {
