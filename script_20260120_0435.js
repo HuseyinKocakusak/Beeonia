@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section, .faq-section",
+    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section, .faq-section, .science-section",
   );
 
   const revealObserver = new IntersectionObserver(
@@ -1082,6 +1082,359 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
 
   // ========================================
+  // Science / Literature Section
+  // ========================================
+  (function initScience() {
+    const articles = [
+      {
+        titleEn: "Honey and Health: A Review of Recent Clinical Research (2017)",
+        titleTr: "Bal ve Sağlık: Güncel Klinik Araştırmaların Derlemesi (2017)",
+        date: "2025-12-15",
+        summaryEn: "Comprehensive review showing honey's therapeutic potential including antimicrobial, anti-inflammatory, and wound-healing properties.",
+        summaryTr: "Balın antimikrobiyal, anti-inflamatuar ve yara iyileştirici özellikleri dahil terapötik potansiyelini gösteren kapsamlı derleme.",
+        categories: ["honey"],
+        url: "https://doi.org/10.1002/ptr.5767"
+      },
+      {
+        titleEn: "Neurological Effects of Honey: Current and Future Prospects (2014)",
+        titleTr: "Balın Nörolojik Etkileri: Güncel ve Gelecek Beklentiler (2014)",
+        date: "2025-12-18",
+        summaryEn: "Evidence that honey polyphenols may counteract oxidative stress in the brain, supporting cognitive health and neuroprotection.",
+        summaryTr: "Bal polifenollerinin beyindeki oksidatif stresi azaltarak bilişsel sağlığı ve nöroproteksiyonu destekleyebileceğine dair kanıtlar.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.1155/2014/958721"
+      },
+      {
+        titleEn: "Exercise and Brain Health: Mechanisms and Implications (2019)",
+        titleTr: "Egzersiz ve Beyin Sağlığı: Mekanizmalar ve Sonuçlar (2019)",
+        date: "2025-12-20",
+        summaryEn: "Physical exercise promotes neuroplasticity and BDNF expression, reducing risk of neurodegenerative diseases.",
+        summaryTr: "Fiziksel egzersiz nöroplastisiteyi ve BDNF ifadesini artırarak nörodejeneratif hastalık riskini azaltır.",
+        categories: ["exercise", "brain"],
+        url: "https://doi.org/10.1016/j.tins.2019.01.003"
+      },
+      {
+        titleEn: "Hallmarks of Aging: An Expanding Universe (2023)",
+        titleTr: "Yaşlanmanın Belirteçleri: Genişleyen Bir Evren (2023)",
+        date: "2025-12-22",
+        summaryEn: "Updated framework identifying twelve hallmarks of aging with potential intervention targets for longevity research.",
+        summaryTr: "Uzun ömür araştırmaları için potansiyel müdahale hedefleriyle yaşlanmanın on iki belirtecini tanımlayan güncellenmiş çerçeve.",
+        categories: ["longevity", "anti-aging"],
+        url: "https://doi.org/10.1016/j.cell.2022.11.001"
+      },
+      {
+        titleEn: "Propolis: A Detailed Insight on its Biological Activities (2021)",
+        titleTr: "Propolis: Biyolojik Aktiviteleri Üzerine Detaylı Bir İnceleme (2021)",
+        date: "2025-12-25",
+        summaryEn: "Propolis demonstrates significant antioxidant, antimicrobial, and immunomodulatory effects across multiple clinical studies.",
+        summaryTr: "Propolis, birden fazla klinik çalışmada önemli antioksidan, antimikrobiyal ve immünomodülatör etkiler göstermiştir.",
+        categories: ["propolis"],
+        url: "https://doi.org/10.3390/antiox10020162"
+      },
+      {
+        titleEn: "Royal Jelly and Its Components: A Review of Biological Actions (2018)",
+        titleTr: "Arı Sütü ve Bileşenleri: Biyolojik Etkilerin Derlemesi (2018)",
+        date: "2025-12-28",
+        summaryEn: "Royal jelly contains 10-HDA and royalactin with demonstrated anti-aging, anti-inflammatory, and neuroprotective effects.",
+        summaryTr: "Arı sütü, anti-aging, anti-inflamatuar ve nöroprotektif etkileri kanıtlanmış 10-HDA ve royalactin içerir.",
+        categories: ["royal-jelly", "anti-aging"],
+        url: "https://doi.org/10.1016/j.jff.2018.06.012"
+      },
+      {
+        titleEn: "Bee Pollen: Chemical Composition and Therapeutic Application (2015)",
+        titleTr: "Arı Poleni: Kimyasal Bileşim ve Terapötik Uygulama (2015)",
+        date: "2026-01-02",
+        summaryEn: "Bee pollen is a rich source of proteins, vitamins, and flavonoids with hepatoprotective and anti-inflammatory properties.",
+        summaryTr: "Arı poleni, hepatoprotektif ve anti-inflamatuar özelliklere sahip zengin bir protein, vitamin ve flavonoid kaynağıdır.",
+        categories: ["pollen"],
+        url: "https://doi.org/10.1155/2015/584205"
+      },
+      {
+        titleEn: "Effects of Honey on Oxidative Stress and Metabolic Parameters (2018)",
+        titleTr: "Balın Oksidatif Stres ve Metabolik Parametreler Üzerine Etkileri (2018)",
+        date: "2026-01-05",
+        summaryEn: "Regular honey consumption improves glycemic control and lipid profiles while reducing markers of oxidative stress.",
+        summaryTr: "Düzenli bal tüketimi, oksidatif stres belirteçlerini azaltırken glisemik kontrol ve lipid profillerini iyileştirir.",
+        categories: ["honey", "longevity"],
+        url: "https://doi.org/10.3390/nu10101500"
+      },
+      {
+        titleEn: "Caloric Restriction and Longevity: Molecular Mechanisms (2020)",
+        titleTr: "Kalori Kısıtlaması ve Uzun Ömür: Moleküler Mekanizmalar (2020)",
+        date: "2026-01-08",
+        summaryEn: "Caloric restriction activates sirtuins and autophagy pathways, extending healthspan across multiple model organisms.",
+        summaryTr: "Kalori kısıtlaması sirtuinleri ve otofaji yolaklarını aktive ederek birden fazla model organizmada sağlıklı ömrü uzatır.",
+        categories: ["longevity", "anti-aging"],
+        url: "https://doi.org/10.1126/science.aax9297"
+      },
+      {
+        titleEn: "Propolis and the Immune System: A Review (2019)",
+        titleTr: "Propolis ve Bağışıklık Sistemi: Bir Derleme (2019)",
+        date: "2026-01-10",
+        summaryEn: "Propolis enhances innate and adaptive immunity through modulation of macrophage activity and cytokine production.",
+        summaryTr: "Propolis, makrofaj aktivitesini ve sitokin üretimini modüle ederek doğal ve adaptif bağışıklığı güçlendirir.",
+        categories: ["propolis"],
+        url: "https://doi.org/10.1155/2019/1250802"
+      },
+      {
+        titleEn: "Physical Activity, Brain Plasticity, and Alzheimer's Disease (2020)",
+        titleTr: "Fiziksel Aktivite, Beyin Plastisitesi ve Alzheimer Hastalığı (2020)",
+        date: "2026-01-12",
+        summaryEn: "Aerobic exercise significantly reduces amyloid-beta accumulation and improves hippocampal neurogenesis.",
+        summaryTr: "Aerobik egzersiz, amiloid-beta birikimini önemli ölçüde azaltır ve hipokampal nörojenezi iyileştirir.",
+        categories: ["exercise", "brain", "anti-aging"],
+        url: "https://doi.org/10.3389/fnins.2020.00131"
+      },
+      {
+        titleEn: "Royal Jelly: Biological Properties and Clinical Applications (2020)",
+        titleTr: "Arı Sütü: Biyolojik Özellikleri ve Klinik Uygulamaları (2020)",
+        date: "2026-01-15",
+        summaryEn: "Royal jelly supplementation shows promising effects on cognitive function, fertility, and skin aging in human trials.",
+        summaryTr: "Arı sütü takviyesi, insan denemelerinde bilişsel işlev, doğurganlık ve cilt yaşlanması üzerinde umut verici etkiler göstermektedir.",
+        categories: ["royal-jelly", "brain", "anti-aging"],
+        url: "https://doi.org/10.1016/j.biopha.2020.110138"
+      },
+      {
+        titleEn: "Honey as a Complementary Medicine: A Review of Honey in Exercise and Sport (2019)",
+        titleTr: "Tamamlayıcı Tıpta Bal: Egzersiz ve Sporda Bal Derlemesi (2019)",
+        date: "2026-01-18",
+        summaryEn: "Honey serves as an effective natural energy source for athletes, supporting endurance and recovery post-exercise.",
+        summaryTr: "Bal, sporcular için etkili bir doğal enerji kaynağı olarak dayanıklılığı ve egzersiz sonrası toparlanmayı destekler.",
+        categories: ["honey", "exercise"],
+        url: "https://doi.org/10.3390/nu11102039"
+      },
+      {
+        titleEn: "Bee Pollen Polyphenols: Anti-Aging and Protective Effects (2021)",
+        titleTr: "Arı Poleni Polifenolleri: Anti-Aging ve Koruyucu Etkiler (2021)",
+        date: "2026-01-20",
+        summaryEn: "Pollen-derived polyphenols protect against cellular senescence and DNA damage through multiple antioxidant pathways.",
+        summaryTr: "Polenden elde edilen polifenoller, birden fazla antioksidan yolak aracılığıyla hücresel yaşlanmaya ve DNA hasarına karşı koruma sağlar.",
+        categories: ["pollen", "anti-aging"],
+        url: "https://doi.org/10.3390/molecules26041014"
+      },
+      {
+        titleEn: "The Gut-Brain Axis: How the Microbiome Influences Cognition (2021)",
+        titleTr: "Bağırsak-Beyin Aksı: Mikrobiyom Bilişi Nasıl Etkiler (2021)",
+        date: "2026-01-22",
+        summaryEn: "Prebiotic properties of honey and bee products positively modulate the gut microbiome, influencing brain health via the gut-brain axis.",
+        summaryTr: "Bal ve arı ürünlerinin prebiyotik özellikleri bağırsak mikrobiyomunu olumlu yönde düzenleyerek bağırsak-beyin aksı üzerinden beyin sağlığını etkiler.",
+        categories: ["honey", "brain", "longevity"],
+        url: "https://doi.org/10.3390/nu13072099"
+      },
+      {
+        titleEn: "Propolis as an Adjunct Therapy in Metabolic Syndrome (2022)",
+        titleTr: "Metabolik Sendromda Yardımcı Terapi Olarak Propolis (2022)",
+        date: "2026-01-25",
+        summaryEn: "Propolis supplementation significantly improves insulin resistance, blood lipids, and inflammatory markers in metabolic syndrome patients.",
+        summaryTr: "Propolis takviyesi, metabolik sendrom hastalarında insülin direncini, kan lipidlerini ve inflamasyon belirteçlerini önemli ölçüde iyileştirir.",
+        categories: ["propolis", "longevity"],
+        url: "https://doi.org/10.3390/nu14010135"
+      },
+      {
+        titleEn: "Resistance Training and Longevity: A Systematic Review (2022)",
+        titleTr: "Direnç Eğitimi ve Uzun Ömür: Sistematik Bir Derleme (2022)",
+        date: "2026-01-28",
+        summaryEn: "Resistance exercise reduces all-cause mortality risk by 15-27% and preserves muscle mass critical for healthy aging.",
+        summaryTr: "Direnç egzersizi tüm nedenlere bağlı ölüm riskini %15-27 azaltır ve sağlıklı yaşlanma için kritik olan kas kütlesini korur.",
+        categories: ["exercise", "longevity"],
+        url: "https://doi.org/10.1136/bjsports-2022-105669"
+      },
+      {
+        titleEn: "Neuroprotective Properties of Honey: Focus on Tualang Honey (2016)",
+        titleTr: "Balın Nöroprotektif Özellikleri: Tualang Balı Odaklı (2016)",
+        date: "2026-02-01",
+        summaryEn: "Tualang honey protects against oxidative neuronal damage and reduces neuroinflammation in experimental brain injury models.",
+        summaryTr: "Tualang balı, deneysel beyin hasarı modellerinde oksidatif nöronal hasara karşı koruma sağlar ve nöroinflamasyonu azaltır.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.1155/2016/6065626"
+      },
+      {
+        titleEn: "Bee Pollen in Human Nutrition and Health: A Comprehensive Review (2022)",
+        titleTr: "İnsan Beslenmesi ve Sağlığında Arı Poleni: Kapsamlı Bir Derleme (2022)",
+        date: "2026-02-03",
+        summaryEn: "Bee pollen demonstrates versatile health benefits including anti-allergic, antimicrobial, and cardiovascular protective properties.",
+        summaryTr: "Arı poleni, anti-alerjik, antimikrobiyal ve kardiyovasküler koruyucu özellikleri dahil çok yönlü sağlık faydaları göstermektedir.",
+        categories: ["pollen", "longevity"],
+        url: "https://doi.org/10.3390/nu14081518"
+      },
+      {
+        titleEn: "Royal Jelly Peptides: A New Frontier in Anti-Aging Research (2023)",
+        titleTr: "Arı Sütü Peptitleri: Anti-Aging Araştırmalarında Yeni Bir Sınır (2023)",
+        date: "2026-02-05",
+        summaryEn: "Novel peptides isolated from royal jelly activate telomerase and enhance mitochondrial function in human cell lines.",
+        summaryTr: "Arı sütünden izole edilen yeni peptitler, insan hücre hatlarında telomerazı aktive eder ve mitokondriyal işlevi artırır.",
+        categories: ["royal-jelly", "anti-aging", "longevity"],
+        url: "https://doi.org/10.1016/j.jff.2023.105478"
+      },
+      {
+        titleEn: "Synergistic Effects of Propolis and Royal Jelly on Immune Function (2021)",
+        titleTr: "Propolis ve Arı Sütünün Bağışıklık İşlevi Üzerindeki Sinerjik Etkileri (2021)",
+        date: "2026-02-07",
+        summaryEn: "Combined propolis and royal jelly supplementation enhances NK cell activity and antibody production more than either alone.",
+        summaryTr: "Propolis ve arı sütü birlikte takviyesi, NK hücre aktivitesini ve antikor üretimini tek başına alımdan daha fazla artırır.",
+        categories: ["propolis", "royal-jelly"],
+        url: "https://doi.org/10.3390/nu13041073"
+      },
+      {
+        titleEn: "Mediterranean Diet, Honey, and Cardiovascular Health (2020)",
+        titleTr: "Akdeniz Diyeti, Bal ve Kardiyovasküler Sağlık (2020)",
+        date: "2026-02-09",
+        summaryEn: "Replacing refined sugars with natural honey in a Mediterranean diet reduces cardiovascular risk factors by up to 20%.",
+        summaryTr: "Akdeniz diyetinde rafine şekerlerin doğal bal ile değiştirilmesi kardiyovasküler risk faktörlerini %20'ye kadar azaltır.",
+        categories: ["honey", "longevity"],
+        url: "https://doi.org/10.3390/nu12041057"
+      }
+    ];
+
+    const ARTICLES_PER_PAGE = 10;
+    let currentCategory = "all";
+    let currentPage = 1;
+
+    const grid = document.getElementById("scienceGrid");
+    const paginationContainer = document.getElementById("sciencePagination");
+    const categoryBtns = document.querySelectorAll(".category-btn");
+
+    // Category label mapping for bilingual tags
+    const categoryLabels = {
+      "honey": { en: "Honey", tr: "Bal" },
+      "brain": { en: "Brain", tr: "Beyin" },
+      "exercise": { en: "Exercise", tr: "Egzersiz" },
+      "longevity": { en: "Longevity", tr: "Uzun Ömür" },
+      "anti-aging": { en: "Anti-Aging", tr: "Yaşlanma Karşıtı" },
+      "propolis": { en: "Propolis", tr: "Propolis" },
+      "royal-jelly": { en: "Royal Jelly", tr: "Arı Sütü" },
+      "pollen": { en: "Pollen", tr: "Polen" }
+    };
+
+    function getFilteredArticles() {
+      let filtered = currentCategory === "all"
+        ? articles
+        : articles.filter(function(a) { return a.categories.indexOf(currentCategory) !== -1; });
+      // Sort by date descending (newest first)
+      filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      return filtered;
+    }
+
+    function formatDate(dateStr) {
+      var d = new Date(dateStr);
+      var months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+      var monthsTr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+        "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+      if (currentLang === "tr") {
+        return d.getDate() + " " + monthsTr[d.getMonth()] + " " + d.getFullYear();
+      }
+      return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    }
+
+    function renderArticles() {
+      var filtered = getFilteredArticles();
+      var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages || 1;
+
+      var start = (currentPage - 1) * ARTICLES_PER_PAGE;
+      var pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+
+      var html = "";
+      pageArticles.forEach(function(article) {
+        var title = currentLang === "tr" ? article.titleTr : article.titleEn;
+        var summary = currentLang === "tr" ? article.summaryTr : article.summaryEn;
+        var readText = currentLang === "tr" ? "Makaleyi Oku" : "Read Article";
+
+        var tags = "";
+        article.categories.forEach(function(cat) {
+          var label = currentLang === "tr" ? categoryLabels[cat].tr : categoryLabels[cat].en;
+          tags += '<span class="science-tag">' + label + '</span>';
+        });
+
+        html += '<div class="science-card">' +
+          '<h3 class="science-card-title">' + title + '</h3>' +
+          '<span class="science-card-date">' + formatDate(article.date) + '</span>' +
+          '<p class="science-card-summary">' + summary + '</p>' +
+          '<div class="science-card-tags">' + tags + '</div>' +
+          '<a href="' + article.url + '" target="_blank" rel="noopener noreferrer" class="science-card-link">' +
+            readText +
+            ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+          '</a>' +
+        '</div>';
+      });
+
+      grid.innerHTML = html;
+      renderPagination(filtered.length, totalPages);
+    }
+
+    function renderPagination(total, totalPages) {
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = "";
+        return;
+      }
+
+      var prevText = currentLang === "tr" ? "Önceki" : "Prev";
+      var nextText = currentLang === "tr" ? "Sonraki" : "Next";
+
+      var html = '<button class="pagination-btn' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>' +
+        '</button>';
+
+      for (var i = 1; i <= totalPages; i++) {
+        html += '<button class="pagination-btn' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+      }
+
+      html += '<button class="pagination-btn' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
+        '</button>';
+
+      paginationContainer.innerHTML = html;
+
+      // Add click handlers
+      paginationContainer.querySelectorAll(".pagination-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var page = this.getAttribute("data-page");
+          if (page === "prev" && currentPage > 1) {
+            currentPage--;
+          } else if (page === "next" && currentPage < totalPages) {
+            currentPage++;
+          } else if (page !== "prev" && page !== "next") {
+            currentPage = parseInt(page);
+          }
+          renderArticles();
+          // Scroll to the science section header, not the top of page
+          var scienceSection = document.getElementById("science");
+          if (scienceSection) {
+            var headerOffset = 80;
+            var elementPosition = scienceSection.getBoundingClientRect().top;
+            var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+          }
+        });
+      });
+    }
+
+    // Category filter click handlers
+    categoryBtns.forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        categoryBtns.forEach(function(b) { b.classList.remove("active"); });
+        this.classList.add("active");
+        currentCategory = this.getAttribute("data-category");
+        currentPage = 1;
+        renderArticles();
+      });
+    });
+
+    // Listen for language changes to re-render
+    document.addEventListener("languageChanged", function() {
+      // Update category button text
+      categoryBtns.forEach(function(btn) {
+        btn.textContent = btn.getAttribute("data-" + currentLang);
+      });
+      renderArticles();
+    });
+
+    // Initial render
+    renderArticles();
+  })();
+
+  // ========================================
   // Initial Setup
   // ========================================
   // Trigger initial language setting
@@ -1090,7 +1443,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Show elements that should be visible on load
   setTimeout(() => {
     document
-      .querySelectorAll(".gallery-section, .products-section")
+      .querySelectorAll(".gallery-section, .products-section, .science-section")
       .forEach((el) => {
         if (el.getBoundingClientRect().top < window.innerHeight) {
           el.classList.add("visible");

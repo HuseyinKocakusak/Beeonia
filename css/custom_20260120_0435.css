@@ -543,6 +543,301 @@ button {
 }
 
 /* ========================================
+   Science / Literature Section
+   ======================================== */
+.science-section {
+  padding: 4rem 2rem;
+  background: var(--bg-primary);
+  margin-bottom: 0;
+}
+
+.science-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  font-style: italic;
+}
+
+.science-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 2.5rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.category-btn {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.category-btn:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  color: var(--text-primary);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.category-btn.active {
+  background: rgba(201, 162, 39, 0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.science-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+}
+
+.science-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.science-card:hover {
+  border-color: rgba(201, 162, 39, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+.science-card-title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.science-card-date {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  letter-spacing: 0.03em;
+}
+
+.science-card-summary {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.science-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+}
+
+.science-tag {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(201, 162, 39, 0.1);
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+.science-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-gold);
+  transition: var(--transition-smooth);
+  margin-top: 0.3rem;
+  text-decoration: none;
+}
+
+.science-card-link:hover {
+  color: var(--accent-gold-light);
+}
+
+.science-card-link svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+
+.science-card-link:hover svg {
+  transform: translateX(3px);
+}
+
+/* Science Pagination */
+.science-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pagination-btn {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  color: var(--text-primary);
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.pagination-btn.active {
+  background: rgba(201, 162, 39, 0.15);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.pagination-btn.disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+.pagination-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Science Section Scroll Reveal */
+.science-section {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.science-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Science Section Responsive */
+@media (max-width: 768px) {
+  .science-section {
+    padding: 3rem 1.5rem;
+  }
+
+  .science-subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .science-categories {
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .category-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.9rem;
+  }
+
+  .science-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .science-card {
+    padding: 1.2rem;
+  }
+
+  .science-card-title {
+    font-size: 0.95rem;
+  }
+
+  .science-card-summary {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .science-section {
+    padding: 2rem 1rem;
+  }
+
+  .science-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .category-btn {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .science-card {
+    padding: 1rem;
+  }
+
+  .science-card-title {
+    font-size: 0.9rem;
+  }
+
+  .science-card-summary {
+    font-size: 0.85rem;
+  }
+
+  .science-card-link {
+    font-size: 0.75rem;
+  }
+
+  .pagination-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ========================================
    About Section
    ======================================== */
 .about-section {
@@ -1600,7 +1895,8 @@ button {
 .partners-section,
 .about-item,
 .team-member,
-.testimonials-section {
+.testimonials-section,
+.science-section {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -1611,7 +1907,8 @@ button {
 .partners-section.visible,
 .about-item.visible,
 .team-member.visible,
-.testimonials-section.visible {
+.testimonials-section.visible,
+.science-section.visible {
   opacity: 1;
   transform: translateY(0);
 }
