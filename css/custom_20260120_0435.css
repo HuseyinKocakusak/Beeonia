@@ -2270,7 +2270,8 @@ button {
 }
 
 .mascot-speech-bubble {
-  max-width: 280px;
+  width: 280px;
+  flex-shrink: 0;
   background: var(--bg-secondary);
   border: 1px solid var(--accent-gold);
   border-radius: 16px;
@@ -2379,7 +2380,7 @@ button {
   }
 
   .mascot-speech-bubble {
-    max-width: 220px;
+    width: 220px;
     padding: 12px 14px;
     border-radius: 12px;
   }
