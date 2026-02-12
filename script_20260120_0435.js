@@ -934,7 +934,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let isDragging = false;
     let hasDragged = false;
     let startX, startY;
-    let initialRight, initialBottom;
+    let initialMascotRight, initialBottom;
 
     // Show speech bubble after 3 seconds on first load
     setTimeout(function () {
@@ -949,6 +949,72 @@ document.addEventListener("DOMContentLoaded", function () {
       hasDragged = false;
     });
 
+    // Get the flex gap between mascot and bubble
+    function getFlexGap() {
+      return parseFloat(window.getComputedStyle(mascotPopup).gap) || 12;
+    }
+
+    // Convert container "right" CSS value to the mascot image's own "right" offset
+    // In normal state: mascot is at right end, so mascotRight = containerRight
+    // In flipped state: mascot is at left end, so mascotRight = containerRight + bubbleWidth + gap
+    function containerRightToMascotRight(containerRight, isFlipped) {
+      if (isFlipped) {
+        return containerRight + speechBubble.offsetWidth + getFlexGap();
+      }
+      return containerRight;
+    }
+
+    // Convert mascot image's "right" offset to the container's "right" CSS value
+    function mascotRightToContainerRight(mascotRight, isFlipped) {
+      if (isFlipped) {
+        return mascotRight - speechBubble.offsetWidth - getFlexGap();
+      }
+      return mascotRight;
+    }
+
+    // Apply position: clamp mascot within viewport, determine flip, set CSS
+    function applyPosition(mascotRight, bottom) {
+      // Clamp mascot image within viewport horizontally
+      var mascotW = mascotImage.offsetWidth;
+      var maxMascotRight = window.innerWidth - mascotW;
+      mascotRight = Math.max(0, Math.min(mascotRight, maxMascotRight));
+
+      // Determine flip state: flip when mascot center crosses viewport center
+      var mascotCenterX = window.innerWidth - mascotRight - mascotW / 2;
+      var screenCenterX = window.innerWidth / 2;
+      var shouldFlip = mascotCenterX < screenCenterX;
+
+      if (shouldFlip) {
+        mascotPopup.classList.add("flipped");
+      } else {
+        mascotPopup.classList.remove("flipped");
+      }
+
+      // Calculate container right from mascot right
+      var containerRight = mascotRightToContainerRight(mascotRight, shouldFlip);
+      mascotPopup.style.right = containerRight + "px";
+
+      // Clamp vertically (popup height includes the taller bubble)
+      var popupHeight = mascotPopup.offsetHeight;
+      var maxBottom = window.innerHeight - popupHeight;
+      bottom = Math.max(0, Math.min(bottom, maxBottom));
+      mascotPopup.style.bottom = bottom + "px";
+    }
+
+    // Read the current mascot right offset from the DOM
+    function getCurrentMascotRight() {
+      var rect = mascotPopup.getBoundingClientRect();
+      var containerRight = window.innerWidth - rect.right;
+      var isFlipped = mascotPopup.classList.contains("flipped");
+      return containerRightToMascotRight(containerRight, isFlipped);
+    }
+
+    // Read the current bottom offset from the DOM
+    function getCurrentBottom() {
+      var rect = mascotPopup.getBoundingClientRect();
+      return window.innerHeight - rect.bottom;
+    }
+
     // Drag functionality - Mouse events
     mascotImage.addEventListener("mousedown", function (e) {
       e.preventDefault();
@@ -957,10 +1023,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       startX = e.clientX;
       startY = e.clientY;
-
-      const rect = mascotPopup.getBoundingClientRect();
-      initialRight = window.innerWidth - rect.right;
-      initialBottom = window.innerHeight - rect.bottom;
+      initialMascotRight = getCurrentMascotRight();
+      initialBottom = getCurrentBottom();
 
       mascotPopup.classList.add("dragging");
     });
@@ -968,50 +1032,26 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("mousemove", function (e) {
       if (!isDragging) return;
 
-      const deltaX = startX - e.clientX;
-      const deltaY = startY - e.clientY;
+      var deltaX = startX - e.clientX;
+      var deltaY = startY - e.clientY;
 
       // Mark as dragged if moved more than 5px
       if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
         hasDragged = true;
       }
 
-      let newRight = initialRight + deltaX;
-      let newBottom = initialBottom + deltaY;
+      var mascotRight = initialMascotRight + deltaX;
+      var newBottom = initialBottom + deltaY;
 
-      // Keep within viewport bounds
-      const popupRect = mascotPopup.getBoundingClientRect();
-      const maxRight = window.innerWidth - popupRect.width;
-      const maxBottom = window.innerHeight - popupRect.height;
-
-      newRight = Math.max(0, Math.min(newRight, maxRight));
-      newBottom = Math.max(0, Math.min(newBottom, maxBottom));
-
-      mascotPopup.style.right = newRight + "px";
-      mascotPopup.style.bottom = newBottom + "px";
+      applyPosition(mascotRight, newBottom);
     });
 
     document.addEventListener("mouseup", function () {
       if (isDragging) {
         isDragging = false;
         mascotPopup.classList.remove("dragging");
-        updateBubblePosition();
       }
     });
-
-    // Function to update bubble position based on mascot position
-    function updateBubblePosition() {
-      const popupRect = mascotPopup.getBoundingClientRect();
-      const mascotCenterX = popupRect.left + popupRect.width / 2;
-      const screenCenterX = window.innerWidth / 2;
-
-      // If mascot is on the left side of the screen, flip the bubble to the right
-      if (mascotCenterX < screenCenterX) {
-        mascotPopup.classList.add("flipped");
-      } else {
-        mascotPopup.classList.remove("flipped");
-      }
-    }
 
     // Drag functionality - Touch events for mobile
     mascotImage.addEventListener(
@@ -1020,13 +1060,11 @@ document.addEventListener("DOMContentLoaded", function () {
         isDragging = true;
         hasDragged = false;
 
-        const touch = e.touches[0];
+        var touch = e.touches[0];
         startX = touch.clientX;
         startY = touch.clientY;
-
-        const rect = mascotPopup.getBoundingClientRect();
-        initialRight = window.innerWidth - rect.right;
-        initialBottom = window.innerHeight - rect.bottom;
+        initialMascotRight = getCurrentMascotRight();
+        initialBottom = getCurrentBottom();
 
         mascotPopup.classList.add("dragging");
       },
@@ -1038,28 +1076,19 @@ document.addEventListener("DOMContentLoaded", function () {
       function (e) {
         if (!isDragging) return;
 
-        const touch = e.touches[0];
-        const deltaX = startX - touch.clientX;
-        const deltaY = startY - touch.clientY;
+        var touch = e.touches[0];
+        var deltaX = startX - touch.clientX;
+        var deltaY = startY - touch.clientY;
 
         // Mark as dragged if moved more than 5px
         if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
           hasDragged = true;
         }
 
-        let newRight = initialRight + deltaX;
-        let newBottom = initialBottom + deltaY;
+        var mascotRight = initialMascotRight + deltaX;
+        var newBottom = initialBottom + deltaY;
 
-        // Keep within viewport bounds
-        const popupRect = mascotPopup.getBoundingClientRect();
-        const maxRight = window.innerWidth - popupRect.width;
-        const maxBottom = window.innerHeight - popupRect.height;
-
-        newRight = Math.max(0, Math.min(newRight, maxRight));
-        newBottom = Math.max(0, Math.min(newBottom, maxBottom));
-
-        mascotPopup.style.right = newRight + "px";
-        mascotPopup.style.bottom = newBottom + "px";
+        applyPosition(mascotRight, newBottom);
       },
       { passive: true },
     );
@@ -1068,14 +1097,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (isDragging) {
         isDragging = false;
         mascotPopup.classList.remove("dragging");
-        updateBubblePosition();
       }
     });
 
     // Update text on language change
     document.addEventListener("languageChanged", function (e) {
       if (mascotText) {
-        const lang = e.detail.lang;
+        var lang = e.detail.lang;
         mascotText.textContent = mascotText.getAttribute("data-" + lang);
       }
     });

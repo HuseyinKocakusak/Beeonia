@@ -2371,6 +2371,11 @@ button {
   border-color: transparent var(--bg-secondary) transparent transparent;
 }
 
+/* Mirror the mascot image when on the left side of the screen */
+.mascot-popup.flipped .mascot-image img {
+  transform: scaleX(-1);
+}
+
 /* Mascot Popup Responsive */
 @media (max-width: 768px) {
   .mascot-popup {
