@@ -566,6 +566,16 @@ button {
   filter: saturate(1) contrast(1.05);
 }
 
+/* Wide polaroid variant (landscape photos) */
+.polaroid-item--wide .polaroid-card {
+  width: 340px;
+}
+
+.polaroid-item--wide .polaroid-photo {
+  width: 320px;
+  height: 240px;
+}
+
 /* Caption area - Instax bottom */
 .polaroid-caption {
   display: flex;
@@ -650,6 +660,15 @@ button {
     height: 194px;
   }
 
+  .polaroid-item--wide .polaroid-card {
+    width: 274px;
+  }
+
+  .polaroid-item--wide .polaroid-photo {
+    width: 258px;
+    height: 194px;
+  }
+
   .polaroid-caption {
     padding: 10px 6px 14px;
     min-height: 48px;
@@ -691,6 +710,15 @@ button {
 
   .polaroid-photo {
     width: 168px;
+    height: 168px;
+  }
+
+  .polaroid-item--wide .polaroid-card {
+    width: 236px;
+  }
+
+  .polaroid-item--wide .polaroid-photo {
+    width: 224px;
     height: 168px;
   }
 
