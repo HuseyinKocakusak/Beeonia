@@ -272,52 +272,102 @@
           </div>
         </div>
 
-        <!-- Gallery Section -->
+        <!-- Gallery Section - Polaroid Clothesline -->
         <div class="gallery-section" id="gallery">
           <h2 class="section-title" data-tr="GALERİ" data-en="GALLERY">
             GALLERY
           </h2>
-          <div class="gallery-carousel">
-            <button class="carousel-btn prev" id="galleryPrev">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
+          <div class="clothesline-wrapper">
+            <!-- Scroll hint arrows -->
+            <button class="clothesline-arrow clothesline-arrow--left" id="clotheslineLeft" aria-label="Scroll left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
-            <div class="gallery-track" id="galleryTrack">
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0037.jpg"
-                  alt="Arıcılık"
-                />
-              </div>
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0020.jpg"
-                  alt="Bal Hasadı"
-                />
-              </div>
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0033.jpg"
-                  alt="Doğal Bal"
-                />
+            <button class="clothesline-arrow clothesline-arrow--right" id="clotheslineRight" aria-label="Scroll right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+
+            <div class="clothesline-viewport" id="clotheslineViewport">
+              <div class="clothesline-track" id="clotheslineTrack">
+                <!-- The rope -->
+                <div class="clothesline-rope"></div>
+
+                <!-- Fairy lights on the rope -->
+                <div class="clothesline-lights">
+                  <span class="fairy-light" style="left: 5%;"></span>
+                  <span class="fairy-light" style="left: 10%;"></span>
+                  <span class="fairy-light" style="left: 16%;"></span>
+                  <span class="fairy-light" style="left: 22%;"></span>
+                  <span class="fairy-light" style="left: 28%;"></span>
+                  <span class="fairy-light" style="left: 34%;"></span>
+                  <span class="fairy-light" style="left: 40%;"></span>
+                  <span class="fairy-light" style="left: 46%;"></span>
+                  <span class="fairy-light" style="left: 52%;"></span>
+                  <span class="fairy-light" style="left: 58%;"></span>
+                  <span class="fairy-light" style="left: 64%;"></span>
+                  <span class="fairy-light" style="left: 70%;"></span>
+                  <span class="fairy-light" style="left: 76%;"></span>
+                  <span class="fairy-light" style="left: 82%;"></span>
+                  <span class="fairy-light" style="left: 88%;"></span>
+                  <span class="fairy-light" style="left: 94%;"></span>
+                </div>
+
+                <!-- Polaroid photos hanging from clips -->
+                <div class="polaroid-item" style="--rotation: -3deg;">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img src="images/gallery/IMG-20251031-WA0037.jpg" alt="Arıcılık" />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">31.10.2025</span>
+                      <span class="polaroid-location">Artvin, Turkiye</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="polaroid-item" style="--rotation: 2deg;">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img src="images/gallery/IMG-20251031-WA0020.jpg" alt="Bal Hasadı" />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">31.10.2025</span>
+                      <span class="polaroid-location">Artvin, Turkiye</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="polaroid-item" style="--rotation: -1.5deg;">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img src="images/gallery/IMG-20251031-WA0033.jpg" alt="Doğal Bal" />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">31.10.2025</span>
+                      <span class="polaroid-location">Artvin, Turkiye</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
-            <button class="carousel-btn next" id="galleryNext">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
           </div>
         </div>
       </section>
