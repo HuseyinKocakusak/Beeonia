@@ -242,18 +242,173 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Initialize carousels
-  const galleryCarousel = new Carousel(
-    "galleryTrack",
-    "galleryPrev",
-    "galleryNext",
-    {
-      slidesToShow: 1,
-      autoplay: true,
-      autoplayInterval: 5000,
-    },
-  );
+  // ========================================
+  // Clothesline Gallery (Polaroid Scroll)
+  // ========================================
+  (function initClotheslineGallery() {
+    const viewport = document.getElementById("clotheslineViewport");
+    const track = document.getElementById("clotheslineTrack");
+    const leftBtn = document.getElementById("clotheslineLeft");
+    const rightBtn = document.getElementById("clotheslineRight");
 
+    if (!viewport || !track) return;
+
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationId = null;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+
+    function getMaxTranslate() {
+      const trackWidth = track.scrollWidth;
+      const viewportWidth = viewport.offsetWidth;
+      return Math.min(0, -(trackWidth - viewportWidth));
+    }
+
+    function clampTranslate(val) {
+      return Math.max(getMaxTranslate(), Math.min(0, val));
+    }
+
+    function setTranslate(val) {
+      currentTranslate = clampTranslate(val);
+      track.style.transform = "translateX(" + currentTranslate + "px)";
+      updateArrowVisibility();
+    }
+
+    function updateArrowVisibility() {
+      if (leftBtn) {
+        leftBtn.style.opacity = currentTranslate >= 0 ? "0.3" : "1";
+        leftBtn.style.pointerEvents = currentTranslate >= 0 ? "none" : "auto";
+      }
+      if (rightBtn) {
+        var maxT = getMaxTranslate();
+        rightBtn.style.opacity = currentTranslate <= maxT + 2 ? "0.3" : "1";
+        rightBtn.style.pointerEvents = currentTranslate <= maxT + 2 ? "none" : "auto";
+      }
+    }
+
+    // Arrow click scroll
+    var scrollStep = 300;
+
+    if (leftBtn) {
+      leftBtn.addEventListener("click", function () {
+        track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate + scrollStep);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 400);
+      });
+    }
+
+    if (rightBtn) {
+      rightBtn.addEventListener("click", function () {
+        track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate - scrollStep);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 400);
+      });
+    }
+
+    // Touch events
+    viewport.addEventListener("touchstart", function (e) {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      prevTranslate = currentTranslate;
+      lastX = startX;
+      lastTime = Date.now();
+      velocity = 0;
+      track.style.transition = "none";
+    }, { passive: true });
+
+    viewport.addEventListener("touchmove", function (e) {
+      if (!isDragging) return;
+      var currentX = e.touches[0].clientX;
+      var diff = currentX - startX;
+      var now = Date.now();
+      var dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (currentX - lastX) / dt;
+      }
+      lastX = currentX;
+      lastTime = now;
+      setTranslate(prevTranslate + diff);
+    }, { passive: true });
+
+    viewport.addEventListener("touchend", function () {
+      isDragging = false;
+      prevTranslate = currentTranslate;
+      // Momentum scroll
+      applyMomentum();
+    });
+
+    // Mouse drag
+    viewport.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      startX = e.clientX;
+      prevTranslate = currentTranslate;
+      lastX = startX;
+      lastTime = Date.now();
+      velocity = 0;
+      track.style.transition = "none";
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!isDragging) return;
+      var currentX = e.clientX;
+      var diff = currentX - startX;
+      var now = Date.now();
+      var dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (currentX - lastX) / dt;
+      }
+      lastX = currentX;
+      lastTime = now;
+      setTranslate(prevTranslate + diff);
+    });
+
+    document.addEventListener("mouseup", function () {
+      if (!isDragging) return;
+      isDragging = false;
+      prevTranslate = currentTranslate;
+      applyMomentum();
+    });
+
+    function applyMomentum() {
+      var momentum = velocity * 150;
+      if (Math.abs(momentum) > 5) {
+        track.style.transition = "transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate + momentum);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 600);
+      }
+    }
+
+    // Mouse wheel horizontal scroll
+    viewport.addEventListener("wheel", function (e) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+        e.preventDefault();
+        var delta = e.deltaX || e.deltaY;
+        track.style.transition = "transform 0.15s ease-out";
+        setTranslate(currentTranslate - delta);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 150);
+      }
+    }, { passive: false });
+
+    // Initialize
+    updateArrowVisibility();
+
+    // Recalculate on resize
+    window.addEventListener("resize", function () {
+      setTranslate(clampTranslate(currentTranslate));
+    });
+  })();
+
+  // Initialize carousels
   const productsCarousel = new Carousel(
     "productsTrack",
     "productsPrev",
