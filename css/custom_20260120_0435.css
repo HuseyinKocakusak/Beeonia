@@ -1051,6 +1051,111 @@ button {
 }
 
 /* ========================================
+   Package Options (Decoy Pricing)
+   ======================================== */
+.pkg-options {
+  margin: 1rem 0;
+}
+
+.pkg-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e8d5a3;
+  margin-bottom: 0.75rem;
+}
+
+.pkg-grid {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.pkg-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.9rem 0.5rem;
+  background: #0d1026;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  position: relative;
+}
+
+.pkg-option:hover {
+  border-color: rgba(201, 162, 39, 0.4);
+  background: rgba(201, 162, 39, 0.04);
+}
+
+.pkg-option--target {
+  border: 2px solid #c9a227;
+  transform: scale(1.04);
+}
+
+.pkg-option--target:hover {
+  border-color: #e8c547;
+}
+
+.pkg-option.selected {
+  border-color: #c9a227;
+  background: rgba(201, 162, 39, 0.1);
+  box-shadow: 0 0 16px rgba(201, 162, 39, 0.2);
+}
+
+.pkg-option--target.selected {
+  background: rgba(201, 162, 39, 0.14);
+  box-shadow: 0 0 20px rgba(201, 162, 39, 0.25);
+}
+
+.pkg-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0d1026;
+  background: #c9a227;
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  margin-bottom: 0.45rem;
+}
+
+.pkg-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: #e8d5a3;
+  margin-bottom: 0.15rem;
+}
+
+.pkg-weight {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+
+.pkg-price {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  color: #c9a227;
+  margin-bottom: 0.2rem;
+}
+
+.pkg-per-unit {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: rgba(232, 213, 163, 0.45);
+}
+
+/* ========================================
    Science / Literature Section
    ======================================== */
 .science-section {
@@ -2309,6 +2414,18 @@ button {
   .modal-details {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .pkg-grid {
+    flex-direction: column;
+  }
+
+  .pkg-option--target {
+    transform: none;
+  }
+
+  .pkg-option {
+    padding: 0.75rem 0.5rem;
   }
 
   .partner-logo span {

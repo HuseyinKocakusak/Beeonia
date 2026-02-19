@@ -436,6 +436,136 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalBatchId = document.getElementById("modalBatchId");
   const modalBatchHarvest = document.getElementById("modalBatchHarvest");
   const modalBatchStock = document.getElementById("modalBatchStock");
+  var pkgOptionsEl = document.getElementById("pkgOptions");
+  var pkgGridEl = document.getElementById("pkgGrid");
+
+  // ========================================
+  // Package Options — Decoy Pricing Data
+  // ========================================
+  var packagePricing = {
+    "Çam Balı": {
+      unit: "g",
+      tiers: [
+        { weight: "250g", price: 480, perUnit: 1.92 },
+        { weight: "750g", price: 1250, perUnit: 1.67, target: true },
+        { weight: "3 × 750g", price: 3500, perUnit: 1.56, isSet: true }
+      ]
+    },
+    "Propolis": {
+      unit: "mL",
+      tiers: [
+        { weight: "20mL", price: 600, perUnit: 30.00 },
+        { weight: "50mL", price: 1300, perUnit: 26.00, target: true },
+        { weight: "3 × 50mL", price: 3650, perUnit: 24.33, isSet: true }
+      ]
+    },
+    "Arı Sütü": {
+      unit: "g",
+      tiers: [
+        { weight: "30g", price: 550, perUnit: 18.33 },
+        { weight: "100g", price: 1600, perUnit: 16.00, target: true },
+        { weight: "3 × 100g", price: 4480, perUnit: 14.93, isSet: true }
+      ]
+    },
+    "Polen": {
+      unit: "g",
+      tiers: [
+        { weight: "40g", price: 100, perUnit: 2.50 },
+        { weight: "150g", price: 330, perUnit: 2.20, target: true },
+        { weight: "3 × 150g", price: 920, perUnit: 2.04, isSet: true }
+      ]
+    },
+    "Karaçaltı": {
+      unit: "g",
+      tiers: [
+        { weight: "250g", price: 420, perUnit: 1.68 },
+        { weight: "750g", price: 1100, perUnit: 1.47, target: true },
+        { weight: "3 × 750g", price: 3080, perUnit: 1.37, isSet: true }
+      ]
+    },
+    "Hayıt": {
+      unit: "g",
+      tiers: [
+        { weight: "250g", price: 520, perUnit: 2.08 },
+        { weight: "750g", price: 1350, perUnit: 1.80, target: true },
+        { weight: "3 × 750g", price: 3780, perUnit: 1.68, isSet: true }
+      ]
+    }
+  };
+
+  function getProductPricing(title) {
+    var keys = ["Karaçaltı", "Hayıt", "Çam Balı", "Propolis", "Arı Sütü", "Polen"];
+    for (var i = 0; i < keys.length; i++) {
+      if (title.indexOf(keys[i]) !== -1) return packagePricing[keys[i]];
+    }
+    return null;
+  }
+
+  function formatPkgPrice(num) {
+    if (num >= 1000) {
+      return Math.floor(num / 1000) + "." + ("000" + (num % 1000)).slice(-3) + "₺";
+    }
+    return num + "₺";
+  }
+
+  function formatPerUnit(num, unit, lang) {
+    var formatted = lang === "tr"
+      ? num.toFixed(2).replace(".", ",")
+      : num.toFixed(2);
+    var suffix = lang === "tr" ? (unit + " başına") : ("per " + unit);
+    return formatted + " ₺ / " + suffix;
+  }
+
+  function renderPackageOptions(title) {
+    var pricing = getProductPricing(title);
+    if (!pricing || !pkgGridEl) {
+      if (pkgOptionsEl) pkgOptionsEl.style.display = "none";
+      return;
+    }
+    pkgOptionsEl.style.display = "";
+    pkgGridEl.innerHTML = "";
+
+    pricing.tiers.forEach(function (tier, idx) {
+      var opt = document.createElement("div");
+      opt.className = "pkg-option" + (tier.target ? " pkg-option--target" : "");
+      opt.dataset.tier = idx;
+
+      var html = "";
+
+      if (tier.target) {
+        var badgeTr = "En Çok Tercih Edilen";
+        var badgeEn = "Most Preferred";
+        html += '<span class="pkg-badge" data-tr="' + badgeTr + '" data-en="' + badgeEn + '">' +
+          (currentLang === "tr" ? badgeTr : badgeEn) + "</span>";
+      }
+
+      var labelTr = tier.isSet ? "Mevsimsel Set" : "Tek Çeşit";
+      var labelEn = tier.isSet ? "Seasonal Set" : "Single Variety";
+      html += '<span class="pkg-label" data-tr="' + labelTr + '" data-en="' + labelEn + '">' +
+        (currentLang === "tr" ? labelTr : labelEn) + "</span>";
+
+      html += '<span class="pkg-weight">' + tier.weight + "</span>";
+      html += '<span class="pkg-price">' + formatPkgPrice(tier.price) + "</span>";
+
+      var perUnitTr = formatPerUnit(tier.perUnit, pricing.unit, "tr");
+      var perUnitEn = formatPerUnit(tier.perUnit, pricing.unit, "en");
+      html += '<span class="pkg-per-unit" data-tr="' + perUnitTr + '" data-en="' + perUnitEn + '">' +
+        (currentLang === "tr" ? perUnitTr : perUnitEn) + "</span>";
+
+      opt.innerHTML = html;
+      pkgGridEl.appendChild(opt);
+    });
+
+    pkgGridEl.querySelectorAll(".pkg-option").forEach(function (opt) {
+      opt.addEventListener("click", function (e) {
+        e.stopPropagation();
+        pkgGridEl.querySelectorAll(".pkg-option").forEach(function (o) {
+          o.classList.remove("selected");
+        });
+        opt.classList.add("selected");
+      });
+    });
+  }
 
   function openModal(card) {
     const img = card.querySelector(".product-image img");
@@ -473,6 +603,9 @@ document.addEventListener("DOMContentLoaded", function () {
       modalScarcity.style.display = "none";
     }
 
+    // Package options
+    renderPackageOptions(card.dataset.title);
+
     modal.classList.add("active");
     document.body.classList.add("modal-open");
   }
@@ -480,6 +613,12 @@ document.addEventListener("DOMContentLoaded", function () {
   function closeModal() {
     modal.classList.remove("active");
     document.body.classList.remove("modal-open");
+    // Reset package option selection
+    if (pkgGridEl) {
+      pkgGridEl.querySelectorAll(".pkg-option").forEach(function (o) {
+        o.classList.remove("selected");
+      });
+    }
   }
 
   // Product card click handlers
