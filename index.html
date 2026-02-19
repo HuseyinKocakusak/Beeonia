@@ -98,11 +98,22 @@
         </div>
         <div class="modal-info">
           <h2 id="modalTitle"></h2>
+          <div class="modal-scarcity" id="modalScarcity">
+            <span class="modal-scarcity-batch" id="modalBatchId"></span>
+            <span class="modal-scarcity-sep">·</span>
+            <span class="modal-scarcity-harvest" id="modalBatchHarvest"></span>
+            <span class="modal-scarcity-sep">·</span>
+            <span class="modal-scarcity-stock" id="modalBatchStock"></span>
+          </div>
           <p class="modal-origin" id="modalOrigin"></p>
           <p class="modal-description" id="modalDescription"></p>
           <div class="modal-details">
             <span class="modal-weight" id="modalWeight"></span>
             <span class="modal-price" id="modalPrice"></span>
+          </div>
+          <div class="pkg-options" id="pkgOptions">
+            <h3 class="pkg-title" data-tr="Paket Seçenekleri" data-en="Package Options">Package Options</h3>
+            <div class="pkg-grid" id="pkgGrid"></div>
           </div>
           <p class="modal-harvest" id="modalHarvest"></p>
         </div>
@@ -222,6 +233,12 @@
                 data-price="1250₺"
                 data-harvest-tr="Eylül 2025'te hasat edilmiştir."
                 data-harvest-en="Harvested in September 2025."
+                data-batch-id="BEEONIA-2026-H4"
+                data-batch-harvest-tr="Eylül 2026 Hasadı"
+                data-batch-harvest-en="September 2026 Harvest"
+                data-batch-stock="48"
+                data-batch-stock-unit-tr="kavanoz"
+                data-batch-stock-unit-en="jars"
               >
                 <div class="product-image">
                   <img src="images/products/PRJ_M2.jpg" alt="Çam Balı" />
@@ -229,6 +246,10 @@
                 </div>
                 <div class="product-info">
                   <h3>PRJ-M2</h3>
+                  <div class="scarcity-signal">
+                    <span class="scarcity-batch">BEEONIA-2026-H4</span>
+                    <span class="scarcity-detail" data-tr="Eylül 2026 Hasadı · Son 48 kavanoz" data-en="September 2026 Harvest · 48 jars remaining">Eylül 2026 Hasadı · Son 48 kavanoz</span>
+                  </div>
                   <p>Bağışıklık Destekleyici</p>
                 </div>
               </div>
@@ -282,6 +303,12 @@
                 data-price="1250₺"
                 data-harvest-tr="Taze üretim."
                 data-harvest-en="Fresh production."
+                data-batch-id="BEEONIA-2026-H4"
+                data-batch-harvest-tr="Eylül 2026 Hasadı"
+                data-batch-harvest-en="September 2026 Harvest"
+                data-batch-stock="48"
+                data-batch-stock-unit-tr="kavanoz"
+                data-batch-stock-unit-en="jars"
               >
                 <div class="product-image">
                   <img src="images/products/pine honey 2.png" alt="Çam Balı" />
@@ -289,6 +316,10 @@
                 </div>
                 <div class="product-info">
                   <h3>Çam Balı</h3>
+                  <div class="scarcity-signal">
+                    <span class="scarcity-batch">BEEONIA-2026-H4</span>
+                    <span class="scarcity-detail" data-tr="Eylül 2026 Hasadı · Son 48 kavanoz" data-en="September 2026 Harvest · 48 jars remaining">Eylül 2026 Hasadı · Son 48 kavanoz</span>
+                  </div>
                   <p>Homeros Vadisi, İzmir</p>
                 </div>
               </div>
@@ -310,6 +341,66 @@
                 <div class="product-info">
                   <h3>AP-IV</h3>
                   <p>Zindelik Karışımı</p>
+                </div>
+              </div>
+              <div
+                class="product-card"
+                data-title="Karaçaltı & Bahar Çiçekleri Karışımı | Wildflower & Spring Blossom Blend"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-description-tr="Karaçaltı ve bahar çiçeklerinden elde edilen eşsiz karışım bal. Zengin aroma profili ve doğal enzim içeriği ile öne çıkar."
+                data-description-en="A unique blend honey from wildflower and spring blossoms. Distinguished by its rich aroma profile and natural enzyme content."
+                data-weight="750g"
+                data-price="1100₺"
+                data-harvest-tr="Haziran 2026 hasadı."
+                data-harvest-en="June 2026 harvest."
+                data-batch-id="BEEONIA-2026-H2"
+                data-batch-harvest-tr="Haziran 2026 Hasadı"
+                data-batch-harvest-en="June 2026 Harvest"
+                data-batch-stock="36"
+                data-batch-stock-unit-tr="kavanoz"
+                data-batch-stock-unit-en="jars"
+              >
+                <div class="product-image">
+                  <img src="images/products/PRJ_M2.jpg" alt="Karaçaltı & Bahar Çiçekleri Karışımı" />
+                  <div class="product-badge">★</div>
+                </div>
+                <div class="product-info">
+                  <h3 data-tr="Karaçaltı & Bahar Çiçekleri" data-en="Wildflower & Spring Blossom">Karaçaltı & Bahar Çiçekleri</h3>
+                  <div class="scarcity-signal">
+                    <span class="scarcity-batch">BEEONIA-2026-H2</span>
+                    <span class="scarcity-detail" data-tr="Haziran 2026 Hasadı · Son 36 kavanoz" data-en="June 2026 Harvest · 36 jars remaining">Haziran 2026 Hasadı · Son 36 kavanoz</span>
+                  </div>
+                  <p data-tr="Bahar Karışımı" data-en="Spring Blend">Bahar Karışımı</p>
+                </div>
+              </div>
+              <div
+                class="product-card"
+                data-title="Hayıt (Vitex) Balı | Vitex Honey"
+                data-origin="Aegean Coast, Izmir"
+                data-description-tr="Hayıt (Vitex agnus-castus) bitkisinin çiçeklerinden elde edilen nadir bal. Kendine özgü aromatik yapısı ve düşük glisemik profili ile bilinir."
+                data-description-en="A rare honey from the flowers of the Vitex agnus-castus plant. Known for its distinctive aromatic profile and low glycemic index."
+                data-weight="750g"
+                data-price="1350₺"
+                data-harvest-tr="Temmuz-Ağustos 2026 hasadı."
+                data-harvest-en="July-August 2026 harvest."
+                data-batch-id="BEEONIA-2026-H3"
+                data-batch-harvest-tr="Temmuz–Ağustos 2026 Hasadı"
+                data-batch-harvest-en="July–August 2026 Harvest"
+                data-batch-stock="24"
+                data-batch-stock-unit-tr="kavanoz"
+                data-batch-stock-unit-en="jars"
+              >
+                <div class="product-image">
+                  <img src="images/products/vitex honey.png" alt="Hayıt (Vitex) Balı" />
+                  <div class="product-badge">★</div>
+                </div>
+                <div class="product-info">
+                  <h3 data-tr="Hayıt (Vitex) Balı" data-en="Vitex Honey">Hayıt (Vitex) Balı</h3>
+                  <div class="scarcity-signal">
+                    <span class="scarcity-batch">BEEONIA-2026-H3</span>
+                    <span class="scarcity-detail" data-tr="Temmuz–Ağustos 2026 Hasadı · Son 24 kavanoz" data-en="July–August 2026 Harvest · 24 jars remaining">Temmuz–Ağustos 2026 Hasadı · Son 24 kavanoz</span>
+                  </div>
+                  <p data-tr="Ege Kıyısı, İzmir" data-en="Aegean Coast, Izmir">Ege Kıyısı, İzmir</p>
                 </div>
               </div>
             </div>
@@ -1223,6 +1314,56 @@
               </button>
               <div class="faq-answer">
                 <div class="faq-answer-content">
+                  <div class="varroa-loss-framing">
+                    <h4
+                      data-tr="Pek çok balde gördüğünüz ama sormadığınız şey"
+                      data-en="What you see in most honey but never ask about"
+                    >
+                      Pek çok balde gördüğünüz ama sormadığınız şey
+                    </h4>
+                    <p
+                      data-tr="Varroa destructor, dünya genelinde koloni kayıplarının birincil biyotik nedeni. Arıcıların büyük çoğunluğu mücadele için sentetik akarisit kullanıyor: amitraz, coumaphos, tau-fluvalinate."
+                      data-en="Varroa destructor is the primary biotic cause of colony losses worldwide. The vast majority of beekeepers use synthetic acaricides to combat it: amitraz, coumaphos, tau-fluvalinate."
+                    >
+                      Varroa destructor, dünya genelinde koloni kayıplarının
+                      birincil biyotik nedeni. Arıcıların büyük çoğunluğu
+                      mücadele için sentetik akarisit kullanıyor: amitraz,
+                      coumaphos, tau-fluvalinate.
+                    </p>
+                    <p
+                      data-tr="Bu maddeler etkili. Aynı zamanda lipofilik yapıları nedeniyle balmumunda birikim gösteriyorlar. Coumaphos'un balmumundaki yarı ömrü 115–346 gün arasında. Eritme işlemi kalıntıyı tam olarak uzaklaştırmıyor. Buradan bala ve kuluçka hücrelerine difüzyonla geçiş belgelenmiş."
+                      data-en="These substances are effective. They also accumulate in beeswax due to their lipophilic structures. The half-life of coumaphos in beeswax is 115–346 days. Melting does not fully remove the residue. Diffusion from beeswax to honey and brood cells has been documented."
+                    >
+                      Bu maddeler etkili. Aynı zamanda lipofilik yapıları
+                      nedeniyle balmumunda birikim gösteriyorlar. Coumaphos'un
+                      balmumundaki yarı ömrü 115–346 gün arasında. Eritme işlemi
+                      kalıntıyı tam olarak uzaklaştırmıyor. Buradan bala ve
+                      kuluçka hücrelerine difüzyonla geçiş belgelenmiş.
+                    </p>
+                    <p
+                      data-tr="Satın aldığınız balın bu maddelerden arındırılıp arındırılmadığını büyük olasılıkla hiç sormadınız. Üretici de büyük olasılıkla bunu analiz ettirmedi."
+                      data-en="You most likely never asked whether the honey you buy has been cleared of these substances. The producer most likely never had it analyzed either."
+                    >
+                      Satın aldığınız balın bu maddelerden arındırılıp
+                      arındırılmadığını büyük olasılıkla hiç sormadınız. Üretici
+                      de büyük olasılıkla bunu analiz ettirmedi.
+                    </p>
+                    <p
+                      data-tr="BEEONIA bu kestirmelerden hiçbirini kullanmıyor. Kimyasal yük, varroa kontrolünde elimine edilemiyor; yönetilebiliyor. Bunu kabul edip daha zahmetli bir yol seçiyoruz."
+                      data-en="BEEONIA does not take any of these shortcuts. Chemical load cannot be eliminated in varroa control—it can be managed. We accept this and choose the harder path."
+                    >
+                      BEEONIA bu kestirmelerden hiçbirini kullanmıyor. Kimyasal
+                      yük, varroa kontrolünde elimine edilemiyor; yönetilebiliyor.
+                      Bunu kabul edip daha zahmetli bir yol seçiyoruz.
+                    </p>
+                    <p class="varroa-loss-ref"
+                      data-tr="Bilimsel referanslar bu bölümün altında."
+                      data-en="Scientific references are listed below this section."
+                    >
+                      Bilimsel referanslar bu bölümün altında.
+                    </p>
+                  </div>
+
                   <p
                     data-tr="Varroa destructor, günümüzde koloni kayıplarının en önemli biyotik faktörlerinden biridir. Ancak mücadelede kullanılan sentetik akarisitlerin (amitraz, coumaphos, tau-fluvalinate) hem arı sağlığı hem de bal kalitesi üzerinde belgelenmiş olumsuz etkileri bulunmaktadır."
                     data-en="Varroa destructor is one of the most important biotic factors of colony losses today. However, synthetic acaricides used in control (amitraz, coumaphos, tau-fluvalinate) have documented negative effects on both bee health and honey quality."
