@@ -432,6 +432,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalPrice = document.getElementById("modalPrice");
   const modalHarvest = document.getElementById("modalHarvest");
   const modalBackdrop = document.querySelector(".modal-backdrop");
+  const modalScarcity = document.getElementById("modalScarcity");
+  const modalBatchId = document.getElementById("modalBatchId");
+  const modalBatchHarvest = document.getElementById("modalBatchHarvest");
+  const modalBatchStock = document.getElementById("modalBatchStock");
 
   function openModal(card) {
     const img = card.querySelector(".product-image img");
@@ -447,6 +451,27 @@ document.addEventListener("DOMContentLoaded", function () {
     modalPrice.textContent = card.dataset.price;
     modalHarvest.textContent =
       currentLang === "tr" ? card.dataset.harvestTr : card.dataset.harvestEn;
+
+    // Scarcity signal
+    if (card.dataset.batchId) {
+      modalScarcity.style.display = "";
+      modalBatchId.textContent = card.dataset.batchId;
+      modalBatchHarvest.textContent =
+        currentLang === "tr"
+          ? card.dataset.batchHarvestTr
+          : card.dataset.batchHarvestEn;
+      var stock = card.dataset.batchStock;
+      var unit =
+        currentLang === "tr"
+          ? card.dataset.batchStockUnitTr
+          : card.dataset.batchStockUnitEn;
+      modalBatchStock.textContent =
+        currentLang === "tr"
+          ? "Son " + stock + " " + unit
+          : stock + " " + unit + " remaining";
+    } else {
+      modalScarcity.style.display = "none";
+    }
 
     modal.classList.add("active");
     document.body.classList.add("modal-open");

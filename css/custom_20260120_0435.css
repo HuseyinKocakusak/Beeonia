@@ -836,6 +836,80 @@ button {
 }
 
 /* ========================================
+   Scarcity Signal (Product Card)
+   ======================================== */
+.scarcity-signal {
+  background: rgba(13, 16, 38, 0.85);
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  border-radius: 4px;
+  padding: 0.35rem 0.5rem;
+  margin: 0.4rem 0;
+  text-align: center;
+}
+
+.scarcity-batch {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(201, 162, 39, 0.9);
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.scarcity-detail {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  color: rgba(201, 162, 39, 0.6);
+}
+
+/* ========================================
+   Scarcity Signal (Product Modal)
+   ======================================== */
+.modal-scarcity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  background: rgba(13, 16, 38, 0.9);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.modal-scarcity-batch {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(201, 162, 39, 0.95);
+  text-transform: uppercase;
+}
+
+.modal-scarcity-sep {
+  color: rgba(201, 162, 39, 0.35);
+  font-size: 0.7rem;
+}
+
+.modal-scarcity-harvest {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: rgba(201, 162, 39, 0.7);
+  font-style: italic;
+}
+
+.modal-scarcity-stock {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(201, 162, 39, 0.8);
+}
+
+/* ========================================
    Product Modal
    ======================================== */
 .product-modal {
@@ -2126,6 +2200,25 @@ button {
     font-size: 1.4rem;
   }
 
+  .modal-scarcity {
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .modal-scarcity-batch {
+    font-size: 0.7rem;
+  }
+
+  .modal-scarcity-harvest {
+    font-size: 0.75rem;
+  }
+
+  .modal-scarcity-stock {
+    font-size: 0.7rem;
+  }
+
   .partners-logos {
     gap: 2rem;
   }
@@ -2490,6 +2583,43 @@ button {
 .faq-subsection p {
   margin-bottom: 0 !important;
   font-size: 0.95rem !important;
+}
+
+/* Varroa Loss Framing Intro */
+.varroa-loss-framing {
+  margin: 0 0 2rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  background: rgba(13, 16, 38, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  border-radius: 8px;
+  position: relative;
+}
+
+.varroa-loss-framing h4 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  color: rgba(201, 162, 39, 0.9);
+  margin-bottom: 1rem;
+}
+
+.varroa-loss-framing p {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  margin-bottom: 0.85rem;
+}
+
+.varroa-loss-framing p:last-of-type {
+  margin-bottom: 0;
+}
+
+.varroa-loss-ref {
+  font-size: 0.8rem !important;
+  font-style: italic;
+  color: rgba(201, 162, 39, 0.5) !important;
+  margin-top: 0.75rem;
 }
 
 /* FAQ Highlight Text */
