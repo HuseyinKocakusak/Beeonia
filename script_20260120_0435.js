@@ -1618,6 +1618,239 @@ document.addEventListener("DOMContentLoaded", function () {
   })();
 
   // ========================================
+  // Floating Bee Particles
+  // ========================================
+  (function () {
+    const canvas = document.getElementById("beeParticles");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    let width, height;
+    let bees = [];
+    let mouse = { x: -9999, y: -9999 };
+    const BEE_COUNT_DESKTOP = 18;
+    const BEE_COUNT_MOBILE = 8;
+    const MOUSE_RADIUS = 150;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    function getBeeCount() {
+      return window.innerWidth < 768 ? BEE_COUNT_MOBILE : BEE_COUNT_DESKTOP;
+    }
+
+    function createBee() {
+      const size = 6 + Math.random() * 8;
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: size,
+        baseSpeedX: (Math.random() - 0.5) * 1.2,
+        baseSpeedY: (Math.random() - 0.5) * 1.2,
+        vx: 0,
+        vy: 0,
+        wingPhase: Math.random() * Math.PI * 2,
+        wingSpeed: 0.3 + Math.random() * 0.2,
+        wobblePhase: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.02 + Math.random() * 0.01,
+        wobbleAmplitude: 0.3 + Math.random() * 0.4,
+        opacity: 0.3 + Math.random() * 0.4,
+        glowPulse: Math.random() * Math.PI * 2,
+      };
+    }
+
+    function initBees() {
+      bees = [];
+      const count = getBeeCount();
+      for (let i = 0; i < count; i++) {
+        bees.push(createBee());
+      }
+    }
+
+    function drawBee(bee) {
+      const { x, y, size, wingPhase, opacity, glowPulse } = bee;
+      const glowIntensity = 0.3 + Math.sin(glowPulse) * 0.15;
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+
+      // Glow
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
+      gradient.addColorStop(0, "rgba(201, 162, 39, " + glowIntensity + ")");
+      gradient.addColorStop(0.5, "rgba(232, 197, 71, " + (glowIntensity * 0.3) + ")");
+      gradient.addColorStop(1, "rgba(232, 197, 71, 0)");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Body
+      ctx.fillStyle = "#c9a227";
+      ctx.beginPath();
+      ctx.ellipse(x, y, size * 0.7, size * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Dark stripes
+      ctx.fillStyle = "rgba(30, 20, 0, 0.5)";
+      for (let s = -1; s <= 1; s += 1) {
+        ctx.beginPath();
+        ctx.ellipse(
+          x + s * size * 0.22,
+          y,
+          size * 0.06,
+          size * 0.4,
+          0,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
+
+      // Wings
+      const wingFlap = Math.sin(wingPhase) * 0.5;
+      ctx.fillStyle = "rgba(255, 255, 255, " + (0.25 + Math.abs(wingFlap) * 0.15) + ")";
+      // Left wing
+      ctx.beginPath();
+      ctx.ellipse(
+        x - size * 0.3,
+        y - size * 0.35 - wingFlap * size * 0.3,
+        size * 0.35,
+        size * 0.2,
+        -0.4 + wingFlap * 0.3,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      // Right wing
+      ctx.beginPath();
+      ctx.ellipse(
+        x + size * 0.3,
+        y - size * 0.35 - wingFlap * size * 0.3,
+        size * 0.35,
+        size * 0.2,
+        0.4 - wingFlap * 0.3,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function update() {
+      for (let i = 0; i < bees.length; i++) {
+        const bee = bees[i];
+
+        // Wobble motion
+        bee.wobblePhase += bee.wobbleSpeed;
+        const wobbleX = Math.sin(bee.wobblePhase) * bee.wobbleAmplitude;
+        const wobbleY = Math.cos(bee.wobblePhase * 0.7) * bee.wobbleAmplitude;
+
+        // Mouse interaction - bees flee from cursor
+        let fleeX = 0;
+        let fleeY = 0;
+        const dx = bee.x - mouse.x;
+        const dy = bee.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MOUSE_RADIUS && dist > 0) {
+          const force = (1 - dist / MOUSE_RADIUS) * 3;
+          fleeX = (dx / dist) * force;
+          fleeY = (dy / dist) * force;
+        }
+
+        // Apply velocities with smoothing
+        bee.vx += (bee.baseSpeedX + wobbleX + fleeX - bee.vx) * 0.05;
+        bee.vy += (bee.baseSpeedY + wobbleY + fleeY - bee.vy) * 0.05;
+        bee.x += bee.vx;
+        bee.y += bee.vy;
+
+        // Wing animation
+        bee.wingPhase += bee.wingSpeed;
+        bee.glowPulse += 0.02;
+
+        // Wrap around edges with margin
+        const margin = 50;
+        if (bee.x < -margin) bee.x = width + margin;
+        if (bee.x > width + margin) bee.x = -margin;
+        if (bee.y < -margin) bee.y = height + margin;
+        if (bee.y > height + margin) bee.y = -margin;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw connection lines between nearby bees (pollen trail effect)
+      for (let i = 0; i < bees.length; i++) {
+        for (let j = i + 1; j < bees.length; j++) {
+          const dx = bees[i].x - bees[j].x;
+          const dy = bees[i].y - bees[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 200) {
+            const alpha = (1 - dist / 200) * 0.08;
+            ctx.strokeStyle = "rgba(201, 162, 39, " + alpha + ")";
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(bees[i].x, bees[i].y);
+            ctx.lineTo(bees[j].x, bees[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (let i = 0; i < bees.length; i++) {
+        drawBee(bees[i]);
+      }
+    }
+
+    function animate() {
+      update();
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    // Mouse tracking - use pointer events on the document
+    document.addEventListener("mousemove", function (e) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    document.addEventListener("mouseleave", function () {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+    // Touch support
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        if (e.touches.length > 0) {
+          mouse.x = e.touches[0].clientX;
+          mouse.y = e.touches[0].clientY;
+        }
+      },
+      { passive: true },
+    );
+    document.addEventListener("touchend", function () {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    window.addEventListener("resize", function () {
+      resize();
+      // Re-init if bee count changed
+      const targetCount = getBeeCount();
+      if (bees.length !== targetCount) {
+        initBees();
+      }
+    });
+
+    resize();
+    initBees();
+    animate();
+  })();
+
+  // ========================================
   // Initial Setup
   // ========================================
   // Trigger initial language setting
