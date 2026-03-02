@@ -1,0 +1,2044 @@
+// ========================================
+// BEEONIA - JavaScript
+// Interactive Features & Responsive Behavior
+// ========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  // ========================================
+  // Language Switching
+  // ========================================
+  let currentLang = "en";
+  const langBtns = document.querySelectorAll(".lang-btn");
+
+  function updateLanguage(lang) {
+    currentLang = lang;
+
+    // Update all elements with data-tr and data-en attributes
+    document.querySelectorAll("[data-tr][data-en]").forEach((el) => {
+      el.textContent = el.getAttribute(`data-${lang}`);
+    });
+
+    // Update active button
+    langBtns.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.lang === lang);
+    });
+
+    // Update HTML lang attribute
+    document.documentElement.lang = lang === "tr" ? "tr" : "en";
+
+    // Dispatch language change event for reviews section
+    document.dispatchEvent(
+      new CustomEvent("languageChanged", { detail: { lang: lang } }),
+    );
+  }
+
+  langBtns.forEach((btn) => {
+    btn.addEventListener("click", () => updateLanguage(btn.dataset.lang));
+  });
+
+  // ========================================
+  // Mobile Menu
+  // ========================================
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const mobileNav = document.getElementById("mobileNav");
+
+  if (mobileMenuBtn && mobileNav) {
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileNav.classList.toggle("active");
+      mobileMenuBtn.classList.toggle("active");
+    });
+
+    // Close menu when clicking a link
+    mobileNav.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileNav.classList.remove("active");
+        mobileMenuBtn.classList.remove("active");
+      });
+    });
+  }
+
+  // ========================================
+  // Carousel Functionality
+  // ========================================
+  class Carousel {
+    constructor(trackId, prevBtnId, nextBtnId, options = {}) {
+      this.track = document.getElementById(trackId);
+      this.prevBtn = document.getElementById(prevBtnId);
+      this.nextBtn = document.getElementById(nextBtnId);
+
+      if (!this.track) return;
+
+      this.slides = Array.from(this.track.children);
+      this.currentIndex = 0;
+      this.slidesToShow = options.slidesToShow || 1;
+      this.gap = options.gap || 24;
+      this.autoplay = options.autoplay || false;
+      this.autoplayInterval = options.autoplayInterval || 5000;
+      this.autoplayTimer = null;
+
+      this.init();
+    }
+
+    init() {
+      this.updateSlidesToShow();
+      this.setupButtons();
+      this.setupTouchEvents();
+      this.setupResizeHandler();
+
+      if (this.autoplay) {
+        this.startAutoplay();
+      }
+    }
+
+    updateSlidesToShow() {
+      const width = window.innerWidth;
+      if (width <= 480) {
+        this.currentSlidesToShow = 1;
+      } else if (width <= 768) {
+        this.currentSlidesToShow = Math.min(this.slidesToShow, 1);
+      } else if (width <= 1024) {
+        this.currentSlidesToShow = Math.min(this.slidesToShow, 2);
+      } else {
+        this.currentSlidesToShow = this.slidesToShow;
+      }
+    }
+
+    setupButtons() {
+      if (this.prevBtn) {
+        this.prevBtn.addEventListener("click", () => this.prev());
+      }
+      if (this.nextBtn) {
+        this.nextBtn.addEventListener("click", () => this.next());
+      }
+    }
+
+    setupTouchEvents() {
+      let startX = 0;
+      let currentX = 0;
+      let isDragging = false;
+
+      this.track.addEventListener(
+        "touchstart",
+        (e) => {
+          startX = e.touches[0].clientX;
+          isDragging = true;
+          if (this.autoplay) this.stopAutoplay();
+        },
+        { passive: true },
+      );
+
+      this.track.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!isDragging) return;
+          currentX = e.touches[0].clientX;
+        },
+        { passive: true },
+      );
+
+      this.track.addEventListener("touchend", () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const diff = startX - currentX;
+        const threshold = 50;
+
+        if (diff > threshold) {
+          this.next();
+        } else if (diff < -threshold) {
+          this.prev();
+        }
+
+        if (this.autoplay) this.startAutoplay();
+      });
+
+      // Mouse drag support for desktop
+      let mouseStartX = 0;
+      let isMouseDragging = false;
+
+      this.track.addEventListener("mousedown", (e) => {
+        mouseStartX = e.clientX;
+        isMouseDragging = true;
+        this.track.style.cursor = "grabbing";
+      });
+
+      document.addEventListener("mousemove", (e) => {
+        if (!isMouseDragging) return;
+        currentX = e.clientX;
+      });
+
+      document.addEventListener("mouseup", () => {
+        if (!isMouseDragging) return;
+        isMouseDragging = false;
+        this.track.style.cursor = "grab";
+
+        const diff = mouseStartX - currentX;
+        const threshold = 50;
+
+        if (diff > threshold) {
+          this.next();
+        } else if (diff < -threshold) {
+          this.prev();
+        }
+      });
+
+      this.track.style.cursor = "grab";
+    }
+
+    setupResizeHandler() {
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          this.updateSlidesToShow();
+          this.goTo(this.currentIndex);
+        }, 100);
+      });
+    }
+
+    getMaxIndex() {
+      return Math.max(0, this.slides.length - this.currentSlidesToShow);
+    }
+
+    next() {
+      const maxIndex = this.getMaxIndex();
+      this.currentIndex =
+        this.currentIndex >= maxIndex ? 0 : this.currentIndex + 1;
+      this.updatePosition();
+    }
+
+    prev() {
+      const maxIndex = this.getMaxIndex();
+      this.currentIndex =
+        this.currentIndex <= 0 ? maxIndex : this.currentIndex - 1;
+      this.updatePosition();
+    }
+
+    goTo(index) {
+      const maxIndex = this.getMaxIndex();
+      this.currentIndex = Math.max(0, Math.min(index, maxIndex));
+      this.updatePosition();
+    }
+
+    updatePosition() {
+      const slideWidth = this.slides[0].offsetWidth + this.gap;
+      const offset = -this.currentIndex * slideWidth;
+      this.track.style.transform = `translateX(${offset}px)`;
+    }
+
+    startAutoplay() {
+      this.stopAutoplay();
+      this.autoplayTimer = setInterval(
+        () => this.next(),
+        this.autoplayInterval,
+      );
+    }
+
+    stopAutoplay() {
+      if (this.autoplayTimer) {
+        clearInterval(this.autoplayTimer);
+        this.autoplayTimer = null;
+      }
+    }
+  }
+
+  // ========================================
+  // Clothesline Gallery (Polaroid Scroll)
+  // ========================================
+  (function initClotheslineGallery() {
+    const viewport = document.getElementById("clotheslineViewport");
+    const track = document.getElementById("clotheslineTrack");
+    const leftBtn = document.getElementById("clotheslineLeft");
+    const rightBtn = document.getElementById("clotheslineRight");
+
+    if (!viewport || !track) return;
+
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationId = null;
+    let velocity = 0;
+    let lastX = 0;
+    let lastTime = 0;
+
+    function getMaxTranslate() {
+      const trackWidth = track.scrollWidth;
+      const viewportWidth = viewport.offsetWidth;
+      return Math.min(0, -(trackWidth - viewportWidth));
+    }
+
+    function clampTranslate(val) {
+      return Math.max(getMaxTranslate(), Math.min(0, val));
+    }
+
+    function setTranslate(val) {
+      currentTranslate = clampTranslate(val);
+      track.style.transform = "translateX(" + currentTranslate + "px)";
+      updateArrowVisibility();
+    }
+
+    function updateArrowVisibility() {
+      if (leftBtn) {
+        leftBtn.style.opacity = currentTranslate >= 0 ? "0.3" : "1";
+        leftBtn.style.pointerEvents = currentTranslate >= 0 ? "none" : "auto";
+      }
+      if (rightBtn) {
+        var maxT = getMaxTranslate();
+        rightBtn.style.opacity = currentTranslate <= maxT + 2 ? "0.3" : "1";
+        rightBtn.style.pointerEvents = currentTranslate <= maxT + 2 ? "none" : "auto";
+      }
+    }
+
+    // Arrow click scroll
+    var scrollStep = 300;
+
+    if (leftBtn) {
+      leftBtn.addEventListener("click", function () {
+        track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate + scrollStep);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 400);
+      });
+    }
+
+    if (rightBtn) {
+      rightBtn.addEventListener("click", function () {
+        track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate - scrollStep);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 400);
+      });
+    }
+
+    // Touch events
+    viewport.addEventListener("touchstart", function (e) {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      prevTranslate = currentTranslate;
+      lastX = startX;
+      lastTime = Date.now();
+      velocity = 0;
+      track.style.transition = "none";
+    }, { passive: true });
+
+    viewport.addEventListener("touchmove", function (e) {
+      if (!isDragging) return;
+      var currentX = e.touches[0].clientX;
+      var diff = currentX - startX;
+      var now = Date.now();
+      var dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (currentX - lastX) / dt;
+      }
+      lastX = currentX;
+      lastTime = now;
+      setTranslate(prevTranslate + diff);
+    }, { passive: true });
+
+    viewport.addEventListener("touchend", function () {
+      isDragging = false;
+      prevTranslate = currentTranslate;
+      // Momentum scroll
+      applyMomentum();
+    });
+
+    // Mouse drag
+    viewport.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      startX = e.clientX;
+      prevTranslate = currentTranslate;
+      lastX = startX;
+      lastTime = Date.now();
+      velocity = 0;
+      track.style.transition = "none";
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!isDragging) return;
+      var currentX = e.clientX;
+      var diff = currentX - startX;
+      var now = Date.now();
+      var dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (currentX - lastX) / dt;
+      }
+      lastX = currentX;
+      lastTime = now;
+      setTranslate(prevTranslate + diff);
+    });
+
+    document.addEventListener("mouseup", function () {
+      if (!isDragging) return;
+      isDragging = false;
+      prevTranslate = currentTranslate;
+      applyMomentum();
+    });
+
+    function applyMomentum() {
+      var momentum = velocity * 150;
+      if (Math.abs(momentum) > 5) {
+        track.style.transition = "transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+        setTranslate(currentTranslate + momentum);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 600);
+      }
+    }
+
+    // Mouse wheel horizontal scroll
+    viewport.addEventListener("wheel", function (e) {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+        e.preventDefault();
+        var delta = e.deltaX || e.deltaY;
+        track.style.transition = "transform 0.15s ease-out";
+        setTranslate(currentTranslate - delta);
+        prevTranslate = currentTranslate;
+        setTimeout(function () { track.style.transition = "none"; }, 150);
+      }
+    }, { passive: false });
+
+    // Initialize
+    updateArrowVisibility();
+
+    // Recalculate on resize
+    window.addEventListener("resize", function () {
+      setTranslate(clampTranslate(currentTranslate));
+    });
+  })();
+
+  // Initialize carousels
+  const productsCarousel = new Carousel(
+    "productsTrack",
+    "productsPrev",
+    "productsNext",
+    {
+      slidesToShow: 3,
+      gap: 24,
+    },
+  );
+
+  // ========================================
+  // Product Modal
+  // ========================================
+  const modal = document.getElementById("productModal");
+  const modalClose = document.getElementById("modalClose");
+  const modalImage = document.getElementById("modalImage");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalOrigin = document.getElementById("modalOrigin");
+  const modalDescription = document.getElementById("modalDescription");
+  const modalWeight = document.getElementById("modalWeight");
+  const modalPrice = document.getElementById("modalPrice");
+  const modalHarvest = document.getElementById("modalHarvest");
+  const modalBackdrop = document.querySelector(".modal-backdrop");
+
+  function openModal(card) {
+    const img = card.querySelector(".product-image img");
+
+    modalImage.src = img.src;
+    modalTitle.textContent = card.dataset.title;
+    modalOrigin.textContent = card.dataset.origin;
+    modalDescription.textContent =
+      currentLang === "tr"
+        ? card.dataset.descriptionTr
+        : card.dataset.descriptionEn;
+    modalWeight.textContent = card.dataset.weight;
+    modalPrice.textContent = card.dataset.price;
+    modalHarvest.textContent =
+      currentLang === "tr" ? card.dataset.harvestTr : card.dataset.harvestEn;
+
+    modal.classList.add("active");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeModal() {
+    modal.classList.remove("active");
+    document.body.classList.remove("modal-open");
+  }
+
+  // Product card click handlers
+  document.querySelectorAll(".product-card").forEach((card) => {
+    card.addEventListener("click", () => openModal(card));
+  });
+
+  // Close modal handlers
+  if (modalClose) {
+    modalClose.addEventListener("click", closeModal);
+  }
+
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener("click", closeModal);
+  }
+
+  // Close on escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("active")) {
+      closeModal();
+    }
+  });
+
+  // ========================================
+  // Back to Top
+  // ========================================
+  const backToTop = document.getElementById("backToTop");
+
+  if (backToTop) {
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    });
+  }
+
+  // ========================================
+  // Smooth Scroll for Navigation Links
+  // ========================================
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const href = this.getAttribute("href");
+      if (href === "#") return;
+
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        const headerOffset = 80;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    });
+  });
+
+  // ========================================
+  // Scroll Reveal Animation
+  // ========================================
+  const revealElements = document.querySelectorAll(
+    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section, .faq-section, .science-section",
+  );
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    },
+    {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    },
+  );
+
+  revealElements.forEach((el) => revealObserver.observe(el));
+
+  // ========================================
+  // Header Background on Scroll
+  // ========================================
+  const header = document.querySelector(".header");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 100) {
+      header.style.background = "rgba(13, 16, 38, 0.95)";
+      header.style.backdropFilter = "blur(10px)";
+    } else {
+      header.style.background =
+        "linear-gradient(180deg, rgba(13, 16, 38, 1) 0%, transparent 100%)";
+      header.style.backdropFilter = "none";
+    }
+  });
+
+  // ========================================
+  // Prevent Image Drag
+  // ========================================
+  document.querySelectorAll("img").forEach((img) => {
+    img.addEventListener("dragstart", (e) => e.preventDefault());
+  });
+
+  // ========================================
+  // Customer Reviews Timeline
+  // ========================================
+  (function initReviews() {
+    const reviews = [
+      {
+        name: "Hakan Adıyaman",
+        commentTr:
+          "Gerçekten harika bir bal, emeğinize sağlık 🍯✨ Doğallığı ilk kaşıkta hissediliyor, teşekkürler! Gerçek bal arayanlara gönül rahatlığıyla öneririm. Muhteşem bir ürün!",
+        commentEn:
+          "Truly wonderful honey, thank you for your effort 🍯✨ You can feel the naturalness from the first spoon, thanks! I wholeheartedly recommend it to those looking for real honey. An amazing product!",
+        date: "29 November, 2025",
+        url: "https://www.instagram.com/p/DQcT4f_jJzN/c/17902895868316341/?img_index=1",
+      },
+      {
+        name: "Zafer Hinislioğlu",
+        commentTr:
+          "Siparişimiz hızlı bir şekilde ulaştı. Gerçek anlamda Doğal-Bio bal tadabildiğimiz için şanslıyız, tavsiye ediyoruz. Guvenilirliği ve tazeliği için emeğinize sağlık. Alın ve aldırın, Afiyet olsun...",
+        commentEn:
+          "Our order arrived quickly. We are lucky to be able to taste truly Natural-Bio honey, we recommend it. Thank you for your effort for its reliability and freshness. Buy it and have others buy it, Enjoy...",
+        date: "31 December, 2025",
+        url: "https://www.instagram.com/p/DQcT4f_jJzN/c/18050346845447293/",
+      },
+      {
+        name: "İmam Karadağ",
+        commentTr:
+          "Arkadaşlar burdaki ürünler bir harika herkese tavsiye ederim",
+        commentEn:
+          "Friends, the products here are wonderful, I recommend them to everyone",
+        date: "13 January, 2026",
+        url: "https://www.instagram.com/p/DTavyE8jD3V/c/17953422657063196/",
+      },
+      {
+        name: "Hakan Demirtel",
+        commentTr:
+          "Muhteşem. Tam özlediğimiz tat. Bu lezzet bizi çocukluğumuzda yediğimiz o lezzetli, kıvamlı, katkısız, katıksız mis kokulu bal tadıyla yeniden buluşturdu. Ellerinize, emeğinize sağlık.",
+        commentEn:
+          "Magnificent. Exactly the taste we missed. This flavor reunited us with that delicious, thick, pure, unadulterated, fragrant honey taste we had in our childhood. Thank you for your effort.",
+        date: "17 December, 2025",
+        url: "https://www.instagram.com/p/DOv6qyXDDC8/c/17977905290794155/",
+      },
+      {
+        name: "Yusuf Güdücü",
+        commentTr:
+          "Gerçek bir bilimcinin verdiği güven ve eşsiz lezzetiyle kahvaltıların Seda Sayan'ı. Emeğinize sağlık Ege Arıcılık 🐝",
+        commentEn:
+          "The Seda Sayan of breakfasts with the trust of a real scientist and its unique taste. Thank you for your effort Ege Beekeeping 🐝",
+        date: "20 December, 2025",
+        url: "https://www.instagram.com/p/DSfwhDWjF3u/c/18543127087017166/",
+      },
+      {
+        name: "Rasim Rabia Gören",
+        commentTr:
+          "Orjinal bal buna denir çocuklarımıza güvenle yediriyoruz ve yiyiyoruz. Şiddetle tavsiye ederim, herkes bir şans verip almalı. Emeklerinize sağlık 👏👏",
+        commentEn:
+          "This is what original honey is called, we feed our children with confidence and eat it ourselves, I strongly recommend it, everyone should give it a chance and buy it, thank you for your effort 👏👏",
+        date: "1 September, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18061529036063972/",
+      },
+      {
+        name: "ka.cerit",
+        commentTr: "Hayıt balı EFSANEYMIS denemeniz lazım",
+        commentEn: "Chaste tree (Vitex) honey IS LEGENDARY you must try it",
+        date: "18 September, 2025",
+        url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18083034712902055/",
+      },
+      {
+        name: "Kadir Gören",
+        commentTr: "Dünyanın en güzel balıdır bu, ellerinize sağlık.",
+        commentEn: "This is the most beautiful honey in the world, thank you.",
+        date: "13 September, 2025",
+        url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18088731997839464/",
+      },
+      {
+        name: "Kiraz Naide",
+        commentTr:
+          "Emeklerinize sağlık balı sizden almakla doğru tercih yapmışız",
+        commentEn:
+          "Thank you for your effort, we made the right choice by buying honey from you",
+        date: "5 September, 2025",
+        url: "https://www.instagram.com/p/DOOwb0GDAR7/c/18287629336261593/",
+      },
+      {
+        name: "Aslı Kılınç",
+        commentTr:
+          "Doğal ve özlediğimiz gerçek bal lezzeti 👍 Gönül rahatlığıyla tavsiye ederim💯",
+        commentEn:
+          "Natural and the real honey taste we missed 👍 I recommend it with peace of mind💯",
+        date: "3 September, 2025",
+        url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18317756617208716/",
+      },
+      {
+        name: "Av. Demet Kozacıoğlu",
+        commentTr:
+          "Güvenilir ellerden doğal bal almak isteyen herkese tavsiye ederim , teşekkürler 🙏🏻",
+        commentEn:
+          "I recommend it to everyone who wants to buy natural honey from reliable hands, thank you 🙏🏻",
+        date: "2 September, 2025",
+        url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18143009455416285/",
+      },
+      {
+        name: "Nilay Bilgin",
+        commentTr: "Lezzetli, doğal, güvenli.",
+        commentEn: "Delicious, natural, safe.",
+        date: "3 September, 2025",
+        url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18519352420027476/",
+      },
+      {
+        name: "Semra Çangiri",
+        commentTr:
+          "Lezzeti ve aroması çok güzel. Emeklerinize sağlık. Doğal bal yemek isteyenler kaçırmasın.",
+        commentEn:
+          "Its taste and aroma are very nice. Thank you for your effort. Those who want to eat natural honey should not miss it.",
+        date: "4 September, 2025",
+        url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18484451644077387/",
+      },
+      {
+        name: "Prof. Dr. Zafer Kozacıoğlu",
+        commentTr:
+          "Ege arıcılık tan son mahsül balımızı aldık. Bebeğimiz ve biz güvenle ve lezzetle yiyoruz. Bu devirde güvenle önemli.. Osman bey e teşekkürlerimi sunuyorum..",
+        commentEn:
+          "We got our last harvest honey from Ege Beekeeping. Our baby and we eat it safely and deliciously. Trust is important in this day and age.. I offer my thanks to Mr. Osman..",
+        date: "11 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/18167154961318978/",
+      },
+      {
+        name: "Nevin Çiftlikçi",
+        commentTr: "Gözü kapalı güvenebileceğimiz tek adres.Çok teşekkürler 🙏",
+        commentEn:
+          "The only address we can trust blindly. Thank you very much 🙏",
+        date: "26 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090888745707762/",
+      },
+      {
+        name: "Kaan Kılınç",
+        commentTr:
+          "Kavanoz bal ve petek baldan aldık çok memnun kaldık gerçekten çok doğal",
+        commentEn:
+          "We bought jar honey and comb honey, we were very satisfied, really very natural",
+        date: "20 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/18404546206112811/",
+      },
+      {
+        name: "Ayşe Aydın",
+        commentTr: "Emeğinize sağlık 👏 doğallığı ve tadı mükemmel 🌻",
+        commentEn:
+          "Thank you for your effort 👏 its naturalness and taste are perfect 🌻",
+        date: "27 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/17860922025466897/",
+      },
+      {
+        name: "Hakan Bilgin",
+        commentTr:
+          "Hayıt balını kullandık. Aroması nadir, lezzeti mükemmeldi. Üreten arkadaşların emeklerine sağlık",
+        commentEn:
+          "We used chaste tree honey. Its aroma is rare, its taste was perfect. Thank you to the friends who produced it",
+        date: "22 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/17876862222284743/",
+      },
+      {
+        name: "Erim Kılınç",
+        commentTr:
+          "Hem petek balı hemde kavanoz balından aldım, birinci sınıf Rahmetli dedemin kovanları olduğu için çocukluğumun lezzetine tekrar kavuşmuş oldum",
+        commentEn:
+          "I bought both comb honey and jar honey, first class. Since my late grandfather had beehives, I was reunited with the taste of my childhood",
+        date: "20 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/18038453081437367/",
+      },
+      {
+        name: "Faruk Kurt",
+        commentTr: "Çok beğendim. Çok güvenilir emeklerinize sağlık 👏",
+        commentEn: "I loved it. Very reliable, thank you for your effort 👏",
+        date: "29 August, 2025",
+        url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090214426746958/",
+      },
+      {
+        name: "Ferhat Karaca",
+        commentTr: "Harika olmuş emeklerinize sağlık 👏",
+        commentEn: "It turned out great, thank you for your effort 👏",
+        date: "29 August, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18174250735353086/",
+      },
+      {
+        name: "Özlem Duraydın",
+        commentTr: "Çok lezzetli mükemmel bir bal.Emeğinize sağlık👏",
+        commentEn:
+          "A very delicious, perfect honey. Thank you for your effort👏",
+        date: "12 August, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18522901870028596/",
+      },
+      {
+        name: "İpek Aydın",
+        commentTr: "Ellerinize sağlık çok kaliteli ve lezzetliydi 👏🏻",
+        commentEn: "Thank you, it was very high quality and delicious 👏🏻",
+        date: "10 August, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18075902464809215/",
+      },
+      {
+        name: "Diş Hekimi Soner Çoruk",
+        commentTr: "Gerçek bal için teşekkürler",
+        commentEn: "Thank you for real honey",
+        date: "15 August, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18024715718711653/#",
+      },
+      {
+        name: "Mehmet_112",
+        commentTr:
+          "Ellerinize sağlık çok lezzetli bir bal, hayırlı hasatlarınınız olsun",
+        commentEn:
+          "Thank you, very delicious honey, may you have blessed harvests",
+        date: "30 July, 2025",
+        url: "https://www.instagram.com/p/DMdmrOOM2s7/c/17860051446397889/",
+      },
+      {
+        name: "İbrahim Zaralıoğlu",
+        commentTr:
+          "Göndermiş olduğunuz bal elime ulaştı. Tadı kokusu harika elinize emeğinize sağlık",
+        commentEn:
+          "The honey you sent has arrived. Its taste and smell are wonderful, thank you for your effort",
+        date: "18 October, 2025",
+        url: "https://www.instagram.com/p/DLAJV8OtWfP/c/18119284267523515/",
+      },
+    ];
+
+    const timelineTrack = document.getElementById("timelineTrack");
+    const reviewText = document.getElementById("reviewText");
+    const reviewsSection = document.querySelector(".testimonials-section");
+
+    if (!timelineTrack || !reviewText || !reviewsSection) {
+      return;
+    }
+
+    let currentIndex = 0;
+    let reviewInterval = null;
+
+    // Get initials from name
+    function getInitials(name) {
+      const parts = name.split(" ");
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+
+    // Get color class based on index
+    function getColorClass(index) {
+      return "color-" + ((index % 8) + 1);
+    }
+
+    // Create timeline items
+    function createTimelineItems() {
+      timelineTrack.innerHTML = "";
+
+      // Show 3 items: prev, active, next
+      const prevIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+      const nextIndex = (currentIndex + 1) % reviews.length;
+      const indices = [prevIndex, currentIndex, nextIndex];
+      const classes = ["prev", "active", "next"];
+
+      indices.forEach(function (idx, i) {
+        const review = reviews[idx];
+        const item = document.createElement("div");
+        item.className = "timeline-item " + classes[i];
+
+        const avatar = document.createElement("div");
+        avatar.className = "review-avatar " + getColorClass(idx);
+        avatar.textContent = getInitials(review.name);
+
+        const info = document.createElement("div");
+        info.className = "reviewer-info";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "reviewer-name";
+        nameSpan.textContent = review.name;
+
+        const starsDiv = document.createElement("div");
+        starsDiv.className = "reviewer-stars";
+        for (let s = 0; s < 5; s++) {
+          const star = document.createElement("span");
+          star.className = "star";
+          star.textContent = "★";
+          starsDiv.appendChild(star);
+        }
+
+        // Add review text inside the card
+        const reviewTextCard = document.createElement("p");
+        reviewTextCard.className = "review-text-card";
+        reviewTextCard.textContent =
+          currentLang === "tr" ? review.commentTr : review.commentEn;
+
+        // Add clickable date at bottom of card
+        const dateLink = document.createElement("a");
+        dateLink.className = "review-date-link";
+        dateLink.href = review.url;
+        dateLink.target = "_blank";
+        dateLink.rel = "noopener noreferrer";
+        dateLink.textContent = review.date;
+
+        info.appendChild(nameSpan);
+        info.appendChild(starsDiv);
+        item.appendChild(avatar);
+        item.appendChild(info);
+        item.appendChild(reviewTextCard);
+        item.appendChild(dateLink);
+        timelineTrack.appendChild(item);
+      });
+    }
+
+    // Update review text with fade animation - no longer needed
+    function updateReviewText() {
+      // Text is now inside cards, no separate update needed
+    }
+
+    // Go to next review
+    function nextReview() {
+      currentIndex = (currentIndex + 1) % reviews.length;
+      createTimelineItems();
+    }
+
+    // Start autoplay
+    function startReviewAutoplay() {
+      stopReviewAutoplay();
+      reviewInterval = setInterval(nextReview, 3000);
+    }
+
+    // Stop autoplay
+    function stopReviewAutoplay() {
+      if (reviewInterval) {
+        clearInterval(reviewInterval);
+        reviewInterval = null;
+      }
+    }
+
+    // Go to previous review
+    function prevReview() {
+      currentIndex = (currentIndex - 1 + reviews.length) % reviews.length;
+      createTimelineItems();
+    }
+
+    // Initialize
+    createTimelineItems();
+    startReviewAutoplay();
+
+    // Listen for language change to update reviews
+    document.addEventListener("languageChanged", function () {
+      createTimelineItems();
+    });
+
+    // Button controls for reviews carousel
+    const reviewsPrevBtn = document.getElementById("reviewsPrev");
+    const reviewsNextBtn = document.getElementById("reviewsNext");
+
+    if (reviewsPrevBtn) {
+      reviewsPrevBtn.addEventListener("click", function () {
+        stopReviewAutoplay();
+        prevReview();
+        startReviewAutoplay();
+      });
+    }
+
+    if (reviewsNextBtn) {
+      reviewsNextBtn.addEventListener("click", function () {
+        stopReviewAutoplay();
+        nextReview();
+        startReviewAutoplay();
+      });
+    }
+
+    // Pause on hover
+    reviewsSection.addEventListener("mouseenter", stopReviewAutoplay);
+    reviewsSection.addEventListener("mouseleave", startReviewAutoplay);
+
+    // Keyboard navigation (left/right arrow keys)
+    document.addEventListener("keydown", function (e) {
+      // Check if reviews section is visible in viewport
+      const rect = reviewsSection.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!isVisible) return;
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        stopReviewAutoplay();
+        nextReview();
+        startReviewAutoplay();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        stopReviewAutoplay();
+        prevReview();
+        startReviewAutoplay();
+      }
+    });
+
+    // Mouse drag support for horizontal scrolling
+    let isDragging = false;
+    let startX = 0;
+    let hasDragged = false;
+
+    timelineTrack.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      hasDragged = false;
+      startX = e.clientX;
+      timelineTrack.style.cursor = "grabbing";
+      stopReviewAutoplay();
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!isDragging) return;
+
+      const diff = e.clientX - startX;
+      if (Math.abs(diff) > 10) {
+        hasDragged = true;
+      }
+    });
+
+    document.addEventListener("mouseup", function (e) {
+      if (!isDragging) return;
+
+      isDragging = false;
+      timelineTrack.style.cursor = "grab";
+
+      const diff = startX - e.clientX;
+      const threshold = 50;
+
+      if (diff > threshold) {
+        nextReview();
+      } else if (diff < -threshold) {
+        prevReview();
+      }
+
+      startReviewAutoplay();
+    });
+
+    // Set initial cursor style for drag indication
+    timelineTrack.style.cursor = "grab";
+
+    // Prevent click events on links when dragging
+    timelineTrack.addEventListener(
+      "click",
+      function (e) {
+        if (hasDragged) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true,
+    );
+  })();
+
+  // ========================================
+  // FAQ Accordion
+  // ========================================
+  (function initFAQ() {
+    const faqItems = document.querySelectorAll(".faq-item");
+
+    if (faqItems.length === 0) return;
+
+    faqItems.forEach(function (item) {
+      const question = item.querySelector(".faq-question");
+
+      if (question) {
+        question.addEventListener("click", function () {
+          const isActive = item.classList.contains("active");
+
+          // Close all other items (accordion behavior)
+          faqItems.forEach(function (otherItem) {
+            if (otherItem !== item) {
+              otherItem.classList.remove("active");
+              const otherQuestion = otherItem.querySelector(".faq-question");
+              if (otherQuestion) {
+                otherQuestion.setAttribute("aria-expanded", "false");
+              }
+            }
+          });
+
+          // Toggle current item
+          item.classList.toggle("active");
+          question.setAttribute("aria-expanded", !isActive);
+        });
+
+        // Keyboard accessibility
+        question.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            question.click();
+          }
+        });
+      }
+    });
+
+    // Allow opening multiple items with Shift+Click
+    faqItems.forEach(function (item) {
+      const question = item.querySelector(".faq-question");
+
+      if (question) {
+        question.addEventListener("click", function (e) {
+          if (e.shiftKey) {
+            // Just toggle this item without closing others
+            e.stopImmediatePropagation();
+            item.classList.toggle("active");
+            question.setAttribute(
+              "aria-expanded",
+              item.classList.contains("active"),
+            );
+          }
+        });
+      }
+    });
+  })();
+
+  // ========================================
+  // Mascot Popup with Toggle and Drag
+  // ========================================
+  (function initMascotPopup() {
+    const mascotPopup = document.getElementById("mascotPopup");
+    const mascotImage = document.getElementById("mascotImage");
+    const speechBubble = document.getElementById("mascotSpeechBubble");
+    const mascotText = mascotPopup
+      ? mascotPopup.querySelector(".mascot-text")
+      : null;
+
+    if (!mascotPopup || !mascotImage || !speechBubble) return;
+
+    let isDragging = false;
+    let hasDragged = false;
+    let startX, startY;
+    let initialMascotRight, initialBottom;
+
+    // Show speech bubble after 3 seconds on first load
+    setTimeout(function () {
+      speechBubble.classList.add("visible");
+    }, 3000);
+
+    // Toggle speech bubble on mascot click
+    mascotImage.addEventListener("click", function (e) {
+      if (!hasDragged) {
+        speechBubble.classList.toggle("visible");
+      }
+      hasDragged = false;
+    });
+
+    // Get the flex gap between mascot and bubble
+    function getFlexGap() {
+      return parseFloat(window.getComputedStyle(mascotPopup).gap) || 12;
+    }
+
+    // Convert container "right" CSS value to the mascot image's own "right" offset
+    // In normal state: mascot is at right end, so mascotRight = containerRight
+    // In flipped state: mascot is at left end, so mascotRight = containerRight + bubbleWidth + gap
+    function containerRightToMascotRight(containerRight, isFlipped) {
+      if (isFlipped) {
+        return containerRight + speechBubble.offsetWidth + getFlexGap();
+      }
+      return containerRight;
+    }
+
+    // Convert mascot image's "right" offset to the container's "right" CSS value
+    function mascotRightToContainerRight(mascotRight, isFlipped) {
+      if (isFlipped) {
+        return mascotRight - speechBubble.offsetWidth - getFlexGap();
+      }
+      return mascotRight;
+    }
+
+    // Apply position: clamp mascot within viewport, determine flip, set CSS
+    function applyPosition(mascotRight, bottom) {
+      // Clamp mascot image within viewport horizontally
+      var mascotW = mascotImage.offsetWidth;
+      var maxMascotRight = window.innerWidth - mascotW;
+      mascotRight = Math.max(0, Math.min(mascotRight, maxMascotRight));
+
+      // Determine flip state: flip when mascot center crosses viewport center
+      var mascotCenterX = window.innerWidth - mascotRight - mascotW / 2;
+      var screenCenterX = window.innerWidth / 2;
+      var shouldFlip = mascotCenterX < screenCenterX;
+
+      if (shouldFlip) {
+        mascotPopup.classList.add("flipped");
+      } else {
+        mascotPopup.classList.remove("flipped");
+      }
+
+      // Calculate container right from mascot right
+      var containerRight = mascotRightToContainerRight(mascotRight, shouldFlip);
+      mascotPopup.style.right = containerRight + "px";
+
+      // Clamp vertically (popup height includes the taller bubble)
+      var popupHeight = mascotPopup.offsetHeight;
+      var maxBottom = window.innerHeight - popupHeight;
+      bottom = Math.max(0, Math.min(bottom, maxBottom));
+      mascotPopup.style.bottom = bottom + "px";
+    }
+
+    // Read the current mascot right offset from the DOM
+    function getCurrentMascotRight() {
+      var rect = mascotPopup.getBoundingClientRect();
+      var containerRight = window.innerWidth - rect.right;
+      var isFlipped = mascotPopup.classList.contains("flipped");
+      return containerRightToMascotRight(containerRight, isFlipped);
+    }
+
+    // Read the current bottom offset from the DOM
+    function getCurrentBottom() {
+      var rect = mascotPopup.getBoundingClientRect();
+      return window.innerHeight - rect.bottom;
+    }
+
+    // Drag functionality - Mouse events
+    mascotImage.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      isDragging = true;
+      hasDragged = false;
+
+      startX = e.clientX;
+      startY = e.clientY;
+      initialMascotRight = getCurrentMascotRight();
+      initialBottom = getCurrentBottom();
+
+      mascotPopup.classList.add("dragging");
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (!isDragging) return;
+
+      var deltaX = startX - e.clientX;
+      var deltaY = startY - e.clientY;
+
+      // Mark as dragged if moved more than 5px
+      if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+        hasDragged = true;
+      }
+
+      var mascotRight = initialMascotRight + deltaX;
+      var newBottom = initialBottom + deltaY;
+
+      applyPosition(mascotRight, newBottom);
+    });
+
+    document.addEventListener("mouseup", function () {
+      if (isDragging) {
+        isDragging = false;
+        mascotPopup.classList.remove("dragging");
+      }
+    });
+
+    // Drag functionality - Touch events for mobile
+    mascotImage.addEventListener(
+      "touchstart",
+      function (e) {
+        isDragging = true;
+        hasDragged = false;
+
+        var touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialMascotRight = getCurrentMascotRight();
+        initialBottom = getCurrentBottom();
+
+        mascotPopup.classList.add("dragging");
+      },
+      { passive: true },
+    );
+
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        if (!isDragging) return;
+
+        var touch = e.touches[0];
+        var deltaX = startX - touch.clientX;
+        var deltaY = startY - touch.clientY;
+
+        // Mark as dragged if moved more than 5px
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+          hasDragged = true;
+        }
+
+        var mascotRight = initialMascotRight + deltaX;
+        var newBottom = initialBottom + deltaY;
+
+        applyPosition(mascotRight, newBottom);
+      },
+      { passive: true },
+    );
+
+    document.addEventListener("touchend", function () {
+      if (isDragging) {
+        isDragging = false;
+        mascotPopup.classList.remove("dragging");
+      }
+    });
+
+    // Update text on language change
+    document.addEventListener("languageChanged", function (e) {
+      if (mascotText) {
+        var lang = e.detail.lang;
+        mascotText.textContent = mascotText.getAttribute("data-" + lang);
+      }
+    });
+  })();
+
+  // ========================================
+  // Science / Literature Section
+  // ========================================
+  (function initScience() {
+    const articles = [
+      {
+        titleEn: "Honey and Health: A Review of Recent Clinical Research (2017)",
+        titleTr: "Bal ve Sağlık: Güncel Klinik Araştırmaların Derlemesi (2017)",
+        date: "2025-12-15",
+        summaryEn: "Comprehensive review showing honey's therapeutic potential including antimicrobial, anti-inflammatory, and wound-healing properties.",
+        summaryTr: "Balın antimikrobiyal, anti-inflamatuar ve yara iyileştirici özellikleri dahil terapötik potansiyelini gösteren kapsamlı derleme.",
+        categories: ["honey"],
+        url: "https://doi.org/10.1002/ptr.5767"
+      },
+      {
+        titleEn: "Neurological Effects of Honey: Current and Future Prospects (2014)",
+        titleTr: "Balın Nörolojik Etkileri: Güncel ve Gelecek Beklentiler (2014)",
+        date: "2025-12-18",
+        summaryEn: "Evidence that honey polyphenols may counteract oxidative stress in the brain, supporting cognitive health and neuroprotection.",
+        summaryTr: "Bal polifenollerinin beyindeki oksidatif stresi azaltarak bilişsel sağlığı ve nöroproteksiyonu destekleyebileceğine dair kanıtlar.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.1155/2014/958721"
+      },
+      {
+        titleEn: "Exercise and Brain Health: Mechanisms and Implications (2019)",
+        titleTr: "Egzersiz ve Beyin Sağlığı: Mekanizmalar ve Sonuçlar (2019)",
+        date: "2025-12-20",
+        summaryEn: "Physical exercise promotes neuroplasticity and BDNF expression, reducing risk of neurodegenerative diseases.",
+        summaryTr: "Fiziksel egzersiz nöroplastisiteyi ve BDNF ifadesini artırarak nörodejeneratif hastalık riskini azaltır.",
+        categories: ["exercise", "brain"],
+        url: "https://doi.org/10.1016/j.tins.2019.01.003"
+      },
+      {
+        titleEn: "Hallmarks of Aging: An Expanding Universe (2023)",
+        titleTr: "Yaşlanmanın Belirteçleri: Genişleyen Bir Evren (2023)",
+        date: "2025-12-22",
+        summaryEn: "Updated framework identifying twelve hallmarks of aging with potential intervention targets for longevity research.",
+        summaryTr: "Uzun ömür araştırmaları için potansiyel müdahale hedefleriyle yaşlanmanın on iki belirtecini tanımlayan güncellenmiş çerçeve.",
+        categories: ["longevity", "anti-aging"],
+        url: "https://doi.org/10.1016/j.cell.2022.11.001"
+      },
+      {
+        titleEn: "Propolis: A Detailed Insight on its Biological Activities (2021)",
+        titleTr: "Propolis: Biyolojik Aktiviteleri Üzerine Detaylı Bir İnceleme (2021)",
+        date: "2025-12-25",
+        summaryEn: "Propolis demonstrates significant antioxidant, antimicrobial, and immunomodulatory effects across multiple clinical studies.",
+        summaryTr: "Propolis, birden fazla klinik çalışmada önemli antioksidan, antimikrobiyal ve immünomodülatör etkiler göstermiştir.",
+        categories: ["propolis"],
+        url: "https://doi.org/10.3390/antiox10020162"
+      },
+      {
+        titleEn: "Royal Jelly and Its Components: A Review of Biological Actions (2018)",
+        titleTr: "Arı Sütü ve Bileşenleri: Biyolojik Etkilerin Derlemesi (2018)",
+        date: "2025-12-28",
+        summaryEn: "Royal jelly contains 10-HDA and royalactin with demonstrated anti-aging, anti-inflammatory, and neuroprotective effects.",
+        summaryTr: "Arı sütü, anti-aging, anti-inflamatuar ve nöroprotektif etkileri kanıtlanmış 10-HDA ve royalactin içerir.",
+        categories: ["royal-jelly", "anti-aging"],
+        url: "https://doi.org/10.1016/j.jff.2018.06.012"
+      },
+      {
+        titleEn: "Bee Pollen: Chemical Composition and Therapeutic Application (2015)",
+        titleTr: "Arı Poleni: Kimyasal Bileşim ve Terapötik Uygulama (2015)",
+        date: "2026-01-02",
+        summaryEn: "Bee pollen is a rich source of proteins, vitamins, and flavonoids with hepatoprotective and anti-inflammatory properties.",
+        summaryTr: "Arı poleni, hepatoprotektif ve anti-inflamatuar özelliklere sahip zengin bir protein, vitamin ve flavonoid kaynağıdır.",
+        categories: ["pollen"],
+        url: "https://doi.org/10.1155/2015/584205"
+      },
+      {
+        titleEn: "Effects of Honey on Oxidative Stress and Metabolic Parameters (2018)",
+        titleTr: "Balın Oksidatif Stres ve Metabolik Parametreler Üzerine Etkileri (2018)",
+        date: "2026-01-05",
+        summaryEn: "Regular honey consumption improves glycemic control and lipid profiles while reducing markers of oxidative stress.",
+        summaryTr: "Düzenli bal tüketimi, oksidatif stres belirteçlerini azaltırken glisemik kontrol ve lipid profillerini iyileştirir.",
+        categories: ["honey", "longevity"],
+        url: "https://doi.org/10.3390/nu10101500"
+      },
+      {
+        titleEn: "Caloric Restriction and Longevity: Molecular Mechanisms (2020)",
+        titleTr: "Kalori Kısıtlaması ve Uzun Ömür: Moleküler Mekanizmalar (2020)",
+        date: "2026-01-08",
+        summaryEn: "Caloric restriction activates sirtuins and autophagy pathways, extending healthspan across multiple model organisms.",
+        summaryTr: "Kalori kısıtlaması sirtuinleri ve otofaji yolaklarını aktive ederek birden fazla model organizmada sağlıklı ömrü uzatır.",
+        categories: ["longevity", "anti-aging"],
+        url: "https://doi.org/10.1126/science.aax9297"
+      },
+      {
+        titleEn: "Propolis and the Immune System: A Review (2019)",
+        titleTr: "Propolis ve Bağışıklık Sistemi: Bir Derleme (2019)",
+        date: "2026-01-10",
+        summaryEn: "Propolis enhances innate and adaptive immunity through modulation of macrophage activity and cytokine production.",
+        summaryTr: "Propolis, makrofaj aktivitesini ve sitokin üretimini modüle ederek doğal ve adaptif bağışıklığı güçlendirir.",
+        categories: ["propolis"],
+        url: "https://doi.org/10.1155/2019/1250802"
+      },
+      {
+        titleEn: "Physical Activity, Brain Plasticity, and Alzheimer's Disease (2020)",
+        titleTr: "Fiziksel Aktivite, Beyin Plastisitesi ve Alzheimer Hastalığı (2020)",
+        date: "2026-01-12",
+        summaryEn: "Aerobic exercise significantly reduces amyloid-beta accumulation and improves hippocampal neurogenesis.",
+        summaryTr: "Aerobik egzersiz, amiloid-beta birikimini önemli ölçüde azaltır ve hipokampal nörojenezi iyileştirir.",
+        categories: ["exercise", "brain", "anti-aging"],
+        url: "https://doi.org/10.3389/fnins.2020.00131"
+      },
+      {
+        titleEn: "Royal Jelly: Biological Properties and Clinical Applications (2020)",
+        titleTr: "Arı Sütü: Biyolojik Özellikleri ve Klinik Uygulamaları (2020)",
+        date: "2026-01-15",
+        summaryEn: "Royal jelly supplementation shows promising effects on cognitive function, fertility, and skin aging in human trials.",
+        summaryTr: "Arı sütü takviyesi, insan denemelerinde bilişsel işlev, doğurganlık ve cilt yaşlanması üzerinde umut verici etkiler göstermektedir.",
+        categories: ["royal-jelly", "brain", "anti-aging"],
+        url: "https://doi.org/10.1016/j.biopha.2020.110138"
+      },
+      {
+        titleEn: "Honey as a Complementary Medicine: A Review of Honey in Exercise and Sport (2019)",
+        titleTr: "Tamamlayıcı Tıpta Bal: Egzersiz ve Sporda Bal Derlemesi (2019)",
+        date: "2026-01-18",
+        summaryEn: "Honey serves as an effective natural energy source for athletes, supporting endurance and recovery post-exercise.",
+        summaryTr: "Bal, sporcular için etkili bir doğal enerji kaynağı olarak dayanıklılığı ve egzersiz sonrası toparlanmayı destekler.",
+        categories: ["honey", "exercise"],
+        url: "https://doi.org/10.3390/nu11102039"
+      },
+      {
+        titleEn: "Bee Pollen Polyphenols: Anti-Aging and Protective Effects (2021)",
+        titleTr: "Arı Poleni Polifenolleri: Anti-Aging ve Koruyucu Etkiler (2021)",
+        date: "2026-01-20",
+        summaryEn: "Pollen-derived polyphenols protect against cellular senescence and DNA damage through multiple antioxidant pathways.",
+        summaryTr: "Polenden elde edilen polifenoller, birden fazla antioksidan yolak aracılığıyla hücresel yaşlanmaya ve DNA hasarına karşı koruma sağlar.",
+        categories: ["pollen", "anti-aging"],
+        url: "https://doi.org/10.3390/molecules26041014"
+      },
+      {
+        titleEn: "The Gut-Brain Axis: How the Microbiome Influences Cognition (2021)",
+        titleTr: "Bağırsak-Beyin Aksı: Mikrobiyom Bilişi Nasıl Etkiler (2021)",
+        date: "2026-01-22",
+        summaryEn: "Prebiotic properties of honey and bee products positively modulate the gut microbiome, influencing brain health via the gut-brain axis.",
+        summaryTr: "Bal ve arı ürünlerinin prebiyotik özellikleri bağırsak mikrobiyomunu olumlu yönde düzenleyerek bağırsak-beyin aksı üzerinden beyin sağlığını etkiler.",
+        categories: ["honey", "brain", "longevity"],
+        url: "https://doi.org/10.3390/nu13072099"
+      },
+      {
+        titleEn: "Propolis as an Adjunct Therapy in Metabolic Syndrome (2022)",
+        titleTr: "Metabolik Sendromda Yardımcı Terapi Olarak Propolis (2022)",
+        date: "2026-01-25",
+        summaryEn: "Propolis supplementation significantly improves insulin resistance, blood lipids, and inflammatory markers in metabolic syndrome patients.",
+        summaryTr: "Propolis takviyesi, metabolik sendrom hastalarında insülin direncini, kan lipidlerini ve inflamasyon belirteçlerini önemli ölçüde iyileştirir.",
+        categories: ["propolis", "longevity"],
+        url: "https://doi.org/10.3390/nu14010135"
+      },
+      {
+        titleEn: "Resistance Training and Longevity: A Systematic Review (2022)",
+        titleTr: "Direnç Eğitimi ve Uzun Ömür: Sistematik Bir Derleme (2022)",
+        date: "2026-01-28",
+        summaryEn: "Resistance exercise reduces all-cause mortality risk by 15-27% and preserves muscle mass critical for healthy aging.",
+        summaryTr: "Direnç egzersizi tüm nedenlere bağlı ölüm riskini %15-27 azaltır ve sağlıklı yaşlanma için kritik olan kas kütlesini korur.",
+        categories: ["exercise", "longevity"],
+        url: "https://doi.org/10.1136/bjsports-2022-105669"
+      },
+      {
+        titleEn: "Neuroprotective Properties of Honey: Focus on Tualang Honey (2016)",
+        titleTr: "Balın Nöroprotektif Özellikleri: Tualang Balı Odaklı (2016)",
+        date: "2026-02-01",
+        summaryEn: "Tualang honey protects against oxidative neuronal damage and reduces neuroinflammation in experimental brain injury models.",
+        summaryTr: "Tualang balı, deneysel beyin hasarı modellerinde oksidatif nöronal hasara karşı koruma sağlar ve nöroinflamasyonu azaltır.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.1155/2016/6065626"
+      },
+      {
+        titleEn: "Bee Pollen in Human Nutrition and Health: A Comprehensive Review (2022)",
+        titleTr: "İnsan Beslenmesi ve Sağlığında Arı Poleni: Kapsamlı Bir Derleme (2022)",
+        date: "2026-02-03",
+        summaryEn: "Bee pollen demonstrates versatile health benefits including anti-allergic, antimicrobial, and cardiovascular protective properties.",
+        summaryTr: "Arı poleni, anti-alerjik, antimikrobiyal ve kardiyovasküler koruyucu özellikleri dahil çok yönlü sağlık faydaları göstermektedir.",
+        categories: ["pollen", "longevity"],
+        url: "https://doi.org/10.3390/nu14081518"
+      },
+      {
+        titleEn: "Royal Jelly Peptides: A New Frontier in Anti-Aging Research (2023)",
+        titleTr: "Arı Sütü Peptitleri: Anti-Aging Araştırmalarında Yeni Bir Sınır (2023)",
+        date: "2026-02-05",
+        summaryEn: "Novel peptides isolated from royal jelly activate telomerase and enhance mitochondrial function in human cell lines.",
+        summaryTr: "Arı sütünden izole edilen yeni peptitler, insan hücre hatlarında telomerazı aktive eder ve mitokondriyal işlevi artırır.",
+        categories: ["royal-jelly", "anti-aging", "longevity"],
+        url: "https://doi.org/10.1016/j.jff.2023.105478"
+      },
+      {
+        titleEn: "Synergistic Effects of Propolis and Royal Jelly on Immune Function (2021)",
+        titleTr: "Propolis ve Arı Sütünün Bağışıklık İşlevi Üzerindeki Sinerjik Etkileri (2021)",
+        date: "2026-02-07",
+        summaryEn: "Combined propolis and royal jelly supplementation enhances NK cell activity and antibody production more than either alone.",
+        summaryTr: "Propolis ve arı sütü birlikte takviyesi, NK hücre aktivitesini ve antikor üretimini tek başına alımdan daha fazla artırır.",
+        categories: ["propolis", "royal-jelly"],
+        url: "https://doi.org/10.3390/nu13041073"
+      },
+      {
+        titleEn: "Mediterranean Diet, Honey, and Cardiovascular Health (2020)",
+        titleTr: "Akdeniz Diyeti, Bal ve Kardiyovasküler Sağlık (2020)",
+        date: "2026-02-09",
+        summaryEn: "Replacing refined sugars with natural honey in a Mediterranean diet reduces cardiovascular risk factors by up to 20%.",
+        summaryTr: "Akdeniz diyetinde rafine şekerlerin doğal bal ile değiştirilmesi kardiyovasküler risk faktörlerini %20'ye kadar azaltır.",
+        categories: ["honey", "longevity"],
+        url: "https://doi.org/10.3390/nu12041057"
+      }
+    ];
+
+    const ARTICLES_PER_PAGE = 10;
+    let currentCategory = "all";
+    let currentPage = 1;
+
+    const grid = document.getElementById("scienceGrid");
+    const paginationContainer = document.getElementById("sciencePagination");
+    const categoryBtns = document.querySelectorAll(".category-btn");
+
+    // Category label mapping for bilingual tags
+    const categoryLabels = {
+      "honey": { en: "Honey", tr: "Bal" },
+      "brain": { en: "Brain", tr: "Beyin" },
+      "exercise": { en: "Exercise", tr: "Egzersiz" },
+      "longevity": { en: "Longevity", tr: "Uzun Ömür" },
+      "anti-aging": { en: "Anti-Aging", tr: "Yaşlanma Karşıtı" },
+      "propolis": { en: "Propolis", tr: "Propolis" },
+      "royal-jelly": { en: "Royal Jelly", tr: "Arı Sütü" },
+      "pollen": { en: "Pollen", tr: "Polen" }
+    };
+
+    function getFilteredArticles() {
+      let filtered = currentCategory === "all"
+        ? articles
+        : articles.filter(function(a) { return a.categories.indexOf(currentCategory) !== -1; });
+      // Sort by date descending (newest first)
+      filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      return filtered;
+    }
+
+    function formatDate(dateStr) {
+      var d = new Date(dateStr);
+      var months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+      var monthsTr = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+        "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+      if (currentLang === "tr") {
+        return d.getDate() + " " + monthsTr[d.getMonth()] + " " + d.getFullYear();
+      }
+      return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    }
+
+    function renderArticles() {
+      var filtered = getFilteredArticles();
+      var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
+      if (currentPage > totalPages) currentPage = totalPages || 1;
+
+      var start = (currentPage - 1) * ARTICLES_PER_PAGE;
+      var pageArticles = filtered.slice(start, start + ARTICLES_PER_PAGE);
+
+      var html = "";
+      pageArticles.forEach(function(article) {
+        var title = currentLang === "tr" ? article.titleTr : article.titleEn;
+        var summary = currentLang === "tr" ? article.summaryTr : article.summaryEn;
+        var readText = currentLang === "tr" ? "Makaleyi Oku" : "Read Article";
+
+        var tags = "";
+        article.categories.forEach(function(cat) {
+          var label = currentLang === "tr" ? categoryLabels[cat].tr : categoryLabels[cat].en;
+          tags += '<span class="science-tag">' + label + '</span>';
+        });
+
+        html += '<div class="science-card">' +
+          '<h3 class="science-card-title">' + title + '</h3>' +
+          '<span class="science-card-date">' + formatDate(article.date) + '</span>' +
+          '<p class="science-card-summary">' + summary + '</p>' +
+          '<div class="science-card-tags">' + tags + '</div>' +
+          '<a href="' + article.url + '" target="_blank" rel="noopener noreferrer" class="science-card-link">' +
+            readText +
+            ' <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
+          '</a>' +
+        '</div>';
+      });
+
+      grid.innerHTML = html;
+      renderPagination(filtered.length, totalPages);
+    }
+
+    function renderPagination(total, totalPages) {
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = "";
+        return;
+      }
+
+      var prevText = currentLang === "tr" ? "Önceki" : "Prev";
+      var nextText = currentLang === "tr" ? "Sonraki" : "Next";
+
+      var html = '<button class="pagination-btn' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>' +
+        '</button>';
+
+      for (var i = 1; i <= totalPages; i++) {
+        html += '<button class="pagination-btn' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+      }
+
+      html += '<button class="pagination-btn' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
+        '</button>';
+
+      paginationContainer.innerHTML = html;
+
+      // Add click handlers
+      paginationContainer.querySelectorAll(".pagination-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          var page = this.getAttribute("data-page");
+          if (page === "prev" && currentPage > 1) {
+            currentPage--;
+          } else if (page === "next" && currentPage < totalPages) {
+            currentPage++;
+          } else if (page !== "prev" && page !== "next") {
+            currentPage = parseInt(page);
+          }
+          renderArticles();
+          // Scroll to the science section header, not the top of page
+          var scienceSection = document.getElementById("science");
+          if (scienceSection) {
+            var headerOffset = 80;
+            var elementPosition = scienceSection.getBoundingClientRect().top;
+            var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+          }
+        });
+      });
+    }
+
+    // Category filter click handlers
+    categoryBtns.forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        categoryBtns.forEach(function(b) { b.classList.remove("active"); });
+        this.classList.add("active");
+        currentCategory = this.getAttribute("data-category");
+        currentPage = 1;
+        renderArticles();
+      });
+    });
+
+    // Listen for language changes to re-render
+    document.addEventListener("languageChanged", function() {
+      // Update category button text
+      categoryBtns.forEach(function(btn) {
+        btn.textContent = btn.getAttribute("data-" + currentLang);
+      });
+      renderArticles();
+    });
+
+    // Initial render
+    renderArticles();
+  })();
+
+  // ========================================
+  // Floating Bee Particles
+  // ========================================
+  (function () {
+    const canvas = document.getElementById("beeParticles");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    // Sections where bees are visible
+    const SECTION_IDS = ["about", "team", "testimonials"];
+    let visibleZones = [];
+    let width, height;
+    let bees = [];
+    let mouse = { x: -9999, y: -9999 };
+    const BEE_COUNT_DESKTOP = 14;
+    const BEE_COUNT_MOBILE = 6;
+    const MOUSE_RADIUS = 150;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    function updateVisibleZones() {
+      visibleZones = [];
+      for (let i = 0; i < SECTION_IDS.length; i++) {
+        var el = document.getElementById(SECTION_IDS[i]);
+        if (el) {
+          var rect = el.getBoundingClientRect();
+          visibleZones.push({ top: rect.top, bottom: rect.bottom });
+        }
+      }
+    }
+
+    function isInVisibleZone(screenY) {
+      for (var i = 0; i < visibleZones.length; i++) {
+        if (screenY >= visibleZones[i].top && screenY <= visibleZones[i].bottom)
+          return true;
+      }
+      return false;
+    }
+
+    // Combined zone bounding box for spawning bees
+    function getZoneBounds() {
+      if (visibleZones.length === 0) return null;
+      var minTop = visibleZones[0].top;
+      var maxBottom = visibleZones[visibleZones.length - 1].bottom;
+      return { top: minTop, bottom: maxBottom };
+    }
+
+    function getBeeCount() {
+      return window.innerWidth < 768 ? BEE_COUNT_MOBILE : BEE_COUNT_DESKTOP;
+    }
+
+    function createBee() {
+      var bounds = getZoneBounds();
+      var yMin = bounds ? bounds.top : 0;
+      var yMax = bounds ? bounds.bottom : height;
+      var size = 8 + Math.random() * 7;
+      return {
+        x: Math.random() * width,
+        y: yMin + Math.random() * (yMax - yMin),
+        size: size,
+        angle: Math.random() * Math.PI * 2,
+        baseSpeedX: (Math.random() - 0.5) * 1.0,
+        baseSpeedY: (Math.random() - 0.5) * 0.6,
+        vx: 0,
+        vy: 0,
+        wingPhase: Math.random() * Math.PI * 2,
+        wingSpeed: 0.35 + Math.random() * 0.15,
+        wobblePhase: Math.random() * Math.PI * 2,
+        wobbleSpeed: 0.015 + Math.random() * 0.01,
+        wobbleAmplitude: 0.3 + Math.random() * 0.3,
+        opacity: 0.35 + Math.random() * 0.35,
+        glowPulse: Math.random() * Math.PI * 2,
+      };
+    }
+
+    function initBees() {
+      bees = [];
+      var count = getBeeCount();
+      for (var i = 0; i < count; i++) {
+        bees.push(createBee());
+      }
+    }
+
+    function drawBee(bee) {
+      var x = bee.x,
+        y = bee.y,
+        s = bee.size,
+        wingPhase = bee.wingPhase,
+        opacity = bee.opacity,
+        glowPulse = bee.glowPulse,
+        angle = bee.angle;
+      var glowIntensity = 0.12 + Math.sin(glowPulse) * 0.06;
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      // Subtle glow (halved)
+      var grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 2.5);
+      grad.addColorStop(0, "rgba(218, 175, 60, " + glowIntensity + ")");
+      grad.addColorStop(1, "rgba(218, 175, 60, 0)");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // === Wings (behind body) ===
+      var wingFlap = Math.sin(wingPhase);
+      var wingAlpha = 0.18 + Math.abs(wingFlap) * 0.12;
+      var flapAngle = wingFlap * 0.45;
+
+      // Upper wings (larger)
+      ctx.fillStyle = "rgba(200, 210, 230, " + wingAlpha + ")";
+      ctx.strokeStyle = "rgba(180, 190, 210, " + (wingAlpha * 0.6) + ")";
+      ctx.lineWidth = 0.4;
+      // Left upper wing
+      ctx.save();
+      ctx.translate(-s * 0.1, -s * 0.15);
+      ctx.rotate(-0.6 + flapAngle);
+      ctx.beginPath();
+      ctx.ellipse(0, -s * 0.45, s * 0.55, s * 0.25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Wing veins
+      ctx.strokeStyle = "rgba(160, 170, 195, " + (wingAlpha * 0.4) + ")";
+      ctx.lineWidth = 0.3;
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.25);
+      ctx.lineTo(0, -s * 0.65);
+      ctx.moveTo(-s * 0.15, -s * 0.35);
+      ctx.lineTo(s * 0.15, -s * 0.55);
+      ctx.stroke();
+      ctx.restore();
+      // Right upper wing
+      ctx.save();
+      ctx.translate(s * 0.1, -s * 0.15);
+      ctx.rotate(0.6 - flapAngle);
+      ctx.beginPath();
+      ctx.ellipse(0, -s * 0.45, s * 0.55, s * 0.25, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(160, 170, 195, " + (wingAlpha * 0.4) + ")";
+      ctx.lineWidth = 0.3;
+      ctx.beginPath();
+      ctx.moveTo(0, -s * 0.25);
+      ctx.lineTo(0, -s * 0.65);
+      ctx.moveTo(-s * 0.15, -s * 0.35);
+      ctx.lineTo(s * 0.15, -s * 0.55);
+      ctx.stroke();
+      ctx.restore();
+
+      // Lower wings (smaller)
+      ctx.fillStyle = "rgba(200, 210, 230, " + (wingAlpha * 0.7) + ")";
+      ctx.save();
+      ctx.translate(-s * 0.08, s * 0.0);
+      ctx.rotate(-0.8 + flapAngle * 0.7);
+      ctx.beginPath();
+      ctx.ellipse(0, -s * 0.3, s * 0.35, s * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.translate(s * 0.08, s * 0.0);
+      ctx.rotate(0.8 - flapAngle * 0.7);
+      ctx.beginPath();
+      ctx.ellipse(0, -s * 0.3, s * 0.35, s * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // === Head ===
+      ctx.fillStyle = "#1a1200";
+      ctx.beginPath();
+      ctx.ellipse(-s * 0.52, 0, s * 0.18, s * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = "#2a2000";
+      ctx.beginPath();
+      ctx.arc(-s * 0.58, -s * 0.07, s * 0.055, 0, Math.PI * 2);
+      ctx.arc(-s * 0.58, s * 0.07, s * 0.055, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.beginPath();
+      ctx.arc(-s * 0.59, -s * 0.08, s * 0.025, 0, Math.PI * 2);
+      ctx.arc(-s * 0.59, s * 0.06, s * 0.025, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Antennae
+      ctx.strokeStyle = "#1a1200";
+      ctx.lineWidth = s * 0.04;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.62, -s * 0.1);
+      ctx.quadraticCurveTo(-s * 0.85, -s * 0.3, -s * 0.78, -s * 0.4);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-s * 0.62, s * 0.1);
+      ctx.quadraticCurveTo(-s * 0.85, s * 0.3, -s * 0.78, s * 0.4);
+      ctx.stroke();
+      // Antenna tips
+      ctx.fillStyle = "#2a1e00";
+      ctx.beginPath();
+      ctx.arc(-s * 0.78, -s * 0.4, s * 0.03, 0, Math.PI * 2);
+      ctx.arc(-s * 0.78, s * 0.4, s * 0.03, 0, Math.PI * 2);
+      ctx.fill();
+
+      // === Thorax ===
+      ctx.fillStyle = "#3d2e00";
+      ctx.beginPath();
+      ctx.ellipse(-s * 0.22, 0, s * 0.2, s * 0.19, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Thorax fur texture
+      ctx.fillStyle = "rgba(90, 70, 10, 0.5)";
+      ctx.beginPath();
+      ctx.ellipse(-s * 0.22, 0, s * 0.16, s * 0.14, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // === Abdomen (with yellow-black stripes) ===
+      ctx.fillStyle = "#d4a020";
+      ctx.beginPath();
+      ctx.ellipse(s * 0.18, 0, s * 0.38, s * 0.24, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Black stripes on abdomen
+      ctx.fillStyle = "#1a1200";
+      var stripePositions = [-0.08, 0.08, 0.22, 0.36];
+      for (var si = 0; si < stripePositions.length; si++) {
+        var sx = s * stripePositions[si];
+        // Compute stripe half-height from ellipse shape
+        var relX = (sx - s * 0.18) / (s * 0.38);
+        if (Math.abs(relX) < 1) {
+          var stripeH = s * 0.24 * Math.sqrt(1 - relX * relX);
+          ctx.beginPath();
+          ctx.ellipse(sx, 0, s * 0.04, stripeH * 0.9, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Abdomen highlight (sheen)
+      var sheenGrad = ctx.createLinearGradient(
+        s * 0.0, -s * 0.2,
+        s * 0.2, s * 0.1
+      );
+      sheenGrad.addColorStop(0, "rgba(255, 230, 140, 0.15)");
+      sheenGrad.addColorStop(1, "rgba(255, 230, 140, 0)");
+      ctx.fillStyle = sheenGrad;
+      ctx.beginPath();
+      ctx.ellipse(s * 0.12, -s * 0.06, s * 0.25, s * 0.12, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Stinger
+      ctx.fillStyle = "#1a1200";
+      ctx.beginPath();
+      ctx.moveTo(s * 0.55, 0);
+      ctx.lineTo(s * 0.65, -s * 0.02);
+      ctx.lineTo(s * 0.65, s * 0.02);
+      ctx.closePath();
+      ctx.fill();
+
+      // === Legs (3 pairs) ===
+      ctx.strokeStyle = "#1a1200";
+      ctx.lineWidth = s * 0.035;
+      ctx.lineCap = "round";
+      var legPairs = [
+        { bx: -s * 0.15, by: s * 0.16, mx: -s * 0.25, my: s * 0.35, ex: -s * 0.15, ey: s * 0.45 },
+        { bx: s * 0.0, by: s * 0.18, mx: -s * 0.05, my: s * 0.38, ex: s * 0.08, ey: s * 0.48 },
+        { bx: s * 0.15, by: s * 0.17, mx: s * 0.15, my: s * 0.37, ex: s * 0.28, ey: s * 0.44 },
+      ];
+      for (var li = 0; li < legPairs.length; li++) {
+        var leg = legPairs[li];
+        // Bottom leg
+        ctx.beginPath();
+        ctx.moveTo(leg.bx, leg.by);
+        ctx.quadraticCurveTo(leg.mx, leg.my, leg.ex, leg.ey);
+        ctx.stroke();
+        // Top leg (mirrored)
+        ctx.beginPath();
+        ctx.moveTo(leg.bx, -leg.by);
+        ctx.quadraticCurveTo(leg.mx, -leg.my, leg.ex, -leg.ey);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function update() {
+      updateVisibleZones();
+      var bounds = getZoneBounds();
+
+      for (var i = 0; i < bees.length; i++) {
+        var bee = bees[i];
+
+        // Wobble motion
+        bee.wobblePhase += bee.wobbleSpeed;
+        var wobbleX = Math.sin(bee.wobblePhase) * bee.wobbleAmplitude;
+        var wobbleY = Math.cos(bee.wobblePhase * 0.7) * bee.wobbleAmplitude;
+
+        // Mouse interaction - bees flee from cursor
+        var fleeX = 0;
+        var fleeY = 0;
+        var dx = bee.x - mouse.x;
+        var dy = bee.y - mouse.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < MOUSE_RADIUS && dist > 0) {
+          var force = (1 - dist / MOUSE_RADIUS) * 3;
+          fleeX = (dx / dist) * force;
+          fleeY = (dy / dist) * force;
+        }
+
+        // Apply velocities with smoothing
+        bee.vx += (bee.baseSpeedX + wobbleX + fleeX - bee.vx) * 0.05;
+        bee.vy += (bee.baseSpeedY + wobbleY + fleeY - bee.vy) * 0.05;
+        bee.x += bee.vx;
+        bee.y += bee.vy;
+
+        // Face movement direction
+        if (Math.abs(bee.vx) > 0.1 || Math.abs(bee.vy) > 0.1) {
+          var targetAngle = Math.atan2(bee.vy, bee.vx);
+          // Smooth angle interpolation
+          var diff = targetAngle - bee.angle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          bee.angle += diff * 0.04;
+        }
+
+        // Wing animation
+        bee.wingPhase += bee.wingSpeed;
+        bee.glowPulse += 0.02;
+
+        // Keep bees within visible zone bounds (wrap horizontally, bounce vertically)
+        var margin = 60;
+        if (bee.x < -margin) bee.x = width + margin;
+        if (bee.x > width + margin) bee.x = -margin;
+        if (bounds) {
+          var scrollY = window.scrollY || window.pageYOffset;
+          var absY = bee.y + scrollY;
+          var zoneTop = bounds.top + scrollY;
+          var zoneBottom = bounds.bottom + scrollY;
+          if (bee.y < bounds.top - margin) {
+            bee.y = bounds.bottom + margin * 0.5;
+          }
+          if (bee.y > bounds.bottom + margin) {
+            bee.y = bounds.top - margin * 0.5;
+          }
+        } else {
+          if (bee.y < -margin) bee.y = height + margin;
+          if (bee.y > height + margin) bee.y = -margin;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < bees.length; i++) {
+        var bee = bees[i];
+        if (isInVisibleZone(bee.y)) {
+          drawBee(bee);
+        }
+      }
+    }
+
+    function animate() {
+      update();
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    // Mouse tracking
+    document.addEventListener("mousemove", function (e) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    document.addEventListener("mouseleave", function () {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        if (e.touches.length > 0) {
+          mouse.x = e.touches[0].clientX;
+          mouse.y = e.touches[0].clientY;
+        }
+      },
+      { passive: true },
+    );
+    document.addEventListener("touchend", function () {
+      mouse.x = -9999;
+      mouse.y = -9999;
+    });
+
+    window.addEventListener("resize", function () {
+      resize();
+      var targetCount = getBeeCount();
+      if (bees.length !== targetCount) {
+        initBees();
+      }
+    });
+
+    resize();
+    updateVisibleZones();
+    initBees();
+    animate();
+  })();
+
+  // ========================================
+  // Initial Setup
+  // ========================================
+  // Trigger initial language setting
+  updateLanguage("tr");
+
+  // Show elements that should be visible on load
+  setTimeout(() => {
+    document
+      .querySelectorAll(".gallery-section, .products-section, .science-section")
+      .forEach((el) => {
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          el.classList.add("visible");
+        }
+      });
+  }, 100);
+});

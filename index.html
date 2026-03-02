@@ -18,6 +18,9 @@
     />
   </head>
   <body>
+    <!-- Floating Bee Particles -->
+    <canvas id="beeParticles"></canvas>
+
     <!-- Product Modal -->
     <div class="product-modal" id="productModal">
       <div class="modal-backdrop"></div>
@@ -54,6 +57,13 @@
             data-en="Products"
             >Ürünler</a
           >
+          <a
+            href="#science"
+            class="nav-link"
+            data-tr="Literatür"
+            data-en="Literature"
+            >Literatür</a
+          >
           <a href="#gallery" class="nav-link" data-tr="Galeri" data-en="Gallery"
             >galeri</a
           >
@@ -84,6 +94,13 @@
       >
       <a href="#products" class="nav-link" data-tr="Ürünler" data-en="Products"
         >ürünler</a
+      >
+      <a
+        href="#science"
+        class="nav-link"
+        data-tr="Literatür"
+        data-en="Literature"
+        >literatür</a
       >
       <a href="#gallery" class="nav-link" data-tr="galeri" data-en="gallery"
         >galeri</a
@@ -150,42 +167,42 @@
               </div>
               <div
                 class="product-card"
-                data-title="Propolis & Arı Sütü"
-                data-origin="Homeros Valley, Yamanlar Mountain"
-                data-description-tr="Anti-inflamatuvar Propolis ve Arı Sütü karışımı."
-                data-description-en="Anti-inflammatory Propolis and Royal Jelly mix."
-                data-weight="200g"
-                data-price="850₺"
-                data-harvest-tr="Haziran 2026'da formülüze edilecektir."
-                data-harvest-en="Planned to be harvested in June 2026."
+                data-title="Propolis | Propolis"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-description-tr="İyon arıları tarafından üretilen saf propolis. Güçlü antioksidan ve antimikrobiyal özelliklere sahiptir. Bağışıklık sistemini destekler, boğaz rahatsızlıklarını hafifletir."
+                data-description-en="Pure propolis produced by Ionian honey bees. Possesses strong antioxidant and antimicrobial properties. Supports the immune system and soothes throat discomfort."
+                data-weight="20mL"
+                data-price="600₺"
+                data-harvest-tr="2025 hasadı."
+                data-harvest-en="2025 harvest."
               >
                 <div class="product-image">
-                  <img src="images/products/pine honey 2.png" alt="Çam Balı" />
+                  <img src="images/products/propolis.png" alt="Propolis" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
-                  <h3>Çam Balı</h3>
-                  <p>Homeros Vadisi, Izmir</p>
+                  <h3>Propolis</h3>
+                  <p>Bağışıklık Kalkanı</p>
                 </div>
               </div>
               <div
                 class="product-card"
-                data-title="Propolis | Propolis"
-                data-origin="Menderes Ovası, Izmir"
-                data-description-tr="Arılar tarafından üretilen doğal propolis. Bağışıklık sistemini güçlendirmeye yardımcı olur."
-                data-description-en="Natural propolis produced by Ionian honey bees. Helps strengthen the immune system."
-                data-weight="300g"
-                data-price="600₺"
-                data-harvest-tr="Ağustos 2025'de üretilmiştir."
-                data-harvest-en="Produced in August 2025"
+                data-title="Arı Sütü | Royal Jelly"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-description-tr="Kraliçe arının beslenmesinde kullanılan eşsiz arı sütü. Royalactin proteini, B vitaminleri, amino asitler ve 10-HDA bakımından zengindir. Enerji, cilt sağlığı ve genel canlılık için doğal destek sağlar."
+                data-description-en="Exclusive royal jelly used in queen bee nutrition. Rich in royalactin protein, B vitamins, amino acids, and 10-HDA. Provides natural support for energy, skin health, and overall vitality."
+                data-weight="30g"
+                data-price="550₺"
+                data-harvest-tr="2025 hasadı. Taze üretim."
+                data-harvest-en="2025 harvest. Fresh production."
               >
                 <div class="product-image">
-                  <img src="images/products/vitex honey.png" alt="Vitex" />
+                  <img src="images/products/RoyalJelly.png" alt="Arı Sütü" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
-                  <h3>Hayıt Balı</h3>
-                  <p>Menderes Ovası, Izmir</p>
+                  <h3>Arı Sütü</h3>
+                  <p>Doğal Canlılık Kaynağı</p>
                 </div>
               </div>
               <div
@@ -242,13 +259,113 @@
           </div>
         </div>
 
-        <!-- Gallery Section -->
+        <!-- Science Section -->
+        <div class="science-section" id="science">
+          <h2 class="section-title" data-tr="LİTERATÜR" data-en="LITERATURE">
+            LITERATURE
+          </h2>
+          <p
+            class="science-subtitle"
+            data-tr="Ürünlerimizin sağlık etkisi ve uzun ömür üzerine faydalı olabilecek bilimsel makaleler."
+            data-en="Scientific articles that may be useful for a better understanding of our products' health impact and longevity."
+          >
+            Scientific articles that may be useful for a better understanding of
+            our products' health impact and longevity.
+          </p>
+          <div class="science-categories" id="scienceCategories">
+            <button
+              class="category-btn active"
+              data-category="all"
+              data-tr="Tümü"
+              data-en="All"
+            >
+              All
+            </button>
+            <button
+              class="category-btn"
+              data-category="honey"
+              data-tr="Bal"
+              data-en="Honey"
+            >
+              Honey
+            </button>
+            <button
+              class="category-btn"
+              data-category="brain"
+              data-tr="Beyin"
+              data-en="Brain"
+            >
+              Brain
+            </button>
+            <button
+              class="category-btn"
+              data-category="exercise"
+              data-tr="Egzersiz"
+              data-en="Exercise"
+            >
+              Exercise
+            </button>
+            <button
+              class="category-btn"
+              data-category="longevity"
+              data-tr="Uzun Ömür"
+              data-en="Longevity"
+            >
+              Longevity
+            </button>
+            <button
+              class="category-btn"
+              data-category="anti-aging"
+              data-tr="Yaşlanma Karşıtı"
+              data-en="Anti-Aging"
+            >
+              Anti-Aging
+            </button>
+            <button
+              class="category-btn"
+              data-category="propolis"
+              data-tr="Propolis"
+              data-en="Propolis"
+            >
+              Propolis
+            </button>
+            <button
+              class="category-btn"
+              data-category="royal-jelly"
+              data-tr="Arı Sütü"
+              data-en="Royal Jelly"
+            >
+              Royal Jelly
+            </button>
+            <button
+              class="category-btn"
+              data-category="pollen"
+              data-tr="Polen"
+              data-en="Pollen"
+            >
+              Pollen
+            </button>
+          </div>
+          <div class="science-grid" id="scienceGrid">
+            <!-- Articles will be rendered by JavaScript -->
+          </div>
+          <div class="science-pagination" id="sciencePagination">
+            <!-- Pagination will be rendered by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Gallery Section - Polaroid Clothesline -->
         <div class="gallery-section" id="gallery">
           <h2 class="section-title" data-tr="GALERİ" data-en="GALLERY">
             GALLERY
           </h2>
-          <div class="gallery-carousel">
-            <button class="carousel-btn prev" id="galleryPrev">
+          <div class="clothesline-wrapper">
+            <!-- Scroll hint arrows -->
+            <button
+              class="clothesline-arrow clothesline-arrow--left"
+              id="clotheslineLeft"
+              aria-label="Scroll left"
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -258,27 +375,11 @@
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
-            <div class="gallery-track" id="galleryTrack">
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0037.jpg"
-                  alt="Arıcılık"
-                />
-              </div>
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0020.jpg"
-                  alt="Bal Hasadı"
-                />
-              </div>
-              <div class="gallery-slide">
-                <img
-                  src="images/gallery/IMG-20251031-WA0033.jpg"
-                  alt="Doğal Bal"
-                />
-              </div>
-            </div>
-            <button class="carousel-btn next" id="galleryNext">
+            <button
+              class="clothesline-arrow clothesline-arrow--right"
+              id="clotheslineRight"
+              aria-label="Scroll right"
+            >
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -288,6 +389,163 @@
                 <path d="M9 18l6-6-6-6" />
               </svg>
             </button>
+
+            <div class="clothesline-viewport" id="clotheslineViewport">
+              <div class="clothesline-track" id="clotheslineTrack">
+                <!-- The rope -->
+                <div class="clothesline-rope"></div>
+
+                <!-- Fairy lights on the rope -->
+                <div class="clothesline-lights">
+                  <span class="fairy-light" style="left: 5%"></span>
+                  <span class="fairy-light" style="left: 10%"></span>
+                  <span class="fairy-light" style="left: 16%"></span>
+                  <span class="fairy-light" style="left: 22%"></span>
+                  <span class="fairy-light" style="left: 28%"></span>
+                  <span class="fairy-light" style="left: 34%"></span>
+                  <span class="fairy-light" style="left: 40%"></span>
+                  <span class="fairy-light" style="left: 46%"></span>
+                  <span class="fairy-light" style="left: 52%"></span>
+                  <span class="fairy-light" style="left: 58%"></span>
+                  <span class="fairy-light" style="left: 64%"></span>
+                  <span class="fairy-light" style="left: 70%"></span>
+                  <span class="fairy-light" style="left: 76%"></span>
+                  <span class="fairy-light" style="left: 82%"></span>
+                  <span class="fairy-light" style="left: 88%"></span>
+                  <span class="fairy-light" style="left: 94%"></span>
+                </div>
+
+                <!-- Polaroid photos hanging from clips -->
+                <div class="polaroid-item" style="--rotation: -3deg">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img
+                        src="images/gallery/IMG-20251031-WA0037.jpg"
+                        alt="Arıcılık"
+                      />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">October 31, 2025</span>
+                      <span class="polaroid-location">BEEONIA</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Polaroid photos hanging from clips -->
+                <div class="polaroid-item" style="--rotation: 4deg">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img src="images/gallery/IMG_3627.jpg" alt="Arıcılık" />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">January 10, 2026</span>
+                      <span class="polaroid-location">BEEONIA</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Polaroid photos hanging from clips -->
+                <div class="polaroid-item" style="--rotation: 0deg">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img
+                        src="images/gallery/püren-10kasım25.jpg"
+                        alt="Arıcılık"
+                      />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">November 10.2025</span>
+                      <span class="polaroid-location">Menderes, Izmir</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Polaroid photos hanging from clips -->
+                <div
+                  class="polaroid-item polaroid-item--wide"
+                  style="--rotation: -1deg"
+                >
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img
+                        src="images/gallery/mehmet-püren1-25Ekim25.jpg"
+                        alt="Arıcılık"
+                      />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">October 25, 2025</span>
+                      <span class="polaroid-location">BEEONIA</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="polaroid-item" style="--rotation: 2deg">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img
+                        src="images/gallery/IMG-20251031-WA0020.jpg"
+                        alt="Bal Hasadı"
+                      />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">October 31, 2025</span>
+                      <span class="polaroid-location">BEEONIA</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="polaroid-item" style="--rotation: -1.5deg">
+                  <div class="clothespin">
+                    <div class="clothespin-top"></div>
+                    <div class="clothespin-body"></div>
+                    <div class="clothespin-spring"></div>
+                    <div class="clothespin-body clothespin-body--right"></div>
+                  </div>
+                  <div class="polaroid-card">
+                    <div class="polaroid-photo">
+                      <img
+                        src="images/gallery/IMG-20251031-WA0033.jpg"
+                        alt="Doğal Bal"
+                      />
+                    </div>
+                    <div class="polaroid-caption">
+                      <span class="polaroid-date">October 31, 2025</span>
+                      <span class="polaroid-location">BEEONIA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -734,23 +992,22 @@
                       >Referanslar:</span
                     >
                     <a
-                      href="https://doi.org/10.1016/j.foodchem.2007.06.067"
+                      href="https://doi.org/10.1016/j.foodchem.2007.04.025"
                       target="_blank"
                       rel="noopener"
-                      >Tosi E et al. (2008). Food Chemistry</a
+                      >Tosi EA et al. (2008). Food Chemistry</a
                     >
                     <a
-                      href="https://doi.org/10.17221/390/2010-CJFS"
+                      href="https://doi.org/10.1016/j.heliyon.2019.e01894"
                       target="_blank"
                       rel="noopener"
-                      >Kowalski S et al. (2012). Czech Journal of Food
-                      Sciences</a
+                      >Zarei M et al. (2019). Heliyon</a
                     >
                     <a
-                      href="https://doi.org/10.1016/j.focha.2024.100620"
+                      href="https://doi.org/10.1186/s13065-018-0408-3"
                       target="_blank"
                       rel="noopener"
-                      >Nayik GA et al. (2024). Food Chemistry Advances</a
+                      >Shapla UM et al. (2018). Chemistry Central Journal</a
                     >
                   </div>
                 </div>
@@ -1125,6 +1382,6 @@
         </div>
       </div>
     </footer>
-    <script src="script_20260120_0418.js"></script>
+    <script src="script_20260120_0435.js"></script>
   </body>
 </html>
