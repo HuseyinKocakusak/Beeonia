@@ -1621,20 +1621,208 @@ document.addEventListener("DOMContentLoaded", function () {
   // Floating Bee Particles
   // ========================================
   (function () {
-    const canvas = document.getElementById("beeParticles");
+    var canvas = document.getElementById("beeParticles");
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
 
     // Sections where bees are visible
-    const SECTION_IDS = ["about", "team", "testimonials"];
-    let visibleZones = [];
-    let width, height;
-    let bees = [];
-    let mouse = { x: -9999, y: -9999 };
-    const BEE_COUNT_DESKTOP = 14;
-    const BEE_COUNT_MOBILE = 6;
-    const MOUSE_RADIUS = 150;
+    var SECTION_IDS = ["about", "team", "testimonials"];
+    var visibleZones = [];
+    var width, height;
+    var bees = [];
+    var mouse = { x: -9999, y: -9999 };
+    var BEE_COUNT_DESKTOP = 14;
+    var BEE_COUNT_MOBILE = 6;
+    var MOUSE_RADIUS = 150;
 
+    // Pre-rendered sprite caches
+    var SPRITE_SIZES = [20, 26, 32, 38];
+    var WING_FRAMES = 8;
+    var bodySprites = {};
+    var wingSpriteSets = {};
+    var spritesReady = false;
+
+    // --- SVG builders ---
+    function buildBodySVG() {
+      return [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
+        '<defs>',
+        '<radialGradient id="thG" cx="50%" cy="45%" r="55%">',
+        '<stop offset="0%" stop-color="#8B6914"/>',
+        '<stop offset="40%" stop-color="#6B4F10"/>',
+        '<stop offset="100%" stop-color="#3D2B06"/>',
+        '</radialGradient>',
+        '<radialGradient id="abG" cx="45%" cy="40%" r="60%">',
+        '<stop offset="0%" stop-color="#D4A017"/>',
+        '<stop offset="50%" stop-color="#B8860B"/>',
+        '<stop offset="100%" stop-color="#8B6914"/>',
+        '</radialGradient>',
+        '<radialGradient id="hdG" cx="40%" cy="35%" r="60%">',
+        '<stop offset="0%" stop-color="#4A3500"/>',
+        '<stop offset="100%" stop-color="#1A1000"/>',
+        '</radialGradient>',
+        '<filter id="bSh" x="-10%" y="-10%" width="120%" height="120%">',
+        '<feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.25"/>',
+        '</filter>',
+        '</defs>',
+        '<g filter="url(#bSh)">',
+        // Antennae
+        '<path d="M38,52 Q22,38 18,28" fill="none" stroke="#2A1A00" stroke-width="1.3" stroke-linecap="round"/>',
+        '<path d="M38,68 Q22,82 18,92" fill="none" stroke="#2A1A00" stroke-width="1.3" stroke-linecap="round"/>',
+        '<circle cx="17" cy="27" r="2" fill="#3A2800"/>',
+        '<circle cx="17" cy="93" r="2" fill="#3A2800"/>',
+        // Head
+        '<ellipse cx="42" cy="60" rx="14" ry="13" fill="url(#hdG)"/>',
+        // Compound eyes
+        '<ellipse cx="36" cy="53" rx="5.5" ry="6" fill="#1A0E00"/>',
+        '<ellipse cx="36" cy="67" rx="5.5" ry="6" fill="#1A0E00"/>',
+        '<ellipse cx="34" cy="51" rx="2" ry="2.2" fill="rgba(255,255,255,0.13)"/>',
+        '<ellipse cx="34" cy="65" rx="2" ry="2.2" fill="rgba(255,255,255,0.13)"/>',
+        // Mandibles
+        '<path d="M30,57 Q25,60 30,63" fill="none" stroke="#2A1A00" stroke-width="1" stroke-linecap="round"/>',
+        // Neck
+        '<ellipse cx="55" cy="60" rx="5" ry="7" fill="#3D2B06"/>',
+        // Thorax
+        '<ellipse cx="72" cy="60" rx="18" ry="17" fill="url(#thG)"/>',
+        // Thorax fur
+        '<g stroke="#A0841E" stroke-width="0.5" opacity="0.45" stroke-linecap="round">',
+        '<line x1="59" y1="51" x2="61" y2="48"/><line x1="63" y1="47" x2="66" y2="45"/>',
+        '<line x1="68" y1="45" x2="71" y2="43"/><line x1="74" y1="44" x2="77" y2="42"/>',
+        '<line x1="80" y1="46" x2="82" y2="44"/><line x1="84" y1="49" x2="86" y2="47"/>',
+        '<line x1="59" y1="69" x2="61" y2="72"/><line x1="63" y1="73" x2="66" y2="75"/>',
+        '<line x1="68" y1="75" x2="71" y2="77"/><line x1="74" y1="76" x2="77" y2="78"/>',
+        '<line x1="80" y1="74" x2="82" y2="76"/><line x1="84" y1="71" x2="86" y2="73"/>',
+        '</g>',
+        '<ellipse cx="68" cy="53" rx="10" ry="6" fill="rgba(180,150,60,0.15)"/>',
+        // Waist (petiole)
+        '<ellipse cx="92" cy="60" rx="4" ry="8" fill="#5C4010"/>',
+        // Abdomen
+        '<ellipse cx="126" cy="60" rx="40" ry="26" fill="url(#abG)"/>',
+        // Abdomen black bands
+        '<path d="M100,42 Q102,60 100,78" fill="none" stroke="#1A0E00" stroke-width="4.5" opacity="0.7"/>',
+        '<path d="M112,36 Q114,60 112,84" fill="none" stroke="#1A0E00" stroke-width="5.5" opacity="0.8"/>',
+        '<path d="M126,34 Q128,60 126,86" fill="none" stroke="#1A0E00" stroke-width="5" opacity="0.75"/>',
+        '<path d="M140,36 Q142,60 140,84" fill="none" stroke="#1A0E00" stroke-width="4.5" opacity="0.65"/>',
+        '<path d="M152,40 Q154,60 152,80" fill="none" stroke="#1A0E00" stroke-width="3.5" opacity="0.5"/>',
+        // Abdomen edge hair
+        '<g stroke="#C8A830" stroke-width="0.4" opacity="0.35" stroke-linecap="round">',
+        '<line x1="104" y1="38" x2="105" y2="34"/><line x1="117" y1="34" x2="118" y2="30"/>',
+        '<line x1="131" y1="33" x2="132" y2="29"/><line x1="144" y1="35" x2="145" y2="31"/>',
+        '<line x1="155" y1="39" x2="156" y2="35"/><line x1="104" y1="82" x2="105" y2="86"/>',
+        '<line x1="117" y1="86" x2="118" y2="90"/><line x1="131" y1="87" x2="132" y2="91"/>',
+        '<line x1="144" y1="85" x2="145" y2="89"/><line x1="155" y1="81" x2="156" y2="85"/>',
+        '</g>',
+        // Abdomen shine
+        '<ellipse cx="120" cy="47" rx="22" ry="8" fill="rgba(255,220,120,0.12)"/>',
+        // Stinger
+        '<path d="M165,60 L178,59.3 L178,60.7 Z" fill="#1A0E00"/>',
+        '<path d="M164,57 Q167,60 164,63" fill="none" stroke="#3D2B06" stroke-width="0.8"/>',
+        // Legs (3 pairs, jointed)
+        '<g stroke="#2A1A00" fill="none" stroke-linecap="round" stroke-linejoin="round">',
+        '<path d="M58,50 L52,40 L45,33 L38,30" stroke-width="1.1"/>',
+        '<path d="M58,70 L52,80 L45,87 L38,90" stroke-width="1.1"/>',
+        '<path d="M74,47 L70,35 L64,26 L57,22" stroke-width="1.1"/>',
+        '<path d="M74,73 L70,85 L64,94 L57,98" stroke-width="1.1"/>',
+        '<path d="M88,49 L93,37 L98,28 L105,24" stroke-width="1.3"/>',
+        '<path d="M88,71 L93,83 L98,92 L105,96" stroke-width="1.3"/>',
+        // Pollen baskets on hind legs
+        '<ellipse cx="98" cy="28" rx="3" ry="2" fill="#D4A017" stroke="none" opacity="0.45"/>',
+        '<ellipse cx="98" cy="92" rx="3" ry="2" fill="#D4A017" stroke="none" opacity="0.45"/>',
+        '</g>',
+        '</g>',
+        '</svg>',
+      ].join("");
+    }
+
+    function buildWingSVG(flapOffset) {
+      var f = flapOffset;
+      var topY = 24 - f * 10;
+      var botY = 96 + f * 10;
+      var topRot = -15 - f * 14;
+      var botRot = 15 + f * 14;
+      var loTopY = 34 - f * 6;
+      var loBotY = 86 + f * 6;
+      return [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
+        '<defs>',
+        '<linearGradient id="wgG" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '<stop offset="0%" stop-color="rgba(225,232,248,0.5)"/>',
+        '<stop offset="40%" stop-color="rgba(210,220,242,0.35)"/>',
+        '<stop offset="100%" stop-color="rgba(190,205,235,0.15)"/>',
+        '</linearGradient>',
+        '<linearGradient id="wvG" x1="0%" y1="0%" x2="100%" y2="0%">',
+        '<stop offset="0%" stop-color="rgba(110,100,80,0.4)"/>',
+        '<stop offset="100%" stop-color="rgba(110,100,80,0.08)"/>',
+        '</linearGradient>',
+        '</defs>',
+        // Upper left wing
+        '<ellipse cx="72" cy="' + topY + '" rx="40" ry="19" fill="url(#wgG)" stroke="rgba(140,150,175,0.3)" stroke-width="0.5" transform="rotate(' + topRot + ' 72 ' + topY + ')"/>',
+        '<path d="M56,' + topY + ' Q64,' + (topY - 9) + ' 84,' + (topY - 14) + '" fill="none" stroke="url(#wvG)" stroke-width="0.7"/>',
+        '<path d="M60,' + (topY + 3) + ' Q70,' + (topY - 5) + ' 88,' + (topY - 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.5"/>',
+        '<path d="M66,' + (topY + 6) + ' Q74,' + (topY) + ' 86,' + (topY - 1) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
+        // Upper right wing
+        '<ellipse cx="72" cy="' + botY + '" rx="40" ry="19" fill="url(#wgG)" stroke="rgba(140,150,175,0.3)" stroke-width="0.5" transform="rotate(' + botRot + ' 72 ' + botY + ')"/>',
+        '<path d="M56,' + botY + ' Q64,' + (botY + 9) + ' 84,' + (botY + 14) + '" fill="none" stroke="url(#wvG)" stroke-width="0.7"/>',
+        '<path d="M60,' + (botY - 3) + ' Q70,' + (botY + 5) + ' 88,' + (botY + 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.5"/>',
+        '<path d="M66,' + (botY - 6) + ' Q74,' + botY + ' 86,' + (botY + 1) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
+        // Lower left wing
+        '<ellipse cx="82" cy="' + loTopY + '" rx="26" ry="13" fill="url(#wgG)" opacity="0.7" transform="rotate(' + (topRot * 0.5) + ' 82 ' + loTopY + ')"/>',
+        // Lower right wing
+        '<ellipse cx="82" cy="' + loBotY + '" rx="26" ry="13" fill="url(#wgG)" opacity="0.7" transform="rotate(' + (botRot * 0.5) + ' 82 ' + loBotY + ')"/>',
+        '</svg>',
+      ].join("");
+    }
+
+    // Render SVG to offscreen canvas
+    function svgToCanvas(svgStr, w, h, callback) {
+      var img = new Image();
+      img.onload = function () {
+        var oc = document.createElement("canvas");
+        oc.width = w;
+        oc.height = h;
+        oc.getContext("2d").drawImage(img, 0, 0, w, h);
+        callback(oc);
+      };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
+    }
+
+    function preRenderSprites(callback) {
+      var bodySvg = buildBodySVG();
+      var total = SPRITE_SIZES.length * (1 + WING_FRAMES);
+      var done = 0;
+      function check() { if (++done >= total) { spritesReady = true; callback(); } }
+
+      for (var si = 0; si < SPRITE_SIZES.length; si++) {
+        (function (pH) {
+          var pW = Math.round(pH * (200 / 120));
+          svgToCanvas(bodySvg, pW, pH, function (c) {
+            bodySprites[pH] = { canvas: c, w: pW, h: pH };
+            check();
+          });
+          wingSpriteSets[pH] = new Array(WING_FRAMES);
+          for (var f = 0; f < WING_FRAMES; f++) {
+            (function (frame) {
+              var t = frame / (WING_FRAMES - 1);
+              var flapOff = Math.sin(t * Math.PI * 2) * 0.6;
+              svgToCanvas(buildWingSVG(flapOff), pW, pH, function (c) {
+                wingSpriteSets[pH][frame] = { canvas: c, w: pW, h: pH };
+                check();
+              });
+            })(f);
+          }
+        })(SPRITE_SIZES[si]);
+      }
+    }
+
+    function closestSize(s) {
+      var best = SPRITE_SIZES[0];
+      for (var i = 1; i < SPRITE_SIZES.length; i++) {
+        if (Math.abs(SPRITE_SIZES[i] - s) < Math.abs(best - s)) best = SPRITE_SIZES[i];
+      }
+      return best;
+    }
+
+    // --- Section visibility ---
     function resize() {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -1642,331 +1830,141 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateVisibleZones() {
       visibleZones = [];
-      for (let i = 0; i < SECTION_IDS.length; i++) {
+      for (var i = 0; i < SECTION_IDS.length; i++) {
         var el = document.getElementById(SECTION_IDS[i]);
         if (el) {
-          var rect = el.getBoundingClientRect();
-          visibleZones.push({ top: rect.top, bottom: rect.bottom });
+          var r = el.getBoundingClientRect();
+          visibleZones.push({ top: r.top, bottom: r.bottom });
         }
       }
     }
 
-    function isInVisibleZone(screenY) {
+    function isInVisibleZone(y) {
       for (var i = 0; i < visibleZones.length; i++) {
-        if (screenY >= visibleZones[i].top && screenY <= visibleZones[i].bottom)
-          return true;
+        if (y >= visibleZones[i].top - 50 && y <= visibleZones[i].bottom + 50) return true;
       }
       return false;
     }
 
-    // Combined zone bounding box for spawning bees
     function getZoneBounds() {
-      if (visibleZones.length === 0) return null;
-      var minTop = visibleZones[0].top;
-      var maxBottom = visibleZones[visibleZones.length - 1].bottom;
-      return { top: minTop, bottom: maxBottom };
+      if (!visibleZones.length) return null;
+      return { top: visibleZones[0].top, bottom: visibleZones[visibleZones.length - 1].bottom };
     }
 
     function getBeeCount() {
       return window.innerWidth < 768 ? BEE_COUNT_MOBILE : BEE_COUNT_DESKTOP;
     }
 
+    // --- Bee lifecycle ---
     function createBee() {
       var bounds = getZoneBounds();
       var yMin = bounds ? bounds.top : 0;
       var yMax = bounds ? bounds.bottom : height;
-      var size = 8 + Math.random() * 7;
       return {
         x: Math.random() * width,
         y: yMin + Math.random() * (yMax - yMin),
-        size: size,
+        spriteSize: SPRITE_SIZES[Math.floor(Math.random() * SPRITE_SIZES.length)],
         angle: Math.random() * Math.PI * 2,
         baseSpeedX: (Math.random() - 0.5) * 1.0,
         baseSpeedY: (Math.random() - 0.5) * 0.6,
-        vx: 0,
-        vy: 0,
+        vx: 0, vy: 0,
         wingPhase: Math.random() * Math.PI * 2,
         wingSpeed: 0.35 + Math.random() * 0.15,
         wobblePhase: Math.random() * Math.PI * 2,
         wobbleSpeed: 0.015 + Math.random() * 0.01,
-        wobbleAmplitude: 0.3 + Math.random() * 0.3,
-        opacity: 0.35 + Math.random() * 0.35,
+        wobbleAmp: 0.3 + Math.random() * 0.3,
+        opacity: 0.5 + Math.random() * 0.3,
         glowPulse: Math.random() * Math.PI * 2,
+        flipY: Math.random() > 0.5 ? 1 : -1,
       };
     }
 
     function initBees() {
       bees = [];
-      var count = getBeeCount();
-      for (var i = 0; i < count; i++) {
-        bees.push(createBee());
-      }
+      for (var i = 0, n = getBeeCount(); i < n; i++) bees.push(createBee());
     }
 
+    // --- Drawing ---
     function drawBee(bee) {
-      var x = bee.x,
-        y = bee.y,
-        s = bee.size,
-        wingPhase = bee.wingPhase,
-        opacity = bee.opacity,
-        glowPulse = bee.glowPulse,
-        angle = bee.angle;
-      var glowIntensity = 0.12 + Math.sin(glowPulse) * 0.06;
+      if (!spritesReady) return;
+      var sk = closestSize(bee.spriteSize);
+      var bs = bodySprites[sk];
+      var wf = wingSpriteSets[sk];
+      if (!bs || !wf) return;
+
+      var wIdx = Math.floor(((bee.wingPhase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2) * WING_FRAMES) % WING_FRAMES;
+      var ws = wf[wIdx];
+      var w = bs.w, h = bs.h;
+      var glowI = 0.10 + Math.sin(bee.glowPulse) * 0.05;
 
       ctx.save();
-      ctx.globalAlpha = opacity;
-      ctx.translate(x, y);
-      ctx.rotate(angle);
+      ctx.globalAlpha = bee.opacity;
+      ctx.translate(bee.x, bee.y);
+      ctx.rotate(bee.angle);
+      ctx.scale(1, bee.flipY);
 
-      // Subtle glow (halved)
-      var grad = ctx.createRadialGradient(0, 0, 0, 0, 0, s * 2.5);
-      grad.addColorStop(0, "rgba(218, 175, 60, " + glowIntensity + ")");
-      grad.addColorStop(1, "rgba(218, 175, 60, 0)");
-      ctx.fillStyle = grad;
+      // Subtle glow
+      var g = ctx.createRadialGradient(0, 0, 0, 0, 0, h * 1.1);
+      g.addColorStop(0, "rgba(200,165,40," + glowI + ")");
+      g.addColorStop(1, "rgba(200,165,40,0)");
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(0, 0, s * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // === Wings (behind body) ===
-      var wingFlap = Math.sin(wingPhase);
-      var wingAlpha = 0.18 + Math.abs(wingFlap) * 0.12;
-      var flapAngle = wingFlap * 0.45;
-
-      // Upper wings (larger)
-      ctx.fillStyle = "rgba(200, 210, 230, " + wingAlpha + ")";
-      ctx.strokeStyle = "rgba(180, 190, 210, " + (wingAlpha * 0.6) + ")";
-      ctx.lineWidth = 0.4;
-      // Left upper wing
-      ctx.save();
-      ctx.translate(-s * 0.1, -s * 0.15);
-      ctx.rotate(-0.6 + flapAngle);
-      ctx.beginPath();
-      ctx.ellipse(0, -s * 0.45, s * 0.55, s * 0.25, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      // Wing veins
-      ctx.strokeStyle = "rgba(160, 170, 195, " + (wingAlpha * 0.4) + ")";
-      ctx.lineWidth = 0.3;
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.25);
-      ctx.lineTo(0, -s * 0.65);
-      ctx.moveTo(-s * 0.15, -s * 0.35);
-      ctx.lineTo(s * 0.15, -s * 0.55);
-      ctx.stroke();
-      ctx.restore();
-      // Right upper wing
-      ctx.save();
-      ctx.translate(s * 0.1, -s * 0.15);
-      ctx.rotate(0.6 - flapAngle);
-      ctx.beginPath();
-      ctx.ellipse(0, -s * 0.45, s * 0.55, s * 0.25, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
-      ctx.strokeStyle = "rgba(160, 170, 195, " + (wingAlpha * 0.4) + ")";
-      ctx.lineWidth = 0.3;
-      ctx.beginPath();
-      ctx.moveTo(0, -s * 0.25);
-      ctx.lineTo(0, -s * 0.65);
-      ctx.moveTo(-s * 0.15, -s * 0.35);
-      ctx.lineTo(s * 0.15, -s * 0.55);
-      ctx.stroke();
-      ctx.restore();
-
-      // Lower wings (smaller)
-      ctx.fillStyle = "rgba(200, 210, 230, " + (wingAlpha * 0.7) + ")";
-      ctx.save();
-      ctx.translate(-s * 0.08, s * 0.0);
-      ctx.rotate(-0.8 + flapAngle * 0.7);
-      ctx.beginPath();
-      ctx.ellipse(0, -s * 0.3, s * 0.35, s * 0.16, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-      ctx.save();
-      ctx.translate(s * 0.08, s * 0.0);
-      ctx.rotate(0.8 - flapAngle * 0.7);
-      ctx.beginPath();
-      ctx.ellipse(0, -s * 0.3, s * 0.35, s * 0.16, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // === Head ===
-      ctx.fillStyle = "#1a1200";
-      ctx.beginPath();
-      ctx.ellipse(-s * 0.52, 0, s * 0.18, s * 0.16, 0, 0, Math.PI * 2);
+      ctx.arc(0, 0, h * 1.1, 0, Math.PI * 2);
       ctx.fill();
 
-      // Eyes
-      ctx.fillStyle = "#2a2000";
-      ctx.beginPath();
-      ctx.arc(-s * 0.58, -s * 0.07, s * 0.055, 0, Math.PI * 2);
-      ctx.arc(-s * 0.58, s * 0.07, s * 0.055, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-      ctx.beginPath();
-      ctx.arc(-s * 0.59, -s * 0.08, s * 0.025, 0, Math.PI * 2);
-      ctx.arc(-s * 0.59, s * 0.06, s * 0.025, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Antennae
-      ctx.strokeStyle = "#1a1200";
-      ctx.lineWidth = s * 0.04;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(-s * 0.62, -s * 0.1);
-      ctx.quadraticCurveTo(-s * 0.85, -s * 0.3, -s * 0.78, -s * 0.4);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-s * 0.62, s * 0.1);
-      ctx.quadraticCurveTo(-s * 0.85, s * 0.3, -s * 0.78, s * 0.4);
-      ctx.stroke();
-      // Antenna tips
-      ctx.fillStyle = "#2a1e00";
-      ctx.beginPath();
-      ctx.arc(-s * 0.78, -s * 0.4, s * 0.03, 0, Math.PI * 2);
-      ctx.arc(-s * 0.78, s * 0.4, s * 0.03, 0, Math.PI * 2);
-      ctx.fill();
-
-      // === Thorax ===
-      ctx.fillStyle = "#3d2e00";
-      ctx.beginPath();
-      ctx.ellipse(-s * 0.22, 0, s * 0.2, s * 0.19, 0, 0, Math.PI * 2);
-      ctx.fill();
-      // Thorax fur texture
-      ctx.fillStyle = "rgba(90, 70, 10, 0.5)";
-      ctx.beginPath();
-      ctx.ellipse(-s * 0.22, 0, s * 0.16, s * 0.14, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // === Abdomen (with yellow-black stripes) ===
-      ctx.fillStyle = "#d4a020";
-      ctx.beginPath();
-      ctx.ellipse(s * 0.18, 0, s * 0.38, s * 0.24, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Black stripes on abdomen
-      ctx.fillStyle = "#1a1200";
-      var stripePositions = [-0.08, 0.08, 0.22, 0.36];
-      for (var si = 0; si < stripePositions.length; si++) {
-        var sx = s * stripePositions[si];
-        // Compute stripe half-height from ellipse shape
-        var relX = (sx - s * 0.18) / (s * 0.38);
-        if (Math.abs(relX) < 1) {
-          var stripeH = s * 0.24 * Math.sqrt(1 - relX * relX);
-          ctx.beginPath();
-          ctx.ellipse(sx, 0, s * 0.04, stripeH * 0.9, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      // Abdomen highlight (sheen)
-      var sheenGrad = ctx.createLinearGradient(
-        s * 0.0, -s * 0.2,
-        s * 0.2, s * 0.1
-      );
-      sheenGrad.addColorStop(0, "rgba(255, 230, 140, 0.15)");
-      sheenGrad.addColorStop(1, "rgba(255, 230, 140, 0)");
-      ctx.fillStyle = sheenGrad;
-      ctx.beginPath();
-      ctx.ellipse(s * 0.12, -s * 0.06, s * 0.25, s * 0.12, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Stinger
-      ctx.fillStyle = "#1a1200";
-      ctx.beginPath();
-      ctx.moveTo(s * 0.55, 0);
-      ctx.lineTo(s * 0.65, -s * 0.02);
-      ctx.lineTo(s * 0.65, s * 0.02);
-      ctx.closePath();
-      ctx.fill();
-
-      // === Legs (3 pairs) ===
-      ctx.strokeStyle = "#1a1200";
-      ctx.lineWidth = s * 0.035;
-      ctx.lineCap = "round";
-      var legPairs = [
-        { bx: -s * 0.15, by: s * 0.16, mx: -s * 0.25, my: s * 0.35, ex: -s * 0.15, ey: s * 0.45 },
-        { bx: s * 0.0, by: s * 0.18, mx: -s * 0.05, my: s * 0.38, ex: s * 0.08, ey: s * 0.48 },
-        { bx: s * 0.15, by: s * 0.17, mx: s * 0.15, my: s * 0.37, ex: s * 0.28, ey: s * 0.44 },
-      ];
-      for (var li = 0; li < legPairs.length; li++) {
-        var leg = legPairs[li];
-        // Bottom leg
-        ctx.beginPath();
-        ctx.moveTo(leg.bx, leg.by);
-        ctx.quadraticCurveTo(leg.mx, leg.my, leg.ex, leg.ey);
-        ctx.stroke();
-        // Top leg (mirrored)
-        ctx.beginPath();
-        ctx.moveTo(leg.bx, -leg.by);
-        ctx.quadraticCurveTo(leg.mx, -leg.my, leg.ex, -leg.ey);
-        ctx.stroke();
-      }
+      // Wings behind body
+      if (ws) ctx.drawImage(ws.canvas, -w * 0.5, -h * 0.5, w, h);
+      // Body on top
+      ctx.drawImage(bs.canvas, -w * 0.5, -h * 0.5, w, h);
 
       ctx.restore();
     }
 
+    // --- Physics ---
     function update() {
       updateVisibleZones();
       var bounds = getZoneBounds();
 
       for (var i = 0; i < bees.length; i++) {
-        var bee = bees[i];
+        var b = bees[i];
+        b.wobblePhase += b.wobbleSpeed;
+        var wx = Math.sin(b.wobblePhase) * b.wobbleAmp;
+        var wy = Math.cos(b.wobblePhase * 0.7) * b.wobbleAmp;
 
-        // Wobble motion
-        bee.wobblePhase += bee.wobbleSpeed;
-        var wobbleX = Math.sin(bee.wobblePhase) * bee.wobbleAmplitude;
-        var wobbleY = Math.cos(bee.wobblePhase * 0.7) * bee.wobbleAmplitude;
-
-        // Mouse interaction - bees flee from cursor
-        var fleeX = 0;
-        var fleeY = 0;
-        var dx = bee.x - mouse.x;
-        var dy = bee.y - mouse.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < MOUSE_RADIUS && dist > 0) {
-          var force = (1 - dist / MOUSE_RADIUS) * 3;
-          fleeX = (dx / dist) * force;
-          fleeY = (dy / dist) * force;
+        var fx = 0, fy = 0;
+        var dx = b.x - mouse.x, dy = b.y - mouse.y;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < MOUSE_RADIUS && d > 0) {
+          var f = (1 - d / MOUSE_RADIUS) * 3;
+          fx = (dx / d) * f;
+          fy = (dy / d) * f;
         }
 
-        // Apply velocities with smoothing
-        bee.vx += (bee.baseSpeedX + wobbleX + fleeX - bee.vx) * 0.05;
-        bee.vy += (bee.baseSpeedY + wobbleY + fleeY - bee.vy) * 0.05;
-        bee.x += bee.vx;
-        bee.y += bee.vy;
+        b.vx += (b.baseSpeedX + wx + fx - b.vx) * 0.05;
+        b.vy += (b.baseSpeedY + wy + fy - b.vy) * 0.05;
+        b.x += b.vx;
+        b.y += b.vy;
 
-        // Face movement direction
-        if (Math.abs(bee.vx) > 0.1 || Math.abs(bee.vy) > 0.1) {
-          var targetAngle = Math.atan2(bee.vy, bee.vx);
-          // Smooth angle interpolation
-          var diff = targetAngle - bee.angle;
-          while (diff > Math.PI) diff -= Math.PI * 2;
-          while (diff < -Math.PI) diff += Math.PI * 2;
-          bee.angle += diff * 0.04;
+        if (Math.abs(b.vx) > 0.1 || Math.abs(b.vy) > 0.1) {
+          var ta = Math.atan2(b.vy, b.vx);
+          var ad = ta - b.angle;
+          while (ad > Math.PI) ad -= Math.PI * 2;
+          while (ad < -Math.PI) ad += Math.PI * 2;
+          b.angle += ad * 0.04;
         }
 
-        // Wing animation
-        bee.wingPhase += bee.wingSpeed;
-        bee.glowPulse += 0.02;
+        b.wingPhase += b.wingSpeed;
+        b.glowPulse += 0.02;
 
-        // Keep bees within visible zone bounds (wrap horizontally, bounce vertically)
-        var margin = 60;
-        if (bee.x < -margin) bee.x = width + margin;
-        if (bee.x > width + margin) bee.x = -margin;
+        var m = 60;
+        if (b.x < -m) b.x = width + m;
+        if (b.x > width + m) b.x = -m;
         if (bounds) {
-          var scrollY = window.scrollY || window.pageYOffset;
-          var absY = bee.y + scrollY;
-          var zoneTop = bounds.top + scrollY;
-          var zoneBottom = bounds.bottom + scrollY;
-          if (bee.y < bounds.top - margin) {
-            bee.y = bounds.bottom + margin * 0.5;
-          }
-          if (bee.y > bounds.bottom + margin) {
-            bee.y = bounds.top - margin * 0.5;
-          }
+          if (b.y < bounds.top - m) b.y = bounds.bottom + m * 0.5;
+          if (b.y > bounds.bottom + m) b.y = bounds.top - m * 0.5;
         } else {
-          if (bee.y < -margin) bee.y = height + margin;
-          if (bee.y > height + margin) bee.y = -margin;
+          if (b.y < -m) b.y = height + m;
+          if (b.y > height + m) b.y = -m;
         }
       }
     }
@@ -1974,10 +1972,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function draw() {
       ctx.clearRect(0, 0, width, height);
       for (var i = 0; i < bees.length; i++) {
-        var bee = bees[i];
-        if (isInVisibleZone(bee.y)) {
-          drawBee(bee);
-        }
+        if (isInVisibleZone(bees[i].y)) drawBee(bees[i]);
       }
     }
 
@@ -1987,42 +1982,25 @@ document.addEventListener("DOMContentLoaded", function () {
       requestAnimationFrame(animate);
     }
 
-    // Mouse tracking
-    document.addEventListener("mousemove", function (e) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-    document.addEventListener("mouseleave", function () {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
-    document.addEventListener(
-      "touchmove",
-      function (e) {
-        if (e.touches.length > 0) {
-          mouse.x = e.touches[0].clientX;
-          mouse.y = e.touches[0].clientY;
-        }
-      },
-      { passive: true },
-    );
-    document.addEventListener("touchend", function () {
-      mouse.x = -9999;
-      mouse.y = -9999;
-    });
-
+    // --- Events ---
+    document.addEventListener("mousemove", function (e) { mouse.x = e.clientX; mouse.y = e.clientY; });
+    document.addEventListener("mouseleave", function () { mouse.x = -9999; mouse.y = -9999; });
+    document.addEventListener("touchmove", function (e) {
+      if (e.touches.length > 0) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; }
+    }, { passive: true });
+    document.addEventListener("touchend", function () { mouse.x = -9999; mouse.y = -9999; });
     window.addEventListener("resize", function () {
       resize();
-      var targetCount = getBeeCount();
-      if (bees.length !== targetCount) {
-        initBees();
-      }
+      if (bees.length !== getBeeCount()) initBees();
     });
 
+    // --- Init ---
     resize();
     updateVisibleZones();
-    initBees();
-    animate();
+    preRenderSprites(function () {
+      initBees();
+      animate();
+    });
   })();
 
   // ========================================
