@@ -1647,87 +1647,95 @@ document.addEventListener("DOMContentLoaded", function () {
       return [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
         '<defs>',
-        '<radialGradient id="thG" cx="50%" cy="45%" r="55%">',
-        '<stop offset="0%" stop-color="#8B6914"/>',
-        '<stop offset="40%" stop-color="#6B4F10"/>',
-        '<stop offset="100%" stop-color="#3D2B06"/>',
+        // Thorax gradient - warm dark amber
+        '<radialGradient id="thG" cx="48%" cy="40%" r="55%">',
+        '<stop offset="0%" stop-color="#A07828"/>',
+        '<stop offset="60%" stop-color="#7A5A18"/>',
+        '<stop offset="100%" stop-color="#4A3408"/>',
         '</radialGradient>',
-        '<radialGradient id="abG" cx="45%" cy="40%" r="60%">',
-        '<stop offset="0%" stop-color="#D4A017"/>',
-        '<stop offset="50%" stop-color="#B8860B"/>',
-        '<stop offset="100%" stop-color="#8B6914"/>',
+        // Abdomen gradient - rich golden honey
+        '<radialGradient id="abG" cx="42%" cy="38%" r="62%">',
+        '<stop offset="0%" stop-color="#F5C842"/>',
+        '<stop offset="35%" stop-color="#E0A820"/>',
+        '<stop offset="70%" stop-color="#C48A10"/>',
+        '<stop offset="100%" stop-color="#9A6808"/>',
         '</radialGradient>',
-        '<radialGradient id="hdG" cx="40%" cy="35%" r="60%">',
-        '<stop offset="0%" stop-color="#4A3500"/>',
-        '<stop offset="100%" stop-color="#1A1000"/>',
+        // Head gradient
+        '<radialGradient id="hdG" cx="40%" cy="35%" r="55%">',
+        '<stop offset="0%" stop-color="#3E2800"/>',
+        '<stop offset="100%" stop-color="#1C1000"/>',
         '</radialGradient>',
-        '<filter id="bSh" x="-10%" y="-10%" width="120%" height="120%">',
-        '<feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000" flood-opacity="0.25"/>',
+        // Soft shadow filter
+        '<filter id="bSh" x="-15%" y="-15%" width="130%" height="130%">',
+        '<feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>',
+        '<feOffset dx="0" dy="1" result="offsetBlur"/>',
+        '<feFlood flood-color="#000" flood-opacity="0.18" result="color"/>',
+        '<feComposite in="color" in2="offsetBlur" operator="in" result="shadow"/>',
+        '<feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>',
         '</filter>',
+        // Abdomen band gradient for smooth stripes
+        '<linearGradient id="bandG" x1="0%" y1="0%" x2="0%" y2="100%">',
+        '<stop offset="0%" stop-color="#1A0E00" stop-opacity="0"/>',
+        '<stop offset="20%" stop-color="#1A0E00" stop-opacity="1"/>',
+        '<stop offset="80%" stop-color="#1A0E00" stop-opacity="1"/>',
+        '<stop offset="100%" stop-color="#1A0E00" stop-opacity="0"/>',
+        '</linearGradient>',
+        // Thorax fur texture
+        '<radialGradient id="furG" cx="50%" cy="40%" r="50%">',
+        '<stop offset="0%" stop-color="#C8A040" stop-opacity="0.2"/>',
+        '<stop offset="100%" stop-color="#C8A040" stop-opacity="0"/>',
+        '</radialGradient>',
         '</defs>',
         '<g filter="url(#bSh)">',
-        // Antennae
-        '<path d="M38,52 Q22,38 18,28" fill="none" stroke="#2A1A00" stroke-width="1.3" stroke-linecap="round"/>',
-        '<path d="M38,68 Q22,82 18,92" fill="none" stroke="#2A1A00" stroke-width="1.3" stroke-linecap="round"/>',
-        '<circle cx="17" cy="27" r="2" fill="#3A2800"/>',
-        '<circle cx="17" cy="93" r="2" fill="#3A2800"/>',
-        // Head
-        '<ellipse cx="42" cy="60" rx="14" ry="13" fill="url(#hdG)"/>',
-        // Compound eyes
-        '<ellipse cx="36" cy="53" rx="5.5" ry="6" fill="#1A0E00"/>',
-        '<ellipse cx="36" cy="67" rx="5.5" ry="6" fill="#1A0E00"/>',
-        '<ellipse cx="34" cy="51" rx="2" ry="2.2" fill="rgba(255,255,255,0.13)"/>',
-        '<ellipse cx="34" cy="65" rx="2" ry="2.2" fill="rgba(255,255,255,0.13)"/>',
-        // Mandibles
-        '<path d="M30,57 Q25,60 30,63" fill="none" stroke="#2A1A00" stroke-width="1" stroke-linecap="round"/>',
-        // Neck
-        '<ellipse cx="55" cy="60" rx="5" ry="7" fill="#3D2B06"/>',
-        // Thorax
-        '<ellipse cx="72" cy="60" rx="18" ry="17" fill="url(#thG)"/>',
-        // Thorax fur
-        '<g stroke="#A0841E" stroke-width="0.5" opacity="0.45" stroke-linecap="round">',
-        '<line x1="59" y1="51" x2="61" y2="48"/><line x1="63" y1="47" x2="66" y2="45"/>',
-        '<line x1="68" y1="45" x2="71" y2="43"/><line x1="74" y1="44" x2="77" y2="42"/>',
-        '<line x1="80" y1="46" x2="82" y2="44"/><line x1="84" y1="49" x2="86" y2="47"/>',
-        '<line x1="59" y1="69" x2="61" y2="72"/><line x1="63" y1="73" x2="66" y2="75"/>',
-        '<line x1="68" y1="75" x2="71" y2="77"/><line x1="74" y1="76" x2="77" y2="78"/>',
-        '<line x1="80" y1="74" x2="82" y2="76"/><line x1="84" y1="71" x2="86" y2="73"/>',
-        '</g>',
-        '<ellipse cx="68" cy="53" rx="10" ry="6" fill="rgba(180,150,60,0.15)"/>',
-        // Waist (petiole)
-        '<ellipse cx="92" cy="60" rx="4" ry="8" fill="#5C4010"/>',
-        // Abdomen
-        '<ellipse cx="126" cy="60" rx="40" ry="26" fill="url(#abG)"/>',
-        // Abdomen black bands
-        '<path d="M100,42 Q102,60 100,78" fill="none" stroke="#1A0E00" stroke-width="4.5" opacity="0.7"/>',
-        '<path d="M112,36 Q114,60 112,84" fill="none" stroke="#1A0E00" stroke-width="5.5" opacity="0.8"/>',
-        '<path d="M126,34 Q128,60 126,86" fill="none" stroke="#1A0E00" stroke-width="5" opacity="0.75"/>',
-        '<path d="M140,36 Q142,60 140,84" fill="none" stroke="#1A0E00" stroke-width="4.5" opacity="0.65"/>',
-        '<path d="M152,40 Q154,60 152,80" fill="none" stroke="#1A0E00" stroke-width="3.5" opacity="0.5"/>',
-        // Abdomen edge hair
-        '<g stroke="#C8A830" stroke-width="0.4" opacity="0.35" stroke-linecap="round">',
-        '<line x1="104" y1="38" x2="105" y2="34"/><line x1="117" y1="34" x2="118" y2="30"/>',
-        '<line x1="131" y1="33" x2="132" y2="29"/><line x1="144" y1="35" x2="145" y2="31"/>',
-        '<line x1="155" y1="39" x2="156" y2="35"/><line x1="104" y1="82" x2="105" y2="86"/>',
-        '<line x1="117" y1="86" x2="118" y2="90"/><line x1="131" y1="87" x2="132" y2="91"/>',
-        '<line x1="144" y1="85" x2="145" y2="89"/><line x1="155" y1="81" x2="156" y2="85"/>',
-        '</g>',
-        // Abdomen shine
-        '<ellipse cx="120" cy="47" rx="22" ry="8" fill="rgba(255,220,120,0.12)"/>',
-        // Stinger
-        '<path d="M165,60 L178,59.3 L178,60.7 Z" fill="#1A0E00"/>',
-        '<path d="M164,57 Q167,60 164,63" fill="none" stroke="#3D2B06" stroke-width="0.8"/>',
-        // Legs (3 pairs, jointed)
-        '<g stroke="#2A1A00" fill="none" stroke-linecap="round" stroke-linejoin="round">',
-        '<path d="M58,50 L52,40 L45,33 L38,30" stroke-width="1.1"/>',
-        '<path d="M58,70 L52,80 L45,87 L38,90" stroke-width="1.1"/>',
-        '<path d="M74,47 L70,35 L64,26 L57,22" stroke-width="1.1"/>',
-        '<path d="M74,73 L70,85 L64,94 L57,98" stroke-width="1.1"/>',
-        '<path d="M88,49 L93,37 L98,28 L105,24" stroke-width="1.3"/>',
-        '<path d="M88,71 L93,83 L98,92 L105,96" stroke-width="1.3"/>',
-        // Pollen baskets on hind legs
-        '<ellipse cx="98" cy="28" rx="3" ry="2" fill="#D4A017" stroke="none" opacity="0.45"/>',
-        '<ellipse cx="98" cy="92" rx="3" ry="2" fill="#D4A017" stroke="none" opacity="0.45"/>',
+        // Antennae - elegant curved
+        '<path d="M40,52 Q28,40 22,30 Q20,26 16,24" fill="none" stroke="#3A2600" stroke-width="1.4" stroke-linecap="round"/>',
+        '<path d="M40,68 Q28,80 22,90 Q20,94 16,96" fill="none" stroke="#3A2600" stroke-width="1.4" stroke-linecap="round"/>',
+        '<circle cx="15" cy="23" r="2.2" fill="#5A4010" opacity="0.8"/>',
+        '<circle cx="15" cy="97" r="2.2" fill="#5A4010" opacity="0.8"/>',
+        // Head - smooth rounded
+        '<ellipse cx="44" cy="60" rx="15" ry="14" fill="url(#hdG)"/>',
+        '<ellipse cx="44" cy="55" rx="9" ry="6" fill="rgba(80,60,20,0.15)"/>',
+        // Eyes - glossy compound eyes
+        '<ellipse cx="37" cy="53" rx="5" ry="5.5" fill="#0D0800"/>',
+        '<ellipse cx="37" cy="67" rx="5" ry="5.5" fill="#0D0800"/>',
+        '<ellipse cx="35.5" cy="51.5" rx="2.2" ry="2.5" fill="rgba(255,255,255,0.18)"/>',
+        '<ellipse cx="35.5" cy="65.5" rx="2.2" ry="2.5" fill="rgba(255,255,255,0.18)"/>',
+        '<ellipse cx="38.5" cy="55" rx="1" ry="1.2" fill="rgba(255,255,255,0.08)"/>',
+        '<ellipse cx="38.5" cy="69" rx="1" ry="1.2" fill="rgba(255,255,255,0.08)"/>',
+        // Neck joint - smooth connection
+        '<ellipse cx="57" cy="60" rx="6" ry="8" fill="#4A3208"/>',
+        // Thorax - plush rounded
+        '<ellipse cx="74" cy="60" rx="19" ry="18" fill="url(#thG)"/>',
+        '<ellipse cx="74" cy="60" rx="19" ry="18" fill="url(#furG)"/>',
+        // Thorax highlight
+        '<ellipse cx="70" cy="52" rx="12" ry="7" fill="rgba(220,185,90,0.12)"/>',
+        // Waist (petiole) - sleek
+        '<ellipse cx="94" cy="60" rx="5" ry="9" fill="#5C3E0E"/>',
+        '<ellipse cx="94" cy="57" rx="3" ry="5" fill="rgba(160,120,40,0.1)"/>',
+        // Abdomen - full rounded shape
+        '<ellipse cx="130" cy="60" rx="42" ry="28" fill="url(#abG)"/>',
+        // Abdomen stripes - clean smooth bands
+        '<rect x="99" y="34" width="6" height="52" rx="3" fill="#1C0E00" opacity="0.55"/>',
+        '<rect x="112" y="32" width="7" height="56" rx="3.5" fill="#1C0E00" opacity="0.65"/>',
+        '<rect x="127" y="31" width="7" height="58" rx="3.5" fill="#1C0E00" opacity="0.6"/>',
+        '<rect x="142" y="33" width="6" height="54" rx="3" fill="#1C0E00" opacity="0.5"/>',
+        '<rect x="155" y="37" width="5" height="46" rx="2.5" fill="#1C0E00" opacity="0.35"/>',
+        // Abdomen top highlight - premium sheen
+        '<ellipse cx="125" cy="42" rx="28" ry="10" fill="rgba(255,230,140,0.18)"/>',
+        '<ellipse cx="130" cy="39" rx="18" ry="5" fill="rgba(255,240,180,0.1)"/>',
+        // Stinger - refined tapered
+        '<path d="M170,60 Q174,59.5 180,59.6 L180,60.4 Q174,60.5 170,60Z" fill="#2A1800"/>',
+        // Legs - clean minimal (3 pairs)
+        '<g stroke="#2E1C00" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.75">',
+        '<path d="M60,49 Q54,40 47,33" stroke-width="1.2"/>',
+        '<path d="M60,71 Q54,80 47,87" stroke-width="1.2"/>',
+        '<path d="M76,46 Q72,36 66,27" stroke-width="1.2"/>',
+        '<path d="M76,74 Q72,84 66,93" stroke-width="1.2"/>',
+        '<path d="M90,48 Q95,38 102,30" stroke-width="1.3"/>',
+        '<path d="M90,72 Q95,82 102,90" stroke-width="1.3"/>',
+        // Pollen baskets - subtle golden glow
+        '<ellipse cx="102" cy="30" rx="3.5" ry="2.5" fill="#E8B830" stroke="none" opacity="0.35"/>',
+        '<ellipse cx="102" cy="90" rx="3.5" ry="2.5" fill="#E8B830" stroke="none" opacity="0.35"/>',
         '</g>',
         '</g>',
         '</svg>',
@@ -1736,39 +1744,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function buildWingSVG(flapOffset) {
       var f = flapOffset;
-      var topY = 24 - f * 10;
-      var botY = 96 + f * 10;
-      var topRot = -15 - f * 14;
-      var botRot = 15 + f * 14;
-      var loTopY = 34 - f * 6;
-      var loBotY = 86 + f * 6;
+      var topY = 22 - f * 11;
+      var botY = 98 + f * 11;
+      var topRot = -14 - f * 15;
+      var botRot = 14 + f * 15;
+      var loTopY = 33 - f * 7;
+      var loBotY = 87 + f * 7;
       return [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
         '<defs>',
-        '<linearGradient id="wgG" x1="0%" y1="0%" x2="100%" y2="100%">',
-        '<stop offset="0%" stop-color="rgba(225,232,248,0.5)"/>',
-        '<stop offset="40%" stop-color="rgba(210,220,242,0.35)"/>',
-        '<stop offset="100%" stop-color="rgba(190,205,235,0.15)"/>',
+        // Wing fill - pearlescent iridescent gradient
+        '<linearGradient id="wgG" x1="0%" y1="0%" x2="80%" y2="100%">',
+        '<stop offset="0%" stop-color="rgba(240,245,255,0.55)"/>',
+        '<stop offset="30%" stop-color="rgba(220,230,250,0.4)"/>',
+        '<stop offset="60%" stop-color="rgba(200,215,245,0.28)"/>',
+        '<stop offset="100%" stop-color="rgba(180,200,235,0.12)"/>',
         '</linearGradient>',
+        // Wing vein gradient - subtle
         '<linearGradient id="wvG" x1="0%" y1="0%" x2="100%" y2="0%">',
-        '<stop offset="0%" stop-color="rgba(110,100,80,0.4)"/>',
-        '<stop offset="100%" stop-color="rgba(110,100,80,0.08)"/>',
+        '<stop offset="0%" stop-color="rgba(120,110,90,0.3)"/>',
+        '<stop offset="100%" stop-color="rgba(120,110,90,0.05)"/>',
+        '</linearGradient>',
+        // Iridescent highlight
+        '<linearGradient id="iriG" x1="20%" y1="0%" x2="80%" y2="100%">',
+        '<stop offset="0%" stop-color="rgba(180,200,255,0.15)"/>',
+        '<stop offset="50%" stop-color="rgba(220,200,255,0.08)"/>',
+        '<stop offset="100%" stop-color="rgba(255,220,200,0.05)"/>',
         '</linearGradient>',
         '</defs>',
-        // Upper left wing
-        '<ellipse cx="72" cy="' + topY + '" rx="40" ry="19" fill="url(#wgG)" stroke="rgba(140,150,175,0.3)" stroke-width="0.5" transform="rotate(' + topRot + ' 72 ' + topY + ')"/>',
-        '<path d="M56,' + topY + ' Q64,' + (topY - 9) + ' 84,' + (topY - 14) + '" fill="none" stroke="url(#wvG)" stroke-width="0.7"/>',
-        '<path d="M60,' + (topY + 3) + ' Q70,' + (topY - 5) + ' 88,' + (topY - 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.5"/>',
-        '<path d="M66,' + (topY + 6) + ' Q74,' + (topY) + ' 86,' + (topY - 1) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
-        // Upper right wing
-        '<ellipse cx="72" cy="' + botY + '" rx="40" ry="19" fill="url(#wgG)" stroke="rgba(140,150,175,0.3)" stroke-width="0.5" transform="rotate(' + botRot + ' 72 ' + botY + ')"/>',
-        '<path d="M56,' + botY + ' Q64,' + (botY + 9) + ' 84,' + (botY + 14) + '" fill="none" stroke="url(#wvG)" stroke-width="0.7"/>',
-        '<path d="M60,' + (botY - 3) + ' Q70,' + (botY + 5) + ' 88,' + (botY + 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.5"/>',
-        '<path d="M66,' + (botY - 6) + ' Q74,' + botY + ' 86,' + (botY + 1) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
-        // Lower left wing
-        '<ellipse cx="82" cy="' + loTopY + '" rx="26" ry="13" fill="url(#wgG)" opacity="0.7" transform="rotate(' + (topRot * 0.5) + ' 82 ' + loTopY + ')"/>',
-        // Lower right wing
-        '<ellipse cx="82" cy="' + loBotY + '" rx="26" ry="13" fill="url(#wgG)" opacity="0.7" transform="rotate(' + (botRot * 0.5) + ' 82 ' + loBotY + ')"/>',
+        // Upper wings (forewing pair)
+        '<ellipse cx="72" cy="' + topY + '" rx="42" ry="20" fill="url(#wgG)" stroke="rgba(160,170,195,0.25)" stroke-width="0.6" transform="rotate(' + topRot + ' 72 ' + topY + ')"/>',
+        '<ellipse cx="72" cy="' + topY + '" rx="42" ry="20" fill="url(#iriG)" transform="rotate(' + topRot + ' 72 ' + topY + ')"/>',
+        '<path d="M55,' + topY + ' Q65,' + (topY - 10) + ' 88,' + (topY - 15) + '" fill="none" stroke="url(#wvG)" stroke-width="0.6"/>',
+        '<path d="M60,' + (topY + 4) + ' Q72,' + (topY - 5) + ' 90,' + (topY - 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
+        '<ellipse cx="72" cy="' + botY + '" rx="42" ry="20" fill="url(#wgG)" stroke="rgba(160,170,195,0.25)" stroke-width="0.6" transform="rotate(' + botRot + ' 72 ' + botY + ')"/>',
+        '<ellipse cx="72" cy="' + botY + '" rx="42" ry="20" fill="url(#iriG)" transform="rotate(' + botRot + ' 72 ' + botY + ')"/>',
+        '<path d="M55,' + botY + ' Q65,' + (botY + 10) + ' 88,' + (botY + 15) + '" fill="none" stroke="url(#wvG)" stroke-width="0.6"/>',
+        '<path d="M60,' + (botY - 4) + ' Q72,' + (botY + 5) + ' 90,' + (botY + 7) + '" fill="none" stroke="url(#wvG)" stroke-width="0.4"/>',
+        // Lower wings (hindwing pair) - smaller, overlapping
+        '<ellipse cx="82" cy="' + loTopY + '" rx="28" ry="14" fill="url(#wgG)" opacity="0.65" stroke="rgba(160,170,195,0.15)" stroke-width="0.4" transform="rotate(' + (topRot * 0.45) + ' 82 ' + loTopY + ')"/>',
+        '<ellipse cx="82" cy="' + loBotY + '" rx="28" ry="14" fill="url(#wgG)" opacity="0.65" stroke="rgba(160,170,195,0.15)" stroke-width="0.4" transform="rotate(' + (botRot * 0.45) + ' 82 ' + loBotY + ')"/>',
         '</svg>',
       ].join("");
     }
@@ -1903,13 +1918,14 @@ document.addEventListener("DOMContentLoaded", function () {
       ctx.rotate(bee.angle);
       ctx.scale(1, bee.flipY);
 
-      // Subtle glow
-      var g = ctx.createRadialGradient(0, 0, 0, 0, 0, h * 1.1);
-      g.addColorStop(0, "rgba(200,165,40," + glowI + ")");
-      g.addColorStop(1, "rgba(200,165,40,0)");
+      // Warm ambient glow
+      var g = ctx.createRadialGradient(0, 0, h * 0.15, 0, 0, h * 1.2);
+      g.addColorStop(0, "rgba(245,200,66," + (glowI * 0.7) + ")");
+      g.addColorStop(0.5, "rgba(220,170,40," + (glowI * 0.35) + ")");
+      g.addColorStop(1, "rgba(200,150,30,0)");
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(0, 0, h * 1.1, 0, Math.PI * 2);
+      ctx.arc(0, 0, h * 1.2, 0, Math.PI * 2);
       ctx.fill();
 
       // Wings behind body
