@@ -240,9 +240,20 @@
         text-align: center;
       }
 
-      /* Weight Selector */
-      .weight-selector {
+      /* Weight & Quantity Row */
+      .weight-quantity-row {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
         margin-bottom: 1.2rem;
+      }
+
+      .weight-selector {
+        flex: 1;
+        text-align: center;
+      }
+
+      .quantity-selector {
         text-align: center;
       }
 
@@ -283,6 +294,50 @@
         border-color: var(--accent-gold);
         color: var(--bg-primary);
         font-weight: 600;
+      }
+
+      .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .qty-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        color: var(--accent-gold);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .qty-btn:hover {
+        background: rgba(201,162,39,0.15);
+      }
+
+      .qty-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .qty-value {
+        width: 28px;
+        text-align: center;
+        font-family: var(--font-ui);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-left: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        line-height: 32px;
       }
 
       /* Jar SVG Visualization */
@@ -578,14 +633,24 @@
         <div class="summary-panel">
           <h3 class="summary-title" data-tr="KARIŞIMIN" data-en="YOUR MIX">YOUR MIX</h3>
 
-          <div class="weight-selector">
-            <label class="weight-label" data-tr="Gramaj:" data-en="Weight:">Weight:</label>
-            <div class="weight-options">
-              <button class="weight-btn" data-weight="250">250g</button>
-              <button class="weight-btn" data-weight="400">400g</button>
-              <button class="weight-btn active" data-weight="800">800g</button>
-              <button class="weight-btn" data-weight="1000">1kg</button>
-              <button class="weight-btn" data-weight="5000">5kg</button>
+          <div class="weight-quantity-row">
+            <div class="weight-selector">
+              <label class="weight-label" data-tr="Gramaj:" data-en="Weight:">Weight:</label>
+              <div class="weight-options">
+                <button class="weight-btn" data-weight="250">250g</button>
+                <button class="weight-btn" data-weight="400">400g</button>
+                <button class="weight-btn active" data-weight="800">800g</button>
+                <button class="weight-btn" data-weight="1000">1kg</button>
+                <button class="weight-btn" data-weight="5000">5kg</button>
+              </div>
+            </div>
+            <div class="quantity-selector">
+              <label class="weight-label" data-tr="Adet:" data-en="Quantity:">Quantity:</label>
+              <div class="quantity-control">
+                <button class="qty-btn" id="qtyMinus">&minus;</button>
+                <span class="qty-value" id="qtyValue">1</span>
+                <button class="qty-btn" id="qtyPlus">+</button>
+              </div>
             </div>
           </div>
 
@@ -703,6 +768,35 @@
             selectedWeight = parseInt(btn.dataset.weight);
           });
         });
+
+        // Quantity selector
+        var quantity = 1;
+        var qtyValueEl = document.getElementById("qtyValue");
+        var qtyMinusBtn = document.getElementById("qtyMinus");
+        var qtyPlusBtn = document.getElementById("qtyPlus");
+
+        function updateQtyButtons() {
+          qtyMinusBtn.disabled = quantity <= 1;
+          qtyPlusBtn.disabled = quantity >= 10;
+        }
+
+        qtyMinusBtn.addEventListener("click", function () {
+          if (quantity > 1) {
+            quantity--;
+            qtyValueEl.textContent = quantity;
+            updateQtyButtons();
+          }
+        });
+
+        qtyPlusBtn.addEventListener("click", function () {
+          if (quantity < 10) {
+            quantity++;
+            qtyValueEl.textContent = quantity;
+            updateQtyButtons();
+          }
+        });
+
+        updateQtyButtons();
 
         // Ingredient types: honey requires min 35%, at least one honey mandatory
         var honeyIds = ["pine", "vitex", "flower", "puren"];
@@ -923,7 +1017,7 @@
 
         // Submit handler
         document.getElementById("submitMix").addEventListener("click", function () {
-          var mixData = { weight: selectedWeight + "g", ingredients: {} };
+          var mixData = { weight: selectedWeight + "g", quantity: quantity, ingredients: {} };
           Object.keys(ingredients).forEach(function (id) {
             var ing = ingredients[id];
             if (ing.enabled && ing.value > 0) {
@@ -938,6 +1032,8 @@
           document.getElementById("submitMix").style.display = "none";
           document.getElementById("mixValidation").style.display = "none";
           document.querySelector(".summary-total").style.display = "none";
+          document.querySelector(".mix-container").style.gridTemplateColumns = "1fr";
+          document.querySelector(".mix-container").style.maxWidth = "500px";
           document.getElementById("mixSuccess").classList.add("visible");
         });
       });
