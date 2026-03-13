@@ -618,19 +618,32 @@
           };
 
           toggle.addEventListener("change", function () {
-            ingredients[id].enabled = toggle.checked;
-            slider.disabled = !toggle.checked;
-            card.classList.toggle("active", toggle.checked);
             if (toggle.checked) {
-              // Set to minimum value when enabled
+              // Check if adding this ingredient's minimum would exceed 100%
+              var othersTotal = getTotalExcluding(id);
+              if (parseFloat((othersTotal + minVal).toFixed(1)) > 100) {
+                toggle.checked = false;
+                return;
+              }
+              ingredients[id].enabled = true;
+              slider.disabled = false;
+              card.classList.add("active");
               slider.value = minVal;
               ingredients[id].value = minVal;
+              // Update slider max to not exceed 100%
+              var allowed = parseFloat((100 - othersTotal).toFixed(1));
+              slider.max = Math.min(maxVal, allowed);
               valueEl.textContent = (minVal % 1 === 0 ? minVal : minVal.toFixed(1)) + "%";
             } else {
+              ingredients[id].enabled = false;
+              slider.disabled = true;
+              card.classList.remove("active");
               slider.value = minVal;
+              slider.max = maxVal;
               valueEl.textContent = "0%";
               ingredients[id].value = 0;
             }
+            updateSliderMaxes();
             updateSummary();
           });
 
@@ -639,11 +652,42 @@
             // Round to step precision
             val = Math.round(val / stepVal) * stepVal;
             val = parseFloat(val.toFixed(1));
+            // Clamp so total doesn't exceed 100%
+            var othersTotal = getTotalExcluding(id);
+            var maxAllowed = parseFloat((100 - othersTotal).toFixed(1));
+            maxAllowed = Math.min(maxVal, maxAllowed);
+            if (val > maxAllowed) val = maxAllowed;
+            if (val < minVal) val = minVal;
+            slider.value = val;
             ingredients[id].value = val;
             valueEl.textContent = (val % 1 === 0 ? val : val.toFixed(1)) + "%";
+            updateSliderMaxes();
             updateSummary();
           });
         });
+
+        function getTotalExcluding(excludeId) {
+          var sum = 0;
+          Object.keys(ingredients).forEach(function (id) {
+            if (id !== excludeId && ingredients[id].enabled) {
+              sum += ingredients[id].value;
+            }
+          });
+          return parseFloat(sum.toFixed(1));
+        }
+
+        function updateSliderMaxes() {
+          Object.keys(ingredients).forEach(function (id) {
+            var ing = ingredients[id];
+            if (ing.enabled) {
+              var othersTotal = getTotalExcluding(id);
+              var allowed = parseFloat((100 - othersTotal).toFixed(1));
+              ing.slider.max = Math.min(ing.max, allowed);
+            } else {
+              ing.slider.max = ing.max;
+            }
+          });
+        }
 
         function updateSummary() {
           var active = [];
@@ -703,7 +747,6 @@
           // Update total
           var displayTotal = total % 1 === 0 ? total : total.toFixed(1);
           totalPctEl.textContent = displayTotal + "%";
-          totalPctEl.classList.toggle("over", total > 100);
 
           // Validation
           var errors = [];
@@ -714,13 +757,6 @@
               ? "En az bir bal türü seçilmelidir."
               : "At least one honey type is required.";
             errors.push(msg);
-          }
-
-          if (total > 100) {
-            var msg2 = currentLang === "tr"
-              ? "Toplam %100'ü aşamaz."
-              : "Total cannot exceed 100%.";
-            errors.push(msg2);
           }
 
           var isValid = anyEnabled && hasHoney && total === 100 && errors.length === 0;
