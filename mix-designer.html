@@ -1032,6 +1032,8 @@
           document.getElementById("submitMix").style.display = "none";
           document.getElementById("mixValidation").style.display = "none";
           document.querySelector(".summary-total").style.display = "none";
+          document.querySelector(".mix-container").style.gridTemplateColumns = "1fr";
+          document.querySelector(".mix-container").style.maxWidth = "500px";
           document.getElementById("mixSuccess").classList.add("visible");
         });
       });
