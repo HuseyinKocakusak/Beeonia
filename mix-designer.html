@@ -240,45 +240,78 @@
         text-align: center;
       }
 
+      /* Weight Selector */
+      .weight-selector {
+        margin-bottom: 1.2rem;
+        text-align: center;
+      }
+
+      .weight-label {
+        font-family: var(--font-ui);
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        letter-spacing: 0.05em;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+
+      .weight-options {
+        display: flex;
+        gap: 0.35rem;
+        justify-content: center;
+      }
+
+      .weight-btn {
+        padding: 0.4rem 0.7rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-secondary);
+        font-family: var(--font-ui);
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+      }
+
+      .weight-btn:hover {
+        border-color: var(--accent-gold);
+        color: var(--accent-gold);
+      }
+
+      .weight-btn.active {
+        background: var(--accent-gold);
+        border-color: var(--accent-gold);
+        color: var(--bg-primary);
+        font-weight: 600;
+      }
+
+      /* Jar SVG Visualization */
       .summary-jar {
         width: 100%;
-        max-width: 260px;
-        aspect-ratio: 1 / 1.1;
+        max-width: 280px;
         margin: 0 auto 1.5rem;
         position: relative;
-        border: 3px solid var(--accent-gold);
-        border-radius: 12px 12px 24px 24px;
-        overflow: hidden;
-        background: rgba(20, 24, 54, 0.6);
       }
 
-      .jar-layers-container {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column-reverse;
-      }
-
-      .jar-layer {
+      .jar-svg-wrap {
         width: 100%;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: flex-basis 0.4s ease;
-        overflow: hidden;
-        position: relative;
+        display: block;
+      }
+
+      .jar-svg-wrap svg {
+        width: 100%;
+        height: auto;
+        display: block;
       }
 
       .jar-layer-label {
-        font-family: var(--font-display);
-        font-size: 0.85rem;
-        color: rgba(0,0,0,0.75);
+        font-family: 'Cinzel', serif;
+        font-size: 11px;
         font-weight: 600;
-        letter-spacing: 0.06em;
-        text-align: center;
-        padding: 0.3rem 0.5rem;
-        word-break: break-word;
+        letter-spacing: 0.05em;
+        text-anchor: middle;
+        dominant-baseline: central;
+        fill: rgba(0,0,0,0.7);
       }
 
       .summary-list {
@@ -316,10 +349,6 @@
         color: var(--accent-gold);
         font-weight: 600;
         font-size: 1.1rem;
-      }
-
-      .summary-total .total-pct.over {
-        color: #e74c3c;
       }
 
       .summary-submit {
@@ -496,7 +525,7 @@
 
           <h3 class="ingredients-group-title" data-tr="ARI ÜRÜNLERİ" data-en="BEE PRODUCTS">BEE PRODUCTS</h3>
 
-          <div class="ingredient-card" data-id="propolis" data-color="#8b4513" data-type="addon" data-min="0.1" data-max="3" data-step="0.1">
+          <div class="ingredient-card" data-id="propolis" data-color="#8b4513" data-type="addon" data-min="1" data-max="3" data-step="1">
             <label class="ingredient-toggle">
               <input type="checkbox" />
               <span class="toggle-slider"></span>
@@ -504,9 +533,9 @@
             <div class="ingredient-details">
               <div class="ingredient-name">Propolis</div>
               <div class="ingredient-desc" data-tr="Güçlü antioksidan ve antimikrobiyal" data-en="Strong antioxidant and antimicrobial">Strong antioxidant and antimicrobial</div>
-              <div class="ingredient-constraint" data-tr="%0.1 – %3 arası" data-en="0.1% – 3%">0.1% – 3%</div>
+              <div class="ingredient-constraint" data-tr="%1 – %3 arası" data-en="1% – 3%">1% – 3%</div>
               <div class="ingredient-slider-wrap">
-                <input type="range" min="0.1" max="3" value="0.1" step="0.1" disabled />
+                <input type="range" min="1" max="3" value="1" step="1" disabled />
                 <span class="concentration-value">0%</span>
               </div>
             </div>
@@ -548,8 +577,85 @@
         <!-- Summary Panel -->
         <div class="summary-panel">
           <h3 class="summary-title" data-tr="KARIŞIMIN" data-en="YOUR MIX">YOUR MIX</h3>
+
+          <div class="weight-selector">
+            <label class="weight-label" data-tr="Gramaj:" data-en="Weight:">Weight:</label>
+            <div class="weight-options">
+              <button class="weight-btn" data-weight="250">250g</button>
+              <button class="weight-btn" data-weight="400">400g</button>
+              <button class="weight-btn active" data-weight="800">800g</button>
+              <button class="weight-btn" data-weight="1000">1kg</button>
+              <button class="weight-btn" data-weight="5000">5kg</button>
+            </div>
+          </div>
+
           <div class="summary-jar">
-            <div class="jar-layers-container" id="jarLayers"></div>
+            <div class="jar-svg-wrap" id="jarSvgWrap">
+              <svg viewBox="0 0 220 300" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <clipPath id="jarBodyClip">
+                    <!-- Jar body: wide rounded bottom, slight inward curve at top -->
+                    <path d="
+                      M 55,70
+                      C 55,70 30,90 28,130
+                      C 26,170 26,220 30,250
+                      C 34,275 50,285 110,285
+                      C 170,285 186,275 190,250
+                      C 194,220 194,170 192,130
+                      C 190,90 165,70 165,70
+                      Z
+                    "/>
+                  </clipPath>
+                  <!-- Glass highlight gradient -->
+                  <linearGradient id="glassShine" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="rgba(255,255,255,0.15)" />
+                    <stop offset="40%" stop-color="rgba(255,255,255,0)" />
+                    <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Jar body outline -->
+                <path d="
+                  M 55,70
+                  C 55,70 30,90 28,130
+                  C 26,170 26,220 30,250
+                  C 34,275 50,285 110,285
+                  C 170,285 186,275 190,250
+                  C 194,220 194,170 192,130
+                  C 190,90 165,70 165,70
+                  Z
+                " fill="rgba(20,24,54,0.4)" stroke="#c9a227" stroke-width="2.5"/>
+
+                <!-- Ingredient layers rendered here by JS -->
+                <g id="jarLayers" clip-path="url(#jarBodyClip)"></g>
+
+                <!-- Glass shine overlay -->
+                <path d="
+                  M 55,70
+                  C 55,70 30,90 28,130
+                  C 26,170 26,220 30,250
+                  C 34,275 50,285 110,285
+                  C 170,285 186,275 190,250
+                  C 194,220 194,170 192,130
+                  C 190,90 165,70 165,70
+                  Z
+                " fill="url(#glassShine)" stroke="none"/>
+
+                <!-- Jar neck -->
+                <rect x="70" y="48" width="80" height="24" rx="3" ry="3"
+                      fill="rgba(20,24,54,0.6)" stroke="#c9a227" stroke-width="2"/>
+
+                <!-- Jar lid -->
+                <rect x="62" y="28" width="96" height="24" rx="6" ry="6"
+                      fill="#c9a227" stroke="#a88520" stroke-width="1.5"/>
+                <rect x="72" y="34" width="76" height="4" rx="2" ry="2"
+                      fill="#e8c547" opacity="0.5"/>
+
+                <!-- Lid top highlight -->
+                <rect x="62" y="28" width="96" height="12" rx="6" ry="6"
+                      fill="rgba(255,255,255,0.1)"/>
+              </svg>
+            </div>
           </div>
           <div id="summaryContent">
             <p class="summary-empty" data-tr="Başlamak için içerikleri etkinleştir" data-en="Toggle ingredients to start">Toggle ingredients to start</p>
@@ -586,6 +692,17 @@
         }
 
         updateLanguage(currentLang);
+
+        // Weight selector
+        var selectedWeight = 800;
+        var weightBtns = document.querySelectorAll(".weight-btn");
+        weightBtns.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            weightBtns.forEach(function (b) { b.classList.remove("active"); });
+            btn.classList.add("active");
+            selectedWeight = parseInt(btn.dataset.weight);
+          });
+        });
 
         // Ingredient types: honey requires min 35%, at least one honey mandatory
         var honeyIds = ["pine", "vitex", "flower", "puren"];
@@ -712,22 +829,43 @@
           var submitBtn = document.getElementById("submitMix");
           var jarLayers = document.getElementById("jarLayers");
           var validationEl = document.getElementById("mixValidation");
+          var svgNS = "http://www.w3.org/2000/svg";
 
-          // Update jar visualization - flexbox column-reverse approach
+          // Update jar visualization - SVG rects inside clip-path
+          // Jar body spans roughly y=70 to y=285 => height ~215
+          var jarTop = 70;
+          var jarHeight = 215;
           jarLayers.innerHTML = "";
+
           if (active.length > 0 && total > 0) {
-            active.forEach(function (item) {
-              var pct = (item.value / Math.max(total, 100)) * 100;
-              var layer = document.createElement("div");
-              layer.className = "jar-layer";
-              layer.style.flexBasis = pct + "%";
-              layer.style.background = item.color;
-              var label = document.createElement("span");
-              label.className = "jar-layer-label";
-              label.textContent = item.name;
-              if (pct > 6) layer.appendChild(label);
-              jarLayers.appendChild(layer);
-            });
+            var cumY = 0;
+            // Render layers bottom-up
+            for (var i = active.length - 1; i >= 0; i--) {
+              var item = active[i];
+              var pct = item.value / Math.max(total, 100);
+              var layerH = pct * jarHeight;
+              var yPos = jarTop + jarHeight - cumY - layerH;
+
+              var rect = document.createElementNS(svgNS, "rect");
+              rect.setAttribute("x", "20");
+              rect.setAttribute("y", yPos.toFixed(1));
+              rect.setAttribute("width", "180");
+              rect.setAttribute("height", layerH.toFixed(1));
+              rect.setAttribute("fill", item.color);
+              jarLayers.appendChild(rect);
+
+              // Label if tall enough
+              if (pct > 0.06) {
+                var text = document.createElementNS(svgNS, "text");
+                text.setAttribute("x", "110");
+                text.setAttribute("y", (yPos + layerH / 2).toFixed(1));
+                text.setAttribute("class", "jar-layer-label");
+                text.textContent = item.name;
+                jarLayers.appendChild(text);
+              }
+
+              cumY += layerH;
+            }
           }
 
           // Update list
@@ -778,12 +916,12 @@
 
         // Submit handler
         document.getElementById("submitMix").addEventListener("click", function () {
-          var mixData = {};
+          var mixData = { weight: selectedWeight + "g", ingredients: {} };
           Object.keys(ingredients).forEach(function (id) {
             var ing = ingredients[id];
             if (ing.enabled && ing.value > 0) {
               var nameEl = ing.card.querySelector(".ingredient-name");
-              mixData[nameEl.textContent] = ing.value + "%";
+              mixData.ingredients[nameEl.textContent] = ing.value + "%";
             }
           });
           console.log("Mix submitted:", mixData);
