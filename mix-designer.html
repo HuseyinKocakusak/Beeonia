@@ -799,7 +799,14 @@
             if (ing.enabled) {
               var othersTotal = getTotalExcluding(id);
               var allowed = parseFloat((100 - othersTotal).toFixed(1));
-              ing.slider.max = Math.min(ing.max, allowed);
+              var newMax = Math.min(ing.max, allowed);
+              ing.slider.max = newMax;
+              // Sync internal value if browser clamped the slider
+              if (ing.value > newMax) {
+                ing.value = newMax;
+                ing.slider.value = newMax;
+                ing.valueEl.textContent = (newMax % 1 === 0 ? newMax : newMax.toFixed(1)) + "%";
+              }
             } else {
               ing.slider.max = ing.max;
             }
