@@ -520,7 +520,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .team-member, .testimonials-section, .faq-section, .science-section",
+    ".gallery-section, .products-section, .partners-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
   );
 
   const revealObserver = new IntersectionObserver(
@@ -537,7 +537,14 @@ document.addEventListener("DOMContentLoaded", function () {
     },
   );
 
-  revealElements.forEach((el) => revealObserver.observe(el));
+  revealElements.forEach((el) => {
+    if (el.classList.contains("value-card")) {
+      const siblings = Array.from(el.parentElement.children).filter(c => c.classList.contains("value-card"));
+      const idx = siblings.indexOf(el);
+      el.style.transitionDelay = `${idx * 80}ms`;
+    }
+    revealObserver.observe(el);
+  });
 
   // ========================================
   // Header Background on Scroll
