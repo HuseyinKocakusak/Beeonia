@@ -1651,150 +1651,231 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- SVG builders ---
     function buildBodySVG() {
-      // Bee faces right: head~x42, thorax~x74, abdomen~x132
+      // viewBox 0 0 200 120 — bee faces left (head at low x, stinger at high x)
+      // Head ~x37, Thorax ~x64, Abdomen ~x128
       return [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
         '<defs>',
-        // Clip abdomen stripes to ellipse shape
-        '<clipPath id="ac">',
-        '<ellipse cx="132" cy="60" rx="40" ry="23"/>',
-        '</clipPath>',
-        // Thorax gradient - dark warm amber-brown, furry
-        '<radialGradient id="tG" cx="42%" cy="36%" r="56%">',
-        '<stop offset="0%" stop-color="#C09030"/>',
-        '<stop offset="50%" stop-color="#7A5810"/>',
-        '<stop offset="100%" stop-color="#3A2806"/>',
+        // Abdomen stripe clip
+        '<clipPath id="ac"><ellipse cx="128" cy="60" rx="38" ry="22"/></clipPath>',
+        // Thorax fur clip (slightly oversized so hair tips show)
+        '<clipPath id="tc"><ellipse cx="64" cy="58" rx="27" ry="26"/></clipPath>',
+        // Thorax: dark warm core, golden highlight on top
+        '<radialGradient id="tG" cx="42%" cy="34%" r="58%">',
+        '<stop offset="0%" stop-color="#C89028"/>',
+        '<stop offset="40%" stop-color="#7A5208"/>',
+        '<stop offset="100%" stop-color="#2E1A04"/>',
         '</radialGradient>',
-        // Abdomen base - rich golden amber
-        '<radialGradient id="aG" cx="34%" cy="30%" r="66%">',
-        '<stop offset="0%" stop-color="#F0C030"/>',
-        '<stop offset="38%" stop-color="#D08818"/>',
-        '<stop offset="72%" stop-color="#A86008"/>',
-        '<stop offset="100%" stop-color="#7A4006"/>',
+        // Abdomen: rich amber gold
+        '<radialGradient id="aG" cx="28%" cy="26%" r="72%">',
+        '<stop offset="0%" stop-color="#F2C428"/>',
+        '<stop offset="35%" stop-color="#D48010"/>',
+        '<stop offset="70%" stop-color="#A05608"/>',
+        '<stop offset="100%" stop-color="#6A3404"/>',
         '</radialGradient>',
-        // Head gradient - very dark
-        '<radialGradient id="hG" cx="38%" cy="34%" r="56%">',
-        '<stop offset="0%" stop-color="#523818"/>',
-        '<stop offset="100%" stop-color="#180A00"/>',
+        // Head: near-black
+        '<radialGradient id="hG" cx="35%" cy="28%" r="55%">',
+        '<stop offset="0%" stop-color="#4A3018"/>',
+        '<stop offset="100%" stop-color="#0C0600"/>',
         '</radialGradient>',
-        // Abdomen sheen
-        '<radialGradient id="sG" cx="36%" cy="22%" r="54%">',
-        '<stop offset="0%" stop-color="rgba(255,238,130,0.3)"/>',
+        // Abdomen tip darkening
+        '<linearGradient id="atG" x1="0%" y1="0%" x2="100%" y2="0%">',
+        '<stop offset="55%" stop-color="rgba(0,0,0,0)"/>',
+        '<stop offset="100%" stop-color="rgba(10,4,0,0.48)"/>',
+        '</linearGradient>',
+        // Abdomen top sheen
+        '<radialGradient id="aSh" cx="30%" cy="18%" r="55%">',
+        '<stop offset="0%" stop-color="rgba(255,240,140,0.32)"/>',
         '<stop offset="100%" stop-color="rgba(255,210,60,0)"/>',
         '</radialGradient>',
-        // Thorax fur highlight
-        '<radialGradient id="fG" cx="46%" cy="34%" r="54%">',
-        '<stop offset="0%" stop-color="rgba(225,185,65,0.28)"/>',
-        '<stop offset="100%" stop-color="rgba(200,160,40,0)"/>',
+        // Thorax top highlight
+        '<radialGradient id="thH" cx="42%" cy="28%" r="48%">',
+        '<stop offset="0%" stop-color="rgba(255,225,120,0.42)"/>',
+        '<stop offset="100%" stop-color="rgba(255,200,60,0)"/>',
         '</radialGradient>',
         '</defs>',
-        // Antennae (from forehead, curving forward-upward)
-        '<path d="M37,50 Q30,40 24,32 Q20,26 16,22" fill="none" stroke="#2C1A00" stroke-width="1.35" stroke-linecap="round"/>',
-        '<circle cx="15.5" cy="21" r="2.3" fill="#56380A"/>',
-        '<path d="M44,49 Q40,39 38,30 Q37,25 35,21" fill="none" stroke="#2C1A00" stroke-width="1.2" stroke-linecap="round"/>',
-        '<circle cx="34.5" cy="20" r="2" fill="#56380A"/>',
-        // Head
-        '<ellipse cx="43" cy="60" rx="14" ry="13" fill="url(#hG)"/>',
-        // Compound eyes - large, glossy, oval
-        '<ellipse cx="35" cy="51" rx="6.5" ry="7.5" fill="#06030A"/>',
-        '<ellipse cx="35" cy="69" rx="6.5" ry="7.5" fill="#06030A"/>',
-        '<ellipse cx="33" cy="49" rx="2.6" ry="3.2" fill="rgba(255,255,255,0.19)"/>',
-        '<ellipse cx="33" cy="67" rx="2.6" ry="3.2" fill="rgba(255,255,255,0.19)"/>',
-        '<ellipse cx="36.5" cy="53" rx="1.2" ry="1.5" fill="rgba(255,255,255,0.1)"/>',
-        '<ellipse cx="36.5" cy="71" rx="1.2" ry="1.5" fill="rgba(255,255,255,0.1)"/>',
-        // Mandibles
-        '<path d="M30,58 C26,56 24,58 25,60 C24,62 26,64 30,62" fill="none" stroke="#2A1600" stroke-width="1.1" stroke-linecap="round"/>',
-        // Neck joint
-        '<ellipse cx="58" cy="60" rx="5" ry="7.5" fill="#38240A"/>',
-        // Thorax - plump, rounded
-        '<ellipse cx="74" cy="60" rx="18" ry="17" fill="url(#tG)"/>',
-        '<ellipse cx="72" cy="56" rx="14" ry="12" fill="url(#fG)"/>',
-        // Thorax fur strokes - dense short hairs
-        '<g stroke="#D0A028" stroke-width="0.85" stroke-linecap="round" opacity="0.32">',
-        '<line x1="66" y1="44" x2="63" y2="41"/><line x1="72" y1="43" x2="71" y2="39"/>',
-        '<line x1="78" y1="44" x2="81" y2="41"/><line x1="83" y1="50" x2="87" y2="48"/>',
-        '<line x1="84" y1="58" x2="89" y2="57"/><line x1="83" y1="66" x2="87" y2="68"/>',
-        '<line x1="78" y1="76" x2="81" y2="79"/><line x1="72" y1="77" x2="71" y2="81"/>',
-        '<line x1="66" y1="76" x2="63" y2="79"/><line x1="62" y1="70" x2="57" y2="69"/>',
-        '<line x1="61" y1="60" x2="56" y2="60"/><line x1="62" y1="52" x2="57" y2="51"/>',
+
+        // --- ANTENNAE (from forehead, curving up-forward) ---
+        '<path d="M31,51 C26,42 22,34 18,27" fill="none" stroke="#1A0C00" stroke-width="1.3" stroke-linecap="round"/>',
+        '<circle cx="17.5" cy="26" r="2.1" fill="#3A2008"/>',
+        '<path d="M37,49 C35,40 34,33 32,25" fill="none" stroke="#1A0C00" stroke-width="1.1" stroke-linecap="round"/>',
+        '<circle cx="31.5" cy="24" r="1.8" fill="#3A2008"/>',
+
+        // --- HEAD ---
+        '<ellipse cx="37" cy="60" rx="12" ry="12" fill="url(#hG)"/>',
+
+        // --- COMPOUND EYE (large oval, fills most of head) ---
+        '<ellipse cx="30" cy="59" rx="9" ry="11" fill="#050208"/>',
+        // Primary gloss blob (characteristic compound-eye highlight)
+        '<ellipse cx="27.5" cy="54" rx="4.0" ry="5.0" fill="rgba(255,255,255,0.18)"/>',
+        // Secondary highlight
+        '<ellipse cx="31" cy="58" rx="1.8" ry="2.2" fill="rgba(255,255,255,0.10)"/>',
+        // Subtle iridescent edge
+        '<ellipse cx="30" cy="59" rx="9" ry="11" fill="none" stroke="rgba(140,120,255,0.07)" stroke-width="1.5"/>',
+
+        // --- MOUTHPARTS ---
+        '<path d="M25,60 C21,59 19,61 20,63" fill="none" stroke="#180A00" stroke-width="1.0" stroke-linecap="round"/>',
+
+        // --- NECK ---
+        '<ellipse cx="50" cy="60" rx="5" ry="7" fill="#2A1604"/>',
+
+        // --- THORAX BASE ---
+        '<ellipse cx="64" cy="58" rx="22" ry="21" fill="url(#tG)"/>',
+
+        // --- THORAX FUR (36 radiating hair lines, clipped to thorax) ---
+        // Outer ring — 24 hairs every 15°, computed from ellipse surface (rx=22,ry=21)
+        // start: center + 19/18 * unitvec; end: center + 25/24 * unitvec
+        '<g clip-path="url(#tc)" stroke-linecap="round">',
+
+        // Right & top quadrant: bright golden (#D4A018)
+        '<g stroke="#D4A018" stroke-width="1.15" opacity="0.76">',
+        '<line x1="83.0" y1="58.0" x2="89.0" y2="58.0"/>',   // 0°
+        '<line x1="82.4" y1="53.3" x2="88.1" y2="51.8"/>',   // 345°
+        '<line x1="80.5" y1="49.0" x2="85.7" y2="46.0"/>',   // 330°
+        '<line x1="77.4" y1="45.3" x2="81.7" y2="41.0"/>',   // 315°
+        '<line x1="73.5" y1="42.4" x2="76.5" y2="37.2"/>',   // 300°
+        '<line x1="68.9" y1="40.6" x2="70.5" y2="34.8"/>',   // 285°
+        '<line x1="64.0" y1="40.0" x2="64.0" y2="34.0"/>',   // 270°
+        '<line x1="59.1" y1="40.6" x2="57.5" y2="34.8"/>',   // 255°
+        '<line x1="54.5" y1="42.4" x2="51.5" y2="37.2"/>',   // 240°
+        '<line x1="50.6" y1="45.3" x2="46.3" y2="41.0"/>',   // 225°
+        // Lower-right quadrant
+        '<line x1="82.4" y1="62.7" x2="88.1" y2="64.2"/>',   // 15°
+        '<line x1="80.5" y1="67.0" x2="85.7" y2="70.0"/>',   // 30°
+        '<line x1="77.4" y1="70.7" x2="81.7" y2="75.0"/>',   // 45°
         '</g>',
-        // Petiole (narrow waist)
-        '<ellipse cx="93" cy="60" rx="5" ry="6.5" fill="#3C2808"/>',
-        // Abdomen - golden oval
-        '<ellipse cx="132" cy="60" rx="40" ry="23" fill="url(#aG)"/>',
-        // Stripes clipped to abdomen ellipse
+
+        // Left quadrant: darker amber (#9A6E0C)
+        '<g stroke="#9A6E0C" stroke-width="1.15" opacity="0.68">',
+        '<line x1="45.0" y1="58.0" x2="39.0" y2="58.0"/>',   // 180°
+        '<line x1="45.7" y1="53.3" x2="39.9" y2="51.8"/>',   // 195°
+        '<line x1="47.6" y1="49.0" x2="42.4" y2="46.0"/>',   // 210°
+        '<line x1="45.7" y1="62.7" x2="39.9" y2="64.2"/>',   // 165°
+        '<line x1="47.6" y1="67.0" x2="42.4" y2="70.0"/>',   // 150°
+        '<line x1="50.6" y1="70.7" x2="46.3" y2="75.0"/>',   // 135°
+        '</g>',
+
+        // Bottom quadrant: medium amber (#B88014)
+        '<g stroke="#B88014" stroke-width="1.15" opacity="0.70">',
+        '<line x1="73.5" y1="73.6" x2="76.5" y2="78.8"/>',   // 60°
+        '<line x1="68.9" y1="75.4" x2="70.5" y2="81.2"/>',   // 75°
+        '<line x1="64.0" y1="76.0" x2="64.0" y2="82.0"/>',   // 90°
+        '<line x1="59.1" y1="75.4" x2="57.5" y2="81.2"/>',   // 105°
+        '<line x1="54.5" y1="73.6" x2="51.5" y2="78.8"/>',   // 120°
+        '</g>',
+
+        // Inner layer — 12 hairs every 30°, shorter, pale gold (#ECC030)
+        '<g stroke="#ECC030" stroke-width="0.85" opacity="0.36">',
+        '<line x1="78.0" y1="58.0" x2="83.0" y2="58.0"/>',
+        '<line x1="76.1" y1="64.5" x2="80.5" y2="67.0"/>',
+        '<line x1="71.0" y1="69.3" x2="73.5" y2="73.6"/>',
+        '<line x1="64.0" y1="71.0" x2="64.0" y2="76.0"/>',
+        '<line x1="57.0" y1="69.3" x2="54.5" y2="73.6"/>',
+        '<line x1="51.9" y1="64.5" x2="47.6" y2="67.0"/>',
+        '<line x1="50.0" y1="58.0" x2="45.0" y2="58.0"/>',
+        '<line x1="51.9" y1="51.5" x2="47.6" y2="49.0"/>',
+        '<line x1="57.0" y1="46.7" x2="54.5" y2="42.4"/>',
+        '<line x1="64.0" y1="45.0" x2="64.0" y2="40.0"/>',
+        '<line x1="71.0" y1="46.7" x2="73.5" y2="42.4"/>',
+        '<line x1="76.1" y1="51.5" x2="80.5" y2="49.0"/>',
+        '</g>',
+        '</g>',
+
+        // Thorax top-light sheen
+        '<ellipse cx="59" cy="48" rx="14" ry="10" fill="url(#thH)"/>',
+
+        // --- PETIOLE (narrow waist) ---
+        '<ellipse cx="88" cy="60" rx="5" ry="6.5" fill="#2C1804"/>',
+
+        // --- ABDOMEN ---
+        '<ellipse cx="128" cy="60" rx="38" ry="22" fill="url(#aG)"/>',
+        // Dark stripes clipped to abdomen ellipse
         '<g clip-path="url(#ac)">',
-        '<rect x="101" y="37" width="7" height="46" fill="#1A0900" opacity="0.74"/>',
-        '<rect x="116" y="37" width="8" height="46" fill="#1A0900" opacity="0.72"/>',
-        '<rect x="132" y="37" width="8" height="46" fill="#1A0900" opacity="0.68"/>',
-        '<rect x="148" y="37" width="7" height="46" fill="#1A0900" opacity="0.62"/>',
+        '<rect x="95"  y="38" width="10" height="44" fill="#160800" opacity="0.88"/>',
+        '<rect x="113" y="38" width="11" height="44" fill="#160800" opacity="0.85"/>',
+        '<rect x="132" y="38" width="11" height="44" fill="#160800" opacity="0.80"/>',
+        '<rect x="151" y="38" width="9"  height="44" fill="#160800" opacity="0.72"/>',
         '</g>',
-        // Abdomen highlight sheen
-        '<ellipse cx="122" cy="46" rx="26" ry="8" fill="url(#sG)"/>',
-        // Stinger
-        '<path d="M170,60 Q175,59.5 180,59.7 L180.2,60 L180,60.3 Q175,60.5 170,60 Z" fill="#1C0E00"/>',
-        // Legs - 3 pairs with natural 2-segment bend
-        '<g stroke="#221200" stroke-width="1.15" fill="none" stroke-linecap="round" opacity="0.88">',
-        '<path d="M63,51 L58,44 L52,37"/>',
-        '<path d="M63,69 L58,76 L52,83"/>',
-        '<path d="M75,47 L73,39 L68,32"/>',
-        '<path d="M75,73 L73,81 L68,88"/>',
-        '<path d="M88,50 L90,42 L96,35"/>',
-        '<path d="M88,70 L90,78 L96,85"/>',
-        // Pollen corbiculae (golden blobs on hind tibiae)
-        '<ellipse cx="96" cy="35" rx="3.2" ry="2.2" fill="#DCAA22" stroke="none" opacity="0.48"/>',
-        '<ellipse cx="96" cy="85" rx="3.2" ry="2.2" fill="#DCAA22" stroke="none" opacity="0.48"/>',
+        // Top sheen highlight
+        '<ellipse cx="116" cy="46" rx="30" ry="9" fill="url(#aSh)"/>',
+        // Tip darkening gradient
+        '<ellipse cx="128" cy="60" rx="38" ry="22" fill="url(#atG)"/>',
+
+        // --- STINGER ---
+        '<path d="M164,60 Q169,59.5 174,59.7 L174.3,60 L174,60.3 Q169,60.5 164,60Z" fill="#140800"/>',
+
+        // --- LEGS (right-side, 3 pairs visible) ---
+        '<g stroke="#160800" fill="none" stroke-linecap="round">',
+        // Front leg
+        '<path d="M54,60 C49,53 44,48 40,43" stroke-width="1.3"/>',
+        '<path d="M40,43 C37,39 33,37 29,35" stroke-width="1.2"/>',
+        // Middle leg
+        '<path d="M65,65 C61,71 58,77 54,82" stroke-width="1.3"/>',
+        '<path d="M54,82 C51,86 47,88 43,89" stroke-width="1.2"/>',
+        // Rear leg
+        '<path d="M82,65 C82,72 83,78 85,84" stroke-width="1.3"/>',
+        '<path d="M85,84 C87,89 89,93 91,97" stroke-width="1.2"/>',
         '</g>',
+        // Pollen corbiculum (bright orange-yellow blob on hind tibia)
+        '<ellipse cx="88" cy="91" rx="4.5" ry="3.2" fill="#E87010" opacity="0.92"/>',
+        '<ellipse cx="87" cy="89" rx="2.5" ry="1.5" fill="rgba(255,190,60,0.50)"/>',
+
+        // Left-side legs (opposite, fainter)
+        '<g stroke="#160800" fill="none" stroke-linecap="round" opacity="0.36">',
+        '<path d="M54,58 C49,51 43,46 39,42" stroke-width="1.1"/>',
+        '<path d="M39,42 C36,38 32,36 28,34" stroke-width="1.0"/>',
+        '<path d="M65,56 C62,50 59,45 56,40" stroke-width="1.1"/>',
+        '<path d="M82,58 C80,53 78,49 76,45" stroke-width="1.1"/>',
+        '</g>',
+
         '</svg>',
-      ].join("");
+      ].join('');
     }
 
     function buildWingSVG(flapOffset) {
-      // Wings attach at thorax, rotate around attachment point
-      // flapOffset: ranges from -0.6 to +0.6 (sin wave)
+      // flapOffset: -0.6 to +0.6 (sin wave from prerender loop)
       var f = flapOffset;
-      // Rotation angles (degrees). Negative = counterclockwise = up from body center
-      // At f=-0.6: wings nearly closed (~8°); at f=+0.6: wings spread (~30°)
+      // Wing angles: at f=-0.6 wings nearly closed, at f=+0.6 wings spread
       var fwTop = -(18 + f * 18);   // upper forewing: -7° to -29°
-      var fwBot =   18 + f * 18;    // lower forewing (mirror): +7° to +29°
+      var fwBot =   18 + f * 18;    // lower forewing: +7° to +29°
       var hwTop = -(10 + f * 10);   // upper hindwing: -4° to -16°
       var hwBot =   10 + f * 10;    // lower hindwing: +4° to +16°
 
-      // Attachment at thorax top/bottom (x=74, y=60 in SVG coords)
-      var ax = 74, ay = 60;
+      // Wing attachment on thorax (rear area, matching body SVG)
+      var ax = 74, ay = 58;
 
-      // Forewing path: starts at origin, elongated teardrop pointing right-upward
-      // Leading edge broad, trailing edge tapered toward tip
-      var fw = 'M0,0 C6,-5 18,-14 40,-18 C60,-21 78,-17 86,-9 C91,-4 89,4 80,9 C62,15 30,10 0,0Z';
-      // Hindwing path: smaller, rounder
-      var hw = 'M0,0 C5,-3 15,-10 32,-13 C46,-15 58,-11 61,-5 C63,0 60,7 48,10 C34,12 15,8 0,0Z';
+      // Forewing: elongated teardrop, broad leading edge, tapered tip
+      var fw = 'M0,0 C7,-4 24,-14 50,-18 C70,-21 86,-16 90,-8 C93,-3 90,6 80,10 C62,15 28,10 0,0Z';
+      // Hindwing: smaller, rounder
+      var hw = 'M0,0 C5,-3 17,-9 35,-12 C50,-14 62,-9 64,-3 C65,1 62,8 50,11 C36,13 16,8 0,0Z';
 
-      // Vein paths (relative, for forewing)
-      var fv1 = 'M0,0 C14,-8 38,-14 74,-11';
-      var fv2 = 'M0,0 C18,-2 44,-5 76,-1';
+      // Wing venation for forewing
+      var fv1 = 'M0,0 C18,-7 44,-13 78,-11';   // costal (leading-edge) vein
+      var fv2 = 'M0,0 C20,-1 46,-4 78,2';       // subcostal vein
 
-      function wing(path, vein1, vein2, rotDeg, scaleY, hw_mode) {
-        var tr = 'translate(' + ax + ',' + ay + ') rotate(' + rotDeg + ')' + (scaleY < 0 ? ' scale(1,-1)' : '');
-        var parts = [
-          '<g transform="' + tr + '">',
-          '<path d="' + path + '" fill="rgba(228,240,255,0.42)" stroke="rgba(160,175,210,0.28)" stroke-width="0.55"/>',
-        ];
-        if (!hw_mode && vein1) {
-          parts.push('<path d="' + vein1 + '" fill="none" stroke="rgba(110,100,80,0.38)" stroke-width="0.65"/>');
-          parts.push('<path d="' + vein2 + '" fill="none" stroke="rgba(110,100,80,0.22)" stroke-width="0.45"/>');
+      function wing(path, vein1, vein2, rotDeg, flip, addVeins) {
+        var sc = flip ? ' scale(1,-1)' : '';
+        var tr = 'translate(' + ax + ',' + ay + ') rotate(' + rotDeg + ')' + sc;
+        var out = ['<g transform="' + tr + '">'];
+        // Wing membrane: slight amber tint (like real bee wings), not blue
+        out.push('<path d="' + path + '" fill="rgba(238,224,182,0.40)" stroke="rgba(150,115,45,0.22)" stroke-width="0.55"/>');
+        if (addVeins) {
+          // Amber-brown veins characteristic of hymenoptera
+          out.push('<path d="' + vein1 + '" fill="none" stroke="rgba(125,90,28,0.48)" stroke-width="0.72"/>');
+          out.push('<path d="' + vein2 + '" fill="none" stroke="rgba(125,90,28,0.30)" stroke-width="0.50"/>');
         }
-        parts.push('</g>');
-        return parts.join('');
+        out.push('</g>');
+        return out.join('');
       }
 
       return [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">',
-        // Hindwings behind forewings
-        wing(hw, null, null, hwTop, 1, true),
-        wing(hw, null, null, hwBot, -1, true),
-        // Forewings on top
-        wing(fw, fv1, fv2, fwTop, 1, false),
-        wing(fw, fv1, fv2, fwBot, -1, false),
+        // Hindwings drawn first (behind forewings)
+        wing(hw, null, null, hwTop, false, false),
+        wing(hw, null, null, hwBot, true,  false),
+        // Forewings on top with venation
+        wing(fw, fv1, fv2, fwTop, false, true),
+        wing(fw, fv1, fv2, fwBot, true,  true),
         '</svg>',
       ].join('');
     }
