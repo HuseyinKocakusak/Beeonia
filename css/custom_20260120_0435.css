@@ -849,52 +849,6 @@ button {
 }
 
 /* Mix Designer CTA Button */
-.mix-designer-cta {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.mix-designer-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
-  color: var(--bg-primary);
-  text-decoration: none;
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  letter-spacing: 0.1em;
-  border-radius: 50px;
-  transition: var(--transition-smooth);
-  font-weight: 600;
-}
-
-.mix-designer-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px var(--shadow-gold);
-}
-
-.mix-designer-icon {
-  font-size: 1.3rem;
-}
-
-.mix-designer-arrow {
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-}
-
-.mix-designer-btn:hover .mix-designer-arrow {
-  transform: translateX(4px);
-}
-
-@media (max-width: 480px) {
-  .mix-designer-btn {
-    font-size: 0.8rem;
-    padding: 0.85rem 1.5rem;
-    gap: 0.5rem;
-  }
-}
 
 /* ========================================
    Product Modal
