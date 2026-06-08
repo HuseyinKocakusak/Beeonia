@@ -1277,202 +1277,202 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
-        titleEn: "Honey and Health: A Review of Recent Clinical Research (2017)",
-        titleTr: "Bal ve Sağlık: Güncel Klinik Araştırmaların Derlemesi (2017)",
-        date: "2025-12-15",
-        summaryEn: "Comprehensive review showing honey's therapeutic potential including antimicrobial, anti-inflammatory, and wound-healing properties.",
-        summaryTr: "Balın antimikrobiyal, anti-inflamatuar ve yara iyileştirici özellikleri dahil terapötik potansiyelini gösteren kapsamlı derleme.",
-        categories: ["honey"],
-        url: "https://doi.org/10.1002/ptr.5767"
-      },
-      {
-        titleEn: "Neurological Effects of Honey: Current and Future Prospects (2014)",
-        titleTr: "Balın Nörolojik Etkileri: Güncel ve Gelecek Beklentiler (2014)",
-        date: "2025-12-18",
-        summaryEn: "Evidence that honey polyphenols may counteract oxidative stress in the brain, supporting cognitive health and neuroprotection.",
-        summaryTr: "Bal polifenollerinin beyindeki oksidatif stresi azaltarak bilişsel sağlığı ve nöroproteksiyonu destekleyebileceğine dair kanıtlar.",
-        categories: ["honey", "brain"],
-        url: "https://doi.org/10.1155/2014/958721"
-      },
-      {
-        titleEn: "Exercise and Brain Health: Mechanisms and Implications (2019)",
-        titleTr: "Egzersiz ve Beyin Sağlığı: Mekanizmalar ve Sonuçlar (2019)",
-        date: "2025-12-20",
-        summaryEn: "Physical exercise promotes neuroplasticity and BDNF expression, reducing risk of neurodegenerative diseases.",
-        summaryTr: "Fiziksel egzersiz nöroplastisiteyi ve BDNF ifadesini artırarak nörodejeneratif hastalık riskini azaltır.",
-        categories: ["exercise", "brain"],
-        url: "https://doi.org/10.1016/j.tins.2019.01.003"
-      },
-      {
-        titleEn: "Hallmarks of Aging: An Expanding Universe (2023)",
-        titleTr: "Yaşlanmanın Belirteçleri: Genişleyen Bir Evren (2023)",
-        date: "2025-12-22",
-        summaryEn: "Updated framework identifying twelve hallmarks of aging with potential intervention targets for longevity research.",
-        summaryTr: "Uzun ömür araştırmaları için potansiyel müdahale hedefleriyle yaşlanmanın on iki belirtecini tanımlayan güncellenmiş çerçeve.",
-        categories: ["longevity", "anti-aging"],
-        url: "https://doi.org/10.1016/j.cell.2022.11.001"
-      },
-      {
-        titleEn: "Propolis: A Detailed Insight on its Biological Activities (2021)",
-        titleTr: "Propolis: Biyolojik Aktiviteleri Üzerine Detaylı Bir İnceleme (2021)",
-        date: "2025-12-25",
-        summaryEn: "Propolis demonstrates significant antioxidant, antimicrobial, and immunomodulatory effects across multiple clinical studies.",
-        summaryTr: "Propolis, birden fazla klinik çalışmada önemli antioksidan, antimikrobiyal ve immünomodülatör etkiler göstermiştir.",
-        categories: ["propolis"],
-        url: "https://doi.org/10.3390/antiox10020162"
-      },
-      {
-        titleEn: "Royal Jelly and Its Components: A Review of Biological Actions (2018)",
-        titleTr: "Arı Sütü ve Bileşenleri: Biyolojik Etkilerin Derlemesi (2018)",
-        date: "2025-12-28",
-        summaryEn: "Royal jelly contains 10-HDA and royalactin with demonstrated anti-aging, anti-inflammatory, and neuroprotective effects.",
-        summaryTr: "Arı sütü, anti-aging, anti-inflamatuar ve nöroprotektif etkileri kanıtlanmış 10-HDA ve royalactin içerir.",
-        categories: ["royal-jelly", "anti-aging"],
-        url: "https://doi.org/10.1016/j.jff.2018.06.012"
-      },
-      {
-        titleEn: "Bee Pollen: Chemical Composition and Therapeutic Application (2015)",
-        titleTr: "Arı Poleni: Kimyasal Bileşim ve Terapötik Uygulama (2015)",
-        date: "2026-01-02",
-        summaryEn: "Bee pollen is a rich source of proteins, vitamins, and flavonoids with hepatoprotective and anti-inflammatory properties.",
-        summaryTr: "Arı poleni, hepatoprotektif ve anti-inflamatuar özelliklere sahip zengin bir protein, vitamin ve flavonoid kaynağıdır.",
-        categories: ["pollen"],
-        url: "https://doi.org/10.1155/2015/584205"
-      },
-      {
-        titleEn: "Effects of Honey on Oxidative Stress and Metabolic Parameters (2018)",
-        titleTr: "Balın Oksidatif Stres ve Metabolik Parametreler Üzerine Etkileri (2018)",
-        date: "2026-01-05",
-        summaryEn: "Regular honey consumption improves glycemic control and lipid profiles while reducing markers of oxidative stress.",
-        summaryTr: "Düzenli bal tüketimi, oksidatif stres belirteçlerini azaltırken glisemik kontrol ve lipid profillerini iyileştirir.",
-        categories: ["honey", "longevity"],
-        url: "https://doi.org/10.3390/nu10101500"
-      },
-      {
-        titleEn: "Caloric Restriction and Longevity: Molecular Mechanisms (2020)",
-        titleTr: "Kalori Kısıtlaması ve Uzun Ömür: Moleküler Mekanizmalar (2020)",
-        date: "2026-01-08",
-        summaryEn: "Caloric restriction activates sirtuins and autophagy pathways, extending healthspan across multiple model organisms.",
-        summaryTr: "Kalori kısıtlaması sirtuinleri ve otofaji yolaklarını aktive ederek birden fazla model organizmada sağlıklı ömrü uzatır.",
-        categories: ["longevity", "anti-aging"],
-        url: "https://doi.org/10.1126/science.aax9297"
-      },
-      {
-        titleEn: "Propolis and the Immune System: A Review (2019)",
-        titleTr: "Propolis ve Bağışıklık Sistemi: Bir Derleme (2019)",
-        date: "2026-01-10",
-        summaryEn: "Propolis enhances innate and adaptive immunity through modulation of macrophage activity and cytokine production.",
-        summaryTr: "Propolis, makrofaj aktivitesini ve sitokin üretimini modüle ederek doğal ve adaptif bağışıklığı güçlendirir.",
-        categories: ["propolis"],
-        url: "https://doi.org/10.1155/2019/1250802"
-      },
-      {
-        titleEn: "Physical Activity, Brain Plasticity, and Alzheimer's Disease (2020)",
-        titleTr: "Fiziksel Aktivite, Beyin Plastisitesi ve Alzheimer Hastalığı (2020)",
-        date: "2026-01-12",
-        summaryEn: "Aerobic exercise significantly reduces amyloid-beta accumulation and improves hippocampal neurogenesis.",
-        summaryTr: "Aerobik egzersiz, amiloid-beta birikimini önemli ölçüde azaltır ve hipokampal nörojenezi iyileştirir.",
-        categories: ["exercise", "brain", "anti-aging"],
-        url: "https://doi.org/10.3389/fnins.2020.00131"
-      },
-      {
-        titleEn: "Royal Jelly: Biological Properties and Clinical Applications (2020)",
-        titleTr: "Arı Sütü: Biyolojik Özellikleri ve Klinik Uygulamaları (2020)",
-        date: "2026-01-15",
-        summaryEn: "Royal jelly supplementation shows promising effects on cognitive function, fertility, and skin aging in human trials.",
-        summaryTr: "Arı sütü takviyesi, insan denemelerinde bilişsel işlev, doğurganlık ve cilt yaşlanması üzerinde umut verici etkiler göstermektedir.",
-        categories: ["royal-jelly", "brain", "anti-aging"],
-        url: "https://doi.org/10.1016/j.biopha.2020.110138"
-      },
-      {
-        titleEn: "Honey as a Complementary Medicine: A Review of Honey in Exercise and Sport (2019)",
-        titleTr: "Tamamlayıcı Tıpta Bal: Egzersiz ve Sporda Bal Derlemesi (2019)",
-        date: "2026-01-18",
-        summaryEn: "Honey serves as an effective natural energy source for athletes, supporting endurance and recovery post-exercise.",
-        summaryTr: "Bal, sporcular için etkili bir doğal enerji kaynağı olarak dayanıklılığı ve egzersiz sonrası toparlanmayı destekler.",
+        titleEn: "Effect of a Honey-Sweetened Beverage on Muscle Soreness and Recovery After Exercise-Induced Muscle Damage in Strength-Trained Females (2024)",
+        titleTr: "Bal ile Tatlandırılmış İçeceğin Kuvvet Antrenmanlı Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Kas Ağrısı ve Toparlanma Üzerine Etkisi (2024)",
+        date: "2026-06-05",
+        summaryEn: "Randomized crossover trial showing a honey-sweetened beverage reduces muscle soreness and supports recovery after exercise-induced muscle damage.",
+        summaryTr: "Randomize çapraz geçişli çalışma, bal ile tatlandırılmış içeceğin egzersize bağlı kas hasarı sonrası kas ağrısını azalttığını ve toparlanmayı desteklediğini göstermektedir.",
         categories: ["honey", "exercise"],
-        url: "https://doi.org/10.3390/nu11102039"
+        url: "https://doi.org/10.3389/fphys.2024.1426872"
       },
       {
-        titleEn: "Bee Pollen Polyphenols: Anti-Aging and Protective Effects (2021)",
-        titleTr: "Arı Poleni Polifenolleri: Anti-Aging ve Koruyucu Etkiler (2021)",
-        date: "2026-01-20",
-        summaryEn: "Pollen-derived polyphenols protect against cellular senescence and DNA damage through multiple antioxidant pathways.",
-        summaryTr: "Polenden elde edilen polifenoller, birden fazla antioksidan yolak aracılığıyla hücresel yaşlanmaya ve DNA hasarına karşı koruma sağlar.",
-        categories: ["pollen", "anti-aging"],
-        url: "https://doi.org/10.3390/molecules26041014"
+        titleEn: "Effect of Honey Supplementation on Skeletal Muscle Inflammatory Markers Among Military Graduates After Overtraining (2025)",
+        titleTr: "Bal Takviyesinin Aşırı Antrenman Sonrası Askeri Mezunlarda İskelet Kası İnflamatuar Belirteçleri Üzerine Etkisi (2025)",
+        date: "2026-05-28",
+        summaryEn: "Double-blind clinical trial demonstrating that honey supplementation lowers skeletal muscle inflammatory markers following overtraining.",
+        summaryTr: "Çift kör klinik çalışma, bal takviyesinin aşırı antrenman sonrası iskelet kası inflamatuar belirteçlerini düşürdüğünü göstermektedir.",
+        categories: ["honey", "exercise"],
+        url: "https://doi.org/10.1002/hsr2.70428"
       },
       {
-        titleEn: "The Gut-Brain Axis: How the Microbiome Influences Cognition (2021)",
-        titleTr: "Bağırsak-Beyin Aksı: Mikrobiyom Bilişi Nasıl Etkiler (2021)",
-        date: "2026-01-22",
-        summaryEn: "Prebiotic properties of honey and bee products positively modulate the gut microbiome, influencing brain health via the gut-brain axis.",
-        summaryTr: "Bal ve arı ürünlerinin prebiyotik özellikleri bağırsak mikrobiyomunu olumlu yönde düzenleyerek bağırsak-beyin aksı üzerinden beyin sağlığını etkiler.",
-        categories: ["honey", "brain", "longevity"],
-        url: "https://doi.org/10.3390/nu13072099"
+        titleEn: "Could It Bee? Honey Ingestion Induces Comparable Metabolic Responses to Traditional Carbohydrates During Steady-State Cycling (2025)",
+        titleTr: "Bal Olabilir mi? Bal Tüketimi Dengeli Bisiklet Sürüşü Sırasında Geleneksel Karbonhidratlara Benzer Metabolik Yanıtlar Oluşturur (2025)",
+        date: "2026-05-20",
+        summaryEn: "Randomized crossover trial finding that honey produces metabolic responses comparable to traditional carbohydrates during three hours of steady-state cycling.",
+        summaryTr: "Randomize çapraz geçişli çalışma, balın üç saatlik dengeli bisiklet sürüşü sırasında geleneksel karbonhidratlara benzer metabolik yanıtlar oluşturduğunu bulmuştur.",
+        categories: ["honey", "exercise"],
+        url: "https://doi.org/10.1123/ijsnem.2024-0244"
       },
       {
-        titleEn: "Propolis as an Adjunct Therapy in Metabolic Syndrome (2022)",
-        titleTr: "Metabolik Sendromda Yardımcı Terapi Olarak Propolis (2022)",
-        date: "2026-01-25",
-        summaryEn: "Propolis supplementation significantly improves insulin resistance, blood lipids, and inflammatory markers in metabolic syndrome patients.",
-        summaryTr: "Propolis takviyesi, metabolik sendrom hastalarında insülin direncini, kan lipidlerini ve inflamasyon belirteçlerini önemli ölçüde iyileştirir.",
-        categories: ["propolis", "longevity"],
-        url: "https://doi.org/10.3390/nu14010135"
+        titleEn: "Carbohydrates and Endurance Exercise: A Narrative Review of a Food First Approach (2023)",
+        titleTr: "Karbonhidratlar ve Dayanıklılık Egzersizi: Önce Gıda Yaklaşımının Anlatısal Bir Derlemesi (2023)",
+        date: "2026-05-12",
+        summaryEn: "Narrative review supporting a food-first approach to carbohydrate intake for endurance exercise, including natural sources such as honey.",
+        summaryTr: "Bal gibi doğal kaynaklar dahil, dayanıklılık egzersizi için karbonhidrat alımında önce gıda yaklaşımını destekleyen anlatısal derleme.",
+        categories: ["honey", "exercise"],
+        url: "https://doi.org/10.3390/nu15061367"
       },
       {
-        titleEn: "Resistance Training and Longevity: A Systematic Review (2022)",
-        titleTr: "Direnç Eğitimi ve Uzun Ömür: Sistematik Bir Derleme (2022)",
-        date: "2026-01-28",
-        summaryEn: "Resistance exercise reduces all-cause mortality risk by 15-27% and preserves muscle mass critical for healthy aging.",
-        summaryTr: "Direnç egzersizi tüm nedenlere bağlı ölüm riskini %15-27 azaltır ve sağlıklı yaşlanma için kritik olan kas kütlesini korur.",
-        categories: ["exercise", "longevity"],
-        url: "https://doi.org/10.1136/bjsports-2022-105669"
-      },
-      {
-        titleEn: "Neuroprotective Properties of Honey: Focus on Tualang Honey (2016)",
-        titleTr: "Balın Nöroprotektif Özellikleri: Tualang Balı Odaklı (2016)",
-        date: "2026-02-01",
-        summaryEn: "Tualang honey protects against oxidative neuronal damage and reduces neuroinflammation in experimental brain injury models.",
-        summaryTr: "Tualang balı, deneysel beyin hasarı modellerinde oksidatif nöronal hasara karşı koruma sağlar ve nöroinflamasyonu azaltır.",
+        titleEn: "Honey on Brain Health: A Promising Brain Booster (2023)",
+        titleTr: "Beyin Sağlığında Bal: Umut Verici Bir Beyin Güçlendirici (2023)",
+        date: "2026-05-04",
+        summaryEn: "Review highlighting honey's polyphenols as supportive of cognitive function, memory, and overall brain health.",
+        summaryTr: "Balın polifenollerinin bilişsel işlevi, hafızayı ve genel beyin sağlığını desteklediğini vurgulayan derleme.",
         categories: ["honey", "brain"],
-        url: "https://doi.org/10.1155/2016/6065626"
+        url: "https://doi.org/10.3389/fnagi.2022.1092596"
       },
       {
-        titleEn: "Bee Pollen in Human Nutrition and Health: A Comprehensive Review (2022)",
-        titleTr: "İnsan Beslenmesi ve Sağlığında Arı Poleni: Kapsamlı Bir Derleme (2022)",
-        date: "2026-02-03",
-        summaryEn: "Bee pollen demonstrates versatile health benefits including anti-allergic, antimicrobial, and cardiovascular protective properties.",
-        summaryTr: "Arı poleni, anti-alerjik, antimikrobiyal ve kardiyovasküler koruyucu özellikleri dahil çok yönlü sağlık faydaları göstermektedir.",
-        categories: ["pollen", "longevity"],
-        url: "https://doi.org/10.3390/nu14081518"
+        titleEn: "The Potential Use of Honey as a Neuroprotective Agent for the Management of Neurodegenerative Diseases (2023)",
+        titleTr: "Nörodejeneratif Hastalıkların Yönetiminde Nöroprotektif Ajan Olarak Balın Potansiyel Kullanımı (2023)",
+        date: "2026-04-26",
+        summaryEn: "Review examining honey's neuroprotective potential against neurodegenerative diseases through its antioxidant and anti-inflammatory actions.",
+        summaryTr: "Balın antioksidan ve anti-inflamatuar etkileri aracılığıyla nörodejeneratif hastalıklara karşı nöroprotektif potansiyelini inceleyen derleme.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.3390/nu15071558"
       },
       {
-        titleEn: "Royal Jelly Peptides: A New Frontier in Anti-Aging Research (2023)",
-        titleTr: "Arı Sütü Peptitleri: Anti-Aging Araştırmalarında Yeni Bir Sınır (2023)",
+        titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
+        titleTr: "Nöroprotektif Ajan Olarak Bal: Alzheimer Hastalığındaki Rolüne Moleküler Bakış (2025)",
+        date: "2026-04-18",
+        summaryEn: "Review exploring the molecular mechanisms by which honey may protect against Alzheimer's disease.",
+        summaryTr: "Balın Alzheimer hastalığına karşı koruma sağlayabileceği moleküler mekanizmaları araştıran derleme.",
+        categories: ["honey", "brain"],
+        url: "https://doi.org/10.3390/nu17162577"
+      },
+      {
+        titleEn: "Neuroprotective Effects of Royal Jelly and Its Active Compounds on Neurodegenerative Diseases (2024)",
+        titleTr: "Arı Sütü ve Aktif Bileşenlerinin Nörodejeneratif Hastalıklar Üzerindeki Nöroprotektif Etkileri (2024)",
+        date: "2026-04-10",
+        summaryEn: "Review of how royal jelly and active compounds such as 10-HDA exert neuroprotective effects in neurodegenerative diseases.",
+        summaryTr: "Arı sütü ve 10-HDA gibi aktif bileşenlerinin nörodejeneratif hastalıklarda nasıl nöroprotektif etki gösterdiğini inceleyen derleme.",
+        categories: ["royal-jelly", "brain"],
+        url: "https://doi.org/10.3389/fphar.2024.1351119"
+      },
+      {
+        titleEn: "Pro-Cognitive Effect of Royal Jelly Is Linked with Increased Burst Activity of Mesocorticolimbic Dopaminergic Neurons (2025)",
+        titleTr: "Arı Sütünün Bilişsel Etkisi, Mezokortikolimbik Dopaminerjik Nöronların Artan Aktivitesiyle İlişkilidir (2025)",
+        date: "2026-04-02",
+        summaryEn: "Research showing royal jelly's pro-cognitive effects are linked to increased burst activity of mesocorticolimbic dopaminergic neurons.",
+        summaryTr: "Arı sütünün bilişsel etkilerinin mezokortikolimbik dopaminerjik nöronların artan aktivitesiyle ilişkili olduğunu gösteren araştırma.",
+        categories: ["royal-jelly", "brain"],
+        url: "https://doi.org/10.3390/nu17223593"
+      },
+      {
+        titleEn: "Royal Jelly Mitigates Cognitive Decline and Anxiety in Female Mice: A Neuroprotective Solution for Alzheimer's Disease (2026)",
+        titleTr: "Arı Sütü Dişi Farelerde Bilişsel Gerileme ve Anksiyeteyi Azaltır: Alzheimer Hastalığı için Nöroprotektif Bir Çözüm (2026)",
+        date: "2026-03-25",
+        summaryEn: "In vivo study demonstrating that royal jelly reduces cognitive decline and anxiety in a female mouse model of Alzheimer's disease.",
+        summaryTr: "Arı sütünün Alzheimer hastalığının dişi fare modelinde bilişsel gerilemeyi ve anksiyeteyi azalttığını gösteren in vivo çalışma.",
+        categories: ["royal-jelly", "brain"],
+        url: "https://doi.org/10.3390/compounds6010008"
+      },
+      {
+        titleEn: "Immunomodulatory and Anti-Inflammatory Properties of Honey and Bee Products (2025)",
+        titleTr: "Bal ve Arı Ürünlerinin İmmünomodülatör ve Anti-İnflamatuar Özellikleri (2025)",
+        date: "2026-03-17",
+        summaryEn: "Review of the immunomodulatory and anti-inflammatory properties shared across honey, propolis, royal jelly, and bee pollen.",
+        summaryTr: "Bal, propolis, arı sütü ve arı poleninin ortak immünomodülatör ve anti-inflamatuar özelliklerini inceleyen derleme.",
+        categories: ["honey", "propolis", "royal-jelly", "pollen", "immunity"],
+        url: "https://doi.org/10.3390/apitherapyreports5020019"
+      },
+      {
+        titleEn: "Propolis Supplementation on Inflammatory and Oxidative Stress Biomarkers: A Systematic Review and Meta-Analysis of RCTs (2025)",
+        titleTr: "İnflamatuar ve Oksidatif Stres Biyobelirteçleri Üzerine Propolis Takviyesi: RCT'lerin Sistematik Derlemesi ve Meta-Analizi (2025)",
+        date: "2026-03-09",
+        summaryEn: "Systematic review and meta-analysis of randomized trials showing propolis supplementation improves inflammatory and oxidative stress biomarkers.",
+        summaryTr: "Propolis takviyesinin inflamatuar ve oksidatif stres biyobelirteçlerini iyileştirdiğini gösteren randomize çalışmaların sistematik derlemesi ve meta-analizi.",
+        categories: ["propolis", "immunity"],
+        url: "https://doi.org/10.3389/fnut.2025.1542184"
+      },
+      {
+        titleEn: "Antimicrobial Potential of Bee-Derived Products: Honey, Propolis and Bee Venom (2025)",
+        titleTr: "Arı Kaynaklı Ürünlerin Antimikrobiyal Potansiyeli: Bal, Propolis ve Arı Zehri (2025)",
+        date: "2026-03-01",
+        summaryEn: "Review of the antimicrobial potential of bee-derived products including honey and propolis against pathogenic microorganisms.",
+        summaryTr: "Bal ve propolis dahil arı kaynaklı ürünlerin patojen mikroorganizmalara karşı antimikrobiyal potansiyelini inceleyen derleme.",
+        categories: ["honey", "propolis", "immunity"],
+        url: "https://doi.org/10.3390/pathogens14080780"
+      },
+      {
+        titleEn: "Royal Jelly: A Promising Therapeutic Intervention and Functional Food Supplement (2024)",
+        titleTr: "Arı Sütü: Umut Verici Bir Terapötik Müdahale ve Fonksiyonel Gıda Takviyesi (2024)",
+        date: "2026-02-21",
+        summaryEn: "Systematic review of royal jelly's therapeutic potential as a functional food, including immune support and wound healing.",
+        summaryTr: "Arı sütünün bağışıklık desteği ve yara iyileşmesi dahil fonksiyonel gıda olarak terapötik potansiyelini inceleyen sistematik derleme.",
+        categories: ["royal-jelly", "immunity", "wound-healing"],
+        url: "https://doi.org/10.1016/j.heliyon.2024.e37138"
+      },
+      {
+        titleEn: "Unlocking the Healing Potential: Medical-Grade Honey in Wound Management and Tissue Regeneration (2025)",
+        titleTr: "İyileştirici Potansiyeli Açığa Çıkarmak: Yara Yönetimi ve Doku Rejenerasyonunda Tıbbi Sınıf Bal (2025)",
+        date: "2026-02-13",
+        summaryEn: "Narrative review of medical-grade honey's role in wound management and tissue regeneration.",
+        summaryTr: "Tıbbi sınıf balın yara yönetimi ve doku rejenerasyonundaki rolünü inceleyen anlatısal derleme.",
+        categories: ["honey", "wound-healing"],
+        url: "https://doi.org/10.1002/hsr2.70240"
+      },
+      {
+        titleEn: "The Use of Honey for Cicatrization and Pain Control of Obstetric Wounds (2024)",
+        titleTr: "Obstetrik Yaraların İyileşmesi ve Ağrı Kontrolünde Balın Kullanımı (2024)",
         date: "2026-02-05",
-        summaryEn: "Novel peptides isolated from royal jelly activate telomerase and enhance mitochondrial function in human cell lines.",
-        summaryTr: "Arı sütünden izole edilen yeni peptitler, insan hücre hatlarında telomerazı aktive eder ve mitokondriyal işlevi artırır.",
-        categories: ["royal-jelly", "anti-aging", "longevity"],
-        url: "https://doi.org/10.1016/j.jff.2023.105478"
+        summaryEn: "Systematic review and meta-analysis evaluating honey for wound cicatrization and pain control in obstetric wounds.",
+        summaryTr: "Obstetrik yaralarda yara iyileşmesi ve ağrı kontrolü için balı değerlendiren sistematik derleme ve meta-analiz.",
+        categories: ["honey", "wound-healing"],
+        url: "https://doi.org/10.3390/nu16020185"
       },
       {
-        titleEn: "Synergistic Effects of Propolis and Royal Jelly on Immune Function (2021)",
-        titleTr: "Propolis ve Arı Sütünün Bağışıklık İşlevi Üzerindeki Sinerjik Etkileri (2021)",
-        date: "2026-02-07",
-        summaryEn: "Combined propolis and royal jelly supplementation enhances NK cell activity and antibody production more than either alone.",
-        summaryTr: "Propolis ve arı sütü birlikte takviyesi, NK hücre aktivitesini ve antikor üretimini tek başına alımdan daha fazla artırır.",
-        categories: ["propolis", "royal-jelly"],
-        url: "https://doi.org/10.3390/nu13041073"
+        titleEn: "Propolis-Functionalized Biomaterials for Wound Healing (2025)",
+        titleTr: "Yara İyileşmesi için Propolis ile Fonksiyonelleştirilmiş Biyomalzemeler (2025)",
+        date: "2026-01-28",
+        summaryEn: "Systematic review of propolis-functionalized biomaterials and their application in wound healing.",
+        summaryTr: "Propolis ile fonksiyonelleştirilmiş biyomalzemeleri ve yara iyileşmesindeki uygulamalarını inceleyen sistematik derleme.",
+        categories: ["propolis", "wound-healing"],
+        url: "https://doi.org/10.3390/bioengineering6030074"
       },
       {
-        titleEn: "Mediterranean Diet, Honey, and Cardiovascular Health (2020)",
-        titleTr: "Akdeniz Diyeti, Bal ve Kardiyovasküler Sağlık (2020)",
-        date: "2026-02-09",
-        summaryEn: "Replacing refined sugars with natural honey in a Mediterranean diet reduces cardiovascular risk factors by up to 20%.",
-        summaryTr: "Akdeniz diyetinde rafine şekerlerin doğal bal ile değiştirilmesi kardiyovasküler risk faktörlerini %20'ye kadar azaltır.",
-        categories: ["honey", "longevity"],
-        url: "https://doi.org/10.3390/nu12041057"
+        titleEn: "Bee Products and Traditional Plant Therapies for Wound Care (2025)",
+        titleTr: "Yara Bakımı için Arı Ürünleri ve Geleneksel Bitki Terapileri (2025)",
+        date: "2026-01-20",
+        summaryEn: "Review of bee products — honey, propolis, royal jelly, and pollen — alongside traditional plant therapies for wound care.",
+        summaryTr: "Yara bakımı için bal, propolis, arı sütü ve polen gibi arı ürünlerini geleneksel bitki terapileriyle birlikte inceleyen derleme.",
+        categories: ["honey", "propolis", "royal-jelly", "pollen", "wound-healing"],
+        url: "https://doi.org/10.3831/KPI.2025.28.4.255"
+      },
+      {
+        titleEn: "Antioxidant and Anti-Inflammatory Properties of Bee Pollen from Acorn and Darae (2024)",
+        titleTr: "Meşe ve Darae Arı Poleninin Antioksidan ve Anti-İnflamatuar Özellikleri (2024)",
+        date: "2026-01-12",
+        summaryEn: "Research demonstrating strong antioxidant and anti-inflammatory activity of bee pollen sourced from acorn and darae.",
+        summaryTr: "Meşe ve darae kaynaklı arı poleninin güçlü antioksidan ve anti-inflamatuar aktivitesini gösteren araştırma.",
+        categories: ["pollen", "immunity"],
+        url: "https://doi.org/10.3390/antiox13080981"
+      },
+      {
+        titleEn: "Chemical Properties and Biological Activity of Bee Pollen (2023)",
+        titleTr: "Arı Poleninin Kimyasal Özellikleri ve Biyolojik Aktivitesi (2023)",
+        date: "2026-01-04",
+        summaryEn: "Review of the chemical composition of bee pollen and its diverse biological activities.",
+        summaryTr: "Arı poleninin kimyasal bileşimini ve çeşitli biyolojik aktivitelerini inceleyen derleme.",
+        categories: ["pollen"],
+        url: "https://doi.org/10.3390/molecules28237768"
+      },
+      {
+        titleEn: "Antioxidant-Rich Polyfloral Bee Pollen Exerts Antimicrobial and Anti-Inflammatory Effects in Lung Epithelial Cells (2025)",
+        titleTr: "Antioksidan Açısından Zengin Çok Çiçekli Arı Poleni Akciğer Epitel Hücrelerinde Antimikrobiyal ve Anti-İnflamatuar Etki Gösterir (2025)",
+        date: "2025-12-27",
+        summaryEn: "Research showing antioxidant-rich polyfloral bee pollen exerts antimicrobial and anti-inflammatory effects in A549 lung epithelial cells.",
+        summaryTr: "Antioksidan açısından zengin çok çiçekli arı poleninin A549 akciğer epitel hücrelerinde antimikrobiyal ve anti-inflamatuar etki gösterdiğini ortaya koyan araştırma.",
+        categories: ["pollen", "immunity"],
+        url: "https://doi.org/10.3390/foods14050802"
+      },
+      {
+        titleEn: "Chemical Composition of Egyptian Propolis and Antimicrobial Activity in Combination with Honey Against MDR Uropathogens (2025)",
+        titleTr: "Mısır Propolisinin Kimyasal Bileşimi ve Bal ile Kombinasyon Halinde Çoklu İlaca Dirençli Üropatojenlere Karşı Antimikrobiyal Aktivitesi (2025)",
+        date: "2025-12-19",
+        summaryEn: "Research characterizing Egyptian propolis and demonstrating its antimicrobial activity, combined with honey, against multidrug-resistant uropathogens.",
+        summaryTr: "Mısır propolisini karakterize eden ve bal ile birlikte çoklu ilaca dirençli üropatojenlere karşı antimikrobiyal aktivitesini gösteren araştırma.",
+        categories: ["propolis", "honey", "immunity"],
+        url: "https://doi.org/10.1038/s41598-025-00773-1"
       }
     ];
 
@@ -1489,8 +1489,8 @@ document.addEventListener("DOMContentLoaded", function () {
       "honey": { en: "Honey", tr: "Bal" },
       "brain": { en: "Brain", tr: "Beyin" },
       "exercise": { en: "Exercise", tr: "Egzersiz" },
-      "longevity": { en: "Longevity", tr: "Uzun Ömür" },
-      "anti-aging": { en: "Anti-Aging", tr: "Yaşlanma Karşıtı" },
+      "immunity": { en: "Immunity", tr: "Bağışıklık" },
+      "wound-healing": { en: "Wound Healing", tr: "Yara İyileşmesi" },
       "propolis": { en: "Propolis", tr: "Propolis" },
       "royal-jelly": { en: "Royal Jelly", tr: "Arı Sütü" },
       "pollen": { en: "Pollen", tr: "Polen" }
