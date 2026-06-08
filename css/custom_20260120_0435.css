@@ -830,6 +830,32 @@ button {
   color: var(--bg-primary);
 }
 
+.product-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.product-status.sold-out {
+  background: rgba(180, 40, 40, 0.9);
+  color: #fff;
+}
+
+.product-status.coming-soon {
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+}
+
 .product-info {
   padding: 1rem;
   text-align: center;
