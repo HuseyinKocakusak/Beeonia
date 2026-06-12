@@ -431,13 +431,23 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalDetails = document.getElementById("modalDetails");
   const modalHarvest = document.getElementById("modalHarvest");
   const modalBackdrop = document.querySelector(".modal-backdrop");
+  let currentModalCard = null;
 
   function openModal(card) {
+    currentModalCard = card;
     const img = card.querySelector(".product-image img");
 
     modalImage.src = img.src;
-    modalTitle.textContent = card.dataset.title;
-    modalOrigin.textContent = card.dataset.origin;
+    // Title may hold both languages as "TR | EN"; show the active one.
+    const titleParts = (card.dataset.title || "").split(" | ");
+    modalTitle.textContent =
+      currentLang === "en" && titleParts.length > 1
+        ? titleParts[titleParts.length - 1]
+        : titleParts[0];
+    modalOrigin.textContent =
+      currentLang === "tr"
+        ? card.dataset.originTr || card.dataset.origin
+        : card.dataset.originEn || card.dataset.origin;
     modalDescription.textContent =
       currentLang === "tr"
         ? card.dataset.descriptionTr
@@ -484,6 +494,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Product card click handlers
   document.querySelectorAll(".product-card").forEach((card) => {
     card.addEventListener("click", () => openModal(card));
+  });
+
+  // Re-render the open modal in the newly selected language.
+  document.addEventListener("languageChanged", () => {
+    if (currentModalCard && modal.classList.contains("active")) {
+      openModal(currentModalCard);
+    }
   });
 
   // Close modal handlers
