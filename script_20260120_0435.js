@@ -1277,6 +1277,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Bee Pollen as a Source of Biopharmaceuticals for Neurodegeneration and Cancer Research: A Scoping Review and Translational Prospects (2024)",
+        titleTr: "Nörodejenerasyon ve Kanser Araştırmaları için Biyofarmasötik Kaynağı Olarak Arı Poleni: Bir Kapsam Taraması ve Çeviri Perspektifleri (2024)",
+        date: "2026-06-10",
+        summaryEn: "Scoping review examining bee pollen's biopharmaceutical potential in neurodegenerative diseases (Alzheimer's, Parkinson's) and cancer, addressing multi-target mechanisms of pollen compounds in neuroprotection and apoptosis modulation.",
+        summaryTr: "Arı poleninin nörodejeneratif hastalıklardaki (Alzheimer, Parkinson) ve kanserdeki biyofarmasötik potansiyelini inceleyen kapsam taraması; pollen bileşiklerinin nöroproteksiyon ve apoptoz modülasyonundaki çoklu hedef mekanizmalarını ele alır.",
+        categories: ["pollen", "brain"],
+        url: "https://doi.org/10.3390/molecules29245893"
+      },
+      {
         titleEn: "Effect of a Honey-Sweetened Beverage on Muscle Soreness and Recovery After Exercise-Induced Muscle Damage in Strength-Trained Females (2024)",
         titleTr: "Bal ile Tatlandırılmış İçeceğin Kuvvet Antrenmanlı Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Kas Ağrısı ve Toparlanma Üzerine Etkisi (2024)",
         date: "2026-06-05",
