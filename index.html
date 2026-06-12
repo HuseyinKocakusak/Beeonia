@@ -162,10 +162,7 @@
           <h2 id="modalTitle"></h2>
           <p class="modal-origin" id="modalOrigin"></p>
           <p class="modal-description" id="modalDescription"></p>
-          <div class="modal-details">
-            <span class="modal-weight" id="modalWeight"></span>
-            <span class="modal-price" id="modalPrice"></span>
-          </div>
+          <div class="modal-details" id="modalDetails"></div>
           <p class="modal-harvest" id="modalHarvest"></p>
         </div>
       </div>
@@ -276,41 +273,59 @@
             <div class="products-track" id="productsTrack">
               <div
                 class="product-card"
-                data-title="Çam Balı | Pine Honey"
-                data-origin="Homeros Valley, Yamanlar Mountain"
-                data-description-tr="İzmir'in Yamanlar Dağı'ndan toplanan ham ve süzülmemiş çam balı. Doğal antioksidanlar ve mineraller açısından zengin."
-                data-description-en="Raw, unfiltered pine honey harvested from Yamanlar Mountain, Izmir. Rich in natural antioxidants and minerals."
-                data-weight="800g"
-                data-price="1250₺"
-                data-harvest-tr="Eylül 2025'te hasat edilmiştir."
-                data-harvest-en="Harvested in September 2025."
+                data-title="Polifloralı Çiçek Balı | Polyfloral Honey"
+                data-origin="Selendi, Manisa"
+                data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve polifloralı çiçek balı. Enerji ve canlılık için doğal destek."
+                data-description-en="Unfiltered, raw, no pesticide detected. Natural support for energy and vitality."
+                data-variants='[{"weight":"800g","price":"1400₺"},{"weight":"500g","price":"900₺"}]'
+                data-harvest-tr="Haziran 2026'da hasat edilmiştir."
+                data-harvest-en="Harvested in June 2026."
               >
                 <div class="product-image">
-                  <img src="images/products/PRJ_M2.jpg" alt="PRJ-M2" />
+                  <img src="images/products/Karaçalı.jpg" alt="Polifloralı Çiçek Balı" />
                   <div
-                    class="product-status coming-soon"
-                    data-tr="Yakında"
-                    data-en="Coming Soon"
+                    class="product-status coming-very-soon"
+                    data-tr="Çok Yakında"
+                    data-en="Coming Very Soon"
                   >
-                    Yakında
+                    Çok Yakında
                   </div>
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
-                  <h3>PRJ-M2</h3>
-                  <p>Bağışıklık Destekleyici</p>
+                  <h3>Polifloralı Çiçek Balı</h3>
+                  <p>Selendi, Manisa</p>
+                </div>
+              </div>
+              <div
+                class="product-card"
+                data-title="Polen | Bee Pollen"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-description-tr="Doğal arı poleni. Protein, vitamin ve antioksidanlar açısından zengin."
+                data-description-en="Natural bee pollen. Rich in protein, vitamins, and antioxidants."
+                data-variants='[{"weight":"40g","price":"100₺"},{"weight":"125g","price":"250₺"}]'
+                data-harvest-tr="21 Mayıs 2026 ve 10 Haziran 2026 hasadı."
+                data-harvest-en="Harvested on 21 May 2026 and 10 June 2026."
+              >
+                <div class="product-image">
+                  <img src="images/products/polen.png" alt="Polen" />
+                  <div class="product-badge">★</div>
+                </div>
+                <div class="product-info">
+                  <h3>Polen</h3>
+                  <p>Doğal Arı Poleni</p>
                 </div>
               </div>
               <div
                 class="product-card"
                 data-title="Propolis | Propolis"
                 data-origin="Yamanlar Mountain, Izmir"
-                data-description-tr="İyon arıları tarafından üretilen saf propolis. Güçlü antioksidan ve antimikrobiyal özelliklere sahiptir. Bağışıklık sistemini destekler, boğaz rahatsızlıklarını hafifletir."
-                data-description-en="Pure propolis produced by Ionian honey bees. Possesses strong antioxidant and antimicrobial properties. Supports the immune system and soothes throat discomfort."
+                data-description-tr="İyon arıları tarafından üretilen saf propolis, etanol (ethanol extract) ekstraksiyonu ile hazırlanır. Etanol özütü, propolisteki flavonoid ve polifenol gibi biyoaktif bileşenleri en yüksek verimle çözer ve mumsu kısımlardan arındırır; böylece antioksidan ve antimikrobiyal etkinlik daha güçlü ve daha biyoyararlı hâle gelir. Bağışıklık sistemini destekler, boğaz rahatsızlıklarını hafifletir."
+                data-description-en="Pure propolis produced by Ionian honey bees, prepared as an ethanol extract. Ethanol extraction dissolves the bioactive compounds — flavonoids and polyphenols — at the highest yield while removing waxes, making its antioxidant and antimicrobial action stronger and more bioavailable. Supports the immune system and soothes throat discomfort."
                 data-weight="20mL"
-                data-price=""
-                data-harvest-tr="2025 hasadı."
-                data-harvest-en="2025 harvest."
+                data-price="550₺"
+                data-harvest-tr="2026 hasadı."
+                data-harvest-en="2026 harvest."
               >
                 <div class="product-image">
                   <img src="images/products/propolis.png" alt="Propolis" />
@@ -330,17 +345,16 @@
               </div>
               <div
                 class="product-card"
-                data-title="Arı Sütü | Royal Jelly"
-                data-origin="Yamanlar Mountain, Izmir"
-                data-description-tr="Kraliçe arının beslenmesinde kullanılan eşsiz arı sütü. Royalactin proteini, B vitaminleri, amino asitler ve 10-HDA bakımından zengindir. Enerji, cilt sağlığı ve genel canlılık için doğal destek sağlar."
-                data-description-en="Exclusive royal jelly used in queen bee nutrition. Rich in royalactin protein, B vitamins, amino acids, and 10-HDA. Provides natural support for energy, skin health, and overall vitality."
-                data-weight="30g"
-                data-price=""
-                data-harvest-tr="2025 hasadı. Taze üretim."
-                data-harvest-en="2025 harvest. Fresh production."
+                data-title="Hayıt Balı | Vitex Honey"
+                data-origin="Aegean Coast"
+                data-description-tr="Ege kıyılarının aromatik hayıt çiçeklerinden elde edilen, yoğun aromalı doğal bal. Ağustos 2026'da hasat edilecektir."
+                data-description-en="Aromatic natural honey gathered from the vitex blossoms of the Aegean coast. To be harvested in August 2026."
+                data-variants='[{"weight":"800g","price":"1300₺"},{"weight":"500g","price":"850₺"}]'
+                data-harvest-tr="Ağustos 2026'da hasat edilecektir."
+                data-harvest-en="To be harvested in August 2026."
               >
                 <div class="product-image">
-                  <img src="images/products/RoyalJelly.png" alt="Arı Sütü" />
+                  <img src="images/products/vitex honey.png" alt="Hayıt Balı" />
                   <div
                     class="product-status coming-soon"
                     data-tr="Yakında"
@@ -351,20 +365,19 @@
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
-                  <h3>Arı Sütü</h3>
-                  <p>Doğal Canlılık Kaynağı</p>
+                  <h3>Hayıt Balı</h3>
+                  <p>Aromatik Ege Balı</p>
                 </div>
               </div>
               <div
                 class="product-card"
                 data-title="Çam Balı | Pine Honey"
                 data-origin="Yamanlar Mountain, Izmir"
-                data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve yüksek kalite analizli çam balı. Enerji ve canlılık için doğal destek."
-                data-description-en="Unfiltered, raw, no pesticide detected, high quality molecular analysis. Natural support for energy and vitality."
-                data-weight="500g"
-                data-price="800₺"
-                data-harvest-tr="Taze üretim."
-                data-harvest-en="Fresh production."
+                data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve yüksek kalite çam balı. Enerji ve canlılık için doğal destek."
+                data-description-en="Unfiltered, raw, no pesticide detected. Natural support for energy and vitality."
+                data-variants='[{"weight":"800g","price":"1250₺"},{"weight":"500g","price":"800₺"}]'
+                data-harvest-tr="Ekim 2026'da hasat edilecektir."
+                data-harvest-en="To be harvested in October 2026."
               >
                 <div class="product-image">
                   <img src="images/products/pine honey 2.png" alt="Çam Balı" />
@@ -384,68 +397,41 @@
               </div>
               <div
                 class="product-card"
-                data-title="Karaçalı Balı | Karaçalı Honey"
-                data-origin="Selendi, Manisa"
-                data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve yüksek kalite analizli karaçalı balı. Enerji ve canlılık için doğal destek."
-                data-description-en="Unfiltered, raw, no pesticide detected, high quality molecular analysis. Natural support for energy and vitality."
-                data-weight="800g"
-                data-price="1400₺"
-                data-harvest-tr="Haziran 2026'da hasat edilmiştir."
-                data-harvest-en="Harvested in June 2026."
-              >
-                <div class="product-image">
-                  <img src="images/products/Karaçalı.jpg" alt="Karaçalı Balı" />
-                  <div
-                    class="product-status coming-very-soon"
-                    data-tr="Çok Yakında"
-                    data-en="Coming Very Soon"
-                  >
-                    Çok Yakında
-                  </div>
-                  <div class="product-badge">★</div>
-                </div>
-                <div class="product-info">
-                  <h3>Karaçalı Balı</h3>
-                  <p>Selendi, Manisa</p>
-                </div>
-              </div>
-              <div
-                class="product-card"
-                data-title="Karaçalı Balı | Karaçalı Honey"
-                data-origin="Selendi, Manisa"
-                data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve yüksek kalite analizli karaçalı balı. Enerji ve canlılık için doğal destek."
-                data-description-en="Unfiltered, raw, no pesticide detected, high quality molecular analysis. Natural support for energy and vitality."
+                data-title="PRJ-M2"
+                data-origin="Homeros Valley, Yamanlar Mountain"
+                data-description-tr="Bağışıklık formülü olarak geliştirilen PRJ-M2, anti-inflamatuar destek ve doğal antioksidanlar açısından zengindir. Vücudun direncini güçlendirmek için tasarlanmıştır."
+                data-description-en="PRJ-M2, developed as an immune formula, is rich in anti-inflammatory support and natural antioxidants. Designed to strengthen the body's resilience."
                 data-weight="500g"
-                data-price="900₺"
-                data-harvest-tr="Haziran 2026'da hasat edilmiştir."
-                data-harvest-en="Harvested in June 2026."
+                data-price="1000₺"
+                data-harvest-tr="Formülasyon aşamasında"
+                data-harvest-en="In formulation stage"
               >
                 <div class="product-image">
-                  <img src="images/products/Karaçalı.jpg" alt="Karaçalı Balı" />
+                  <img src="images/products/PRJ_M2.jpg" alt="PRJ-M2" />
                   <div
-                    class="product-status coming-very-soon"
-                    data-tr="Çok Yakında"
-                    data-en="Coming Very Soon"
+                    class="product-status coming-soon"
+                    data-tr="Yakında"
+                    data-en="Coming Soon"
                   >
-                    Çok Yakında
+                    Yakında
                   </div>
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
-                  <h3>Karaçalı Balı</h3>
-                  <p>Selendi, Manisa</p>
+                  <h3>PRJ-M2</h3>
+                  <p>Bağışıklık Destekleyici</p>
                 </div>
               </div>
               <div
                 class="product-card"
-                data-title="Polen | Bee Pollen"
+                data-title="AP-IV | Pollen Honey"
                 data-origin="Yamanlar Mountain, Izmir"
-                data-description-tr="Doğal arı poleni. Protein ve vitamin açısından zengin."
-                data-description-en="Natural bee pollen. Rich in protein and vitamins."
-                data-weight="40g"
-                data-price=""
-                data-harvest-tr="2025 hasadı."
-                data-harvest-en="2025 harvest."
+                data-description-tr="Bal içinde doğal arı poleni. Protein, vitamin ve mineraller açısından zengin, enerji veren polenli bal karışımı."
+                data-description-en="Natural bee pollen in honey. An energizing pollen-honey blend rich in protein, vitamins, and minerals."
+                data-weight="500g"
+                data-price="1000₺"
+                data-harvest-tr="Formülasyon aşamasında"
+                data-harvest-en="In formulation stage"
               >
                 <div class="product-image">
                   <img src="images/products/AP-IV_3.png" alt="AP-IV_3" />
@@ -461,6 +447,33 @@
                 <div class="product-info">
                   <h3>AP-IV</h3>
                   <p>Zindelik Karışımı</p>
+                </div>
+              </div>
+              <div
+                class="product-card"
+                data-title="Arı Sütü | Royal Jelly"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-description-tr="Kraliçe arının beslenmesinde kullanılan eşsiz arı sütü. Royalactin proteini, B vitaminleri, amino asitler ve 10-HDA bakımından zengindir. Enerji, cilt sağlığı ve genel canlılık için doğal destek sağlar."
+                data-description-en="Exclusive royal jelly used in queen bee nutrition. Rich in royalactin protein, B vitamins, amino acids, and 10-HDA. Provides natural support for energy, skin health, and overall vitality."
+                data-weight="30g"
+                data-price=""
+                data-harvest-tr=""
+                data-harvest-en=""
+              >
+                <div class="product-image">
+                  <img src="images/products/RoyalJelly.png" alt="Arı Sütü" />
+                  <div
+                    class="product-status coming-soon"
+                    data-tr="Yakında"
+                    data-en="Coming Soon"
+                  >
+                    Yakında
+                  </div>
+                  <div class="product-badge">★</div>
+                </div>
+                <div class="product-info">
+                  <h3>Arı Sütü</h3>
+                  <p>Doğal Canlılık Kaynağı</p>
                 </div>
               </div>
             </div>
