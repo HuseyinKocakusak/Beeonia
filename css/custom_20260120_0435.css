@@ -2351,6 +2351,9 @@ button {
 
   .modal-info {
     padding: 1.5rem;
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: calc(95vh - 250px);
   }
 
   .modal-info h2 {
@@ -2456,6 +2459,12 @@ button {
   .modal-details {
     flex-direction: column;
     gap: 0.5rem;
+  }
+
+  .modal-info {
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: calc(95vh - 200px);
   }
 
   .partner-logo span {
@@ -2691,7 +2700,7 @@ button {
 }
 
 .faq-item.active .faq-answer {
-  max-height: 2000px;
+  max-height: 4000px;
 }
 
 .faq-answer-content {
@@ -2874,6 +2883,10 @@ button {
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
   }
+
+  .faq-item.active .faq-answer {
+    max-height: 5000px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2912,6 +2925,10 @@ button {
 
   .faq-references a {
     font-size: 0.7rem;
+  }
+
+  .faq-item.active .faq-answer {
+    max-height: 6000px;
   }
 }
 
