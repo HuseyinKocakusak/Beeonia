@@ -428,8 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalTitle = document.getElementById("modalTitle");
   const modalOrigin = document.getElementById("modalOrigin");
   const modalDescription = document.getElementById("modalDescription");
-  const modalWeight = document.getElementById("modalWeight");
-  const modalPrice = document.getElementById("modalPrice");
+  const modalDetails = document.getElementById("modalDetails");
   const modalHarvest = document.getElementById("modalHarvest");
   const modalBackdrop = document.querySelector(".modal-backdrop");
 
@@ -443,8 +442,33 @@ document.addEventListener("DOMContentLoaded", function () {
       currentLang === "tr"
         ? card.dataset.descriptionTr
         : card.dataset.descriptionEn;
-    modalWeight.textContent = card.dataset.weight;
-    modalPrice.textContent = card.dataset.price;
+    // Build weight/price rows. Products with multiple grammages use
+    // data-variants (JSON array of {weight, price}); others fall back to a
+    // single data-weight/data-price. Price is omitted when empty.
+    let variants = [];
+    if (card.dataset.variants) {
+      try {
+        variants = JSON.parse(card.dataset.variants);
+      } catch (e) {
+        variants = [];
+      }
+    }
+    if (!variants.length) {
+      variants = [{ weight: card.dataset.weight, price: card.dataset.price }];
+    }
+    modalDetails.innerHTML = variants
+      .filter((v) => v.weight || v.price)
+      .map((v) => {
+        const weight = v.weight
+          ? `<span class="modal-weight">${v.weight}</span>`
+          : "";
+        const price = v.price
+          ? `<span class="modal-price">${v.price}</span>`
+          : "";
+        return `<div class="modal-variant">${weight}${price}</div>`;
+      })
+      .join("");
+
     modalHarvest.textContent =
       currentLang === "tr" ? card.dataset.harvestTr : card.dataset.harvestEn;
 

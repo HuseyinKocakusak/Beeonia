@@ -998,11 +998,19 @@ button {
 
 .modal-details {
   display: flex;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 0.6rem;
   margin-bottom: 1rem;
   padding: 1rem 0;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
+}
+
+.modal-variant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
 }
 
 .modal-weight,
