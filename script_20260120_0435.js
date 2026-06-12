@@ -1303,7 +1303,7 @@ document.addEventListener("DOMContentLoaded", function () {
       {
         titleEn: "Bee Pollen as a Source of Biopharmaceuticals for Neurodegeneration and Cancer Research: A Scoping Review and Translational Prospects (2024)",
         titleTr: "Nörodejenerasyon ve Kanser Araştırmaları için Biyofarmasötik Kaynağı Olarak Arı Poleni: Bir Kapsam Taraması ve Çeviri Perspektifleri (2024)",
-        date: "2026-06-10",
+        date: "2026-06-12",
         summaryEn: "Scoping review examining bee pollen's biopharmaceutical potential in neurodegenerative diseases (Alzheimer's, Parkinson's) and cancer, addressing multi-target mechanisms of pollen compounds in neuroprotection and apoptosis modulation.",
         summaryTr: "Arı poleninin nörodejeneratif hastalıklardaki (Alzheimer, Parkinson) ve kanserdeki biyofarmasötik potansiyelini inceleyen kapsam taraması; pollen bileşiklerinin nöroproteksiyon ve apoptoz modülasyonundaki çoklu hedef mekanizmalarını ele alır.",
         categories: ["pollen", "brain"],
