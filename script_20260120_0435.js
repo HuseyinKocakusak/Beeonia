@@ -1318,6 +1318,51 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Royal Jelly Supplementation Improves Endurance and Mitochondrial Biogenesis in Athletes: A Crossover Trial (2025)",
+        titleTr: "Arı Sütü Takviyesinin Sporcularda Dayanıklılık ve Mitokondriyal Biyogenezi İyileştirmesi: Çapraz Geçişli Çalışma (2025)",
+        date: "2026-07-17",
+        summaryEn: "Randomized double-blind crossover trial in 18 endurance-trained male athletes showing that 1000 mg/day royal jelly for 2 weeks significantly increases time to exhaustion and PGC-1α gene expression relative to placebo.",
+        summaryTr: "18 dayanıklılık sporcusunda 2 haftalık 1000 mg/gün arı sütü takviyesinin yorgunluk anına kadar geçen süreyi ve PGC-1α gen ekspresyonunu plaseboya kıyasla anlamlı biçimde artırdığını gösteren randomize çapraz geçişli çalışma.",
+        categories: ["royal-jelly", "exercise"],
+        url: "https://doi.org/10.1002/fsn3.70497"
+      },
+      {
+        titleEn: "Artepillin C-Rich Propolis Extract Supplementation Promotes Muscle Recovery Following Exercise-Induced Muscle Damage in Resistance-Trained Young Females: A Randomized, Placebo-Controlled Trial (2025)",
+        titleTr: "Artepillin C Açısından Zengin Propolis Ekstresi Takviyesinin Dirençli Antrenman Yapan Genç Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Toparlanma Üzerine Etkisi: Randomize, Plasebo Kontrollü Çalışma (2025)",
+        date: "2026-07-10",
+        summaryEn: "Randomized placebo-controlled trial in 22 resistance-trained females showing that 7 days of Artepillin C-rich Brazilian propolis extract supplementation attenuates markers of exercise-induced muscle damage and supports recovery.",
+        summaryTr: "22 kuvvet antrenmanlı genç kadında 7 günlük Artepillin C açısından zengin Brezilya propolisi takviyesinin egzersize bağlı kas hasarı belirteçlerini baskıladığını ve toparlanmayı desteklediğini gösteren randomize çalışma.",
+        categories: ["propolis", "exercise"],
+        url: "https://doi.org/10.1080/15502783.2025.2569908"
+      },
+      {
+        titleEn: "Anti-Inflammatory Potential of Royal Jelly in Multiple Sclerosis Disease: A Double Randomized Clinical Trial (2025)",
+        titleTr: "Multipl Sklerozda Arı Sütünün Anti-İnflamatuar Potansiyeli: Çift Kör Randomize Klinik Çalışma (2025)",
+        date: "2026-07-03",
+        summaryEn: "Double-blind randomized clinical trial in 35 MS patients showing that 500 mg/day royal jelly supplementation for 8 weeks reduces inflammatory and oxidative stress markers while improving quality of life scores.",
+        summaryTr: "35 multipl skleroz hastasında 8 haftalık 500 mg/gün arı sütü takviyesinin inflamatuar ve oksidatif stres belirteçlerini azalttığını ve yaşam kalitesini iyileştirdiğini gösteren çift kör randomize çalışma.",
+        categories: ["royal-jelly", "immunity"],
+        url: "https://doi.org/10.1097/MS9.0000000000002967"
+      },
+      {
+        titleEn: "Antimicrobial Activity of Bee Pollen: Influence of Botanical Origin and Processing (2026)",
+        titleTr: "Arı Poleninin Antimikrobiyal Aktivitesi: Botanik Köken ve İşlemenin Etkisi (2026)",
+        date: "2026-06-26",
+        summaryEn: "Review examining how botanical origin, seasonal variation, and processing methods shape the antimicrobial activity of bee pollen, with a focus on bioavailability optimization and immunostimulatory potential.",
+        summaryTr: "Botanik köken, mevsimsel değişkenlik ve işleme yöntemlerinin arı poleninin antimikrobiyal aktivitesini nasıl şekillendirdiğini; biyoyararlanım optimizasyonu ve immün destekleyici potansiyeli açısından değerlendiren derleme.",
+        categories: ["pollen", "immunity"],
+        url: "https://doi.org/10.17113/ftb.64.01.26.9421"
+      },
+      {
+        titleEn: "Anti-Inflammatory and Wound Healing Properties of Different Honey Varieties from Romania and Correlations to Their Composition (2024)",
+        titleTr: "Romanya Bal Çeşitlerinin Anti-İnflamatuar ve Yara İyileştirici Özellikleri ile Kimyasal Bileşimleriyle İlişkileri (2024)",
+        date: "2026-06-19",
+        summaryEn: "In vitro study on seven Romanian honey varieties showing dose-dependent anti-inflammatory and pro-proliferative effects in macrophage, fibroblast, and keratinocyte cell models, with phenolic content strongly correlated to wound healing activity.",
+        summaryTr: "Yedi Romanya balı çeşidinin makrofaj, fibroblast ve keratinosit hücre modellerinde doza bağımlı anti-inflamatuar ve hücre çoğalması destekleyici etkiler gösterdiğini; fenolik içerik ile yara iyileşme aktivitesi arasında güçlü bir ilişki bulunduğunu ortaya koyan in vitro çalışma.",
+        categories: ["honey", "wound-healing"],
+        url: "https://doi.org/10.3390/life14091187"
+      },
+      {
         titleEn: "Bee Pollen as a Source of Biopharmaceuticals for Neurodegeneration and Cancer Research: A Scoping Review and Translational Prospects (2024)",
         titleTr: "Nörodejenerasyon ve Kanser Araştırmaları için Biyofarmasötik Kaynağı Olarak Arı Poleni: Bir Kapsam Taraması ve Çeviri Perspektifleri (2024)",
         date: "2026-06-12",
