@@ -1328,7 +1328,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       {
         titleEn: "Artepillin C-Rich Propolis Extract Supplementation Promotes Muscle Recovery Following Exercise-Induced Muscle Damage in Resistance-Trained Young Females: A Randomized, Placebo-Controlled Trial (2025)",
-        titleTr: "Artepillin C Açısından Zengin Propolis Ekstresi Takviyesinin Dirençli Antrenman Yapan Genç Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Toparlanma Üzerine Etkisi: Randomize, Plasebo Kontrollü Çalışma (2025)",
+        titleTr: "Artepillin C Açısından Zengin Propolis Ekstresi Takviyesinin Direnç Antrenmanı Yapan Genç Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Toparlanma Üzerine Etkisi: Randomize, Plasebo Kontrollü Çalışma (2025)",
         date: "2026-07-10",
         summaryEn: "Randomized placebo-controlled trial in 22 resistance-trained females showing that 7 days of Artepillin C-rich Brazilian propolis extract supplementation attenuates markers of exercise-induced muscle damage and supports recovery.",
         summaryTr: "22 kuvvet antrenmanlı genç kadında 7 günlük Artepillin C açısından zengin Brezilya propolisi takviyesinin egzersize bağlı kas hasarı belirteçlerini baskıladığını ve toparlanmayı desteklediğini gösteren randomize çalışma.",
