@@ -1450,6 +1450,12 @@ button {
   max-width: 580px;
 }
 
+@media (min-width: 1024px) {
+  .values-subsection-desc {
+    white-space: nowrap;
+  }
+}
+
 /* Cards Grid */
 .values-cards-grid {
   display: grid;
