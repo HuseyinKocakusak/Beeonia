@@ -1031,6 +1031,47 @@ button {
   font-style: italic;
 }
 
+.modal-analyses {
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.modal-analyses-title {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 0.6rem;
+}
+
+.modal-analyses-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-analysis-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-smooth);
+}
+
+.modal-analysis-link svg {
+  flex-shrink: 0;
+  color: var(--accent-gold);
+}
+
+.modal-analysis-link:hover {
+  color: var(--accent-gold);
+}
+
 /* ========================================
    Science / Literature Section
    ======================================== */
