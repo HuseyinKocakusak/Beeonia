@@ -3106,6 +3106,19 @@ button {
   transform: scaleX(-1);
 }
 
+/* Idle nudge animation — uses independent translate/rotate so hover scale still composes */
+@keyframes mascot-nudge {
+  0%   { translate: 0 0;    rotate: 0deg; }
+  20%  { translate: 0 -5px; rotate: 1.5deg; }
+  45%  { translate: 0 -3px; rotate: -1deg; }
+  70%  { translate: 0 -6px; rotate: 0.8deg; }
+  100% { translate: 0 0;    rotate: 0deg; }
+}
+
+.mascot-image.nudging {
+  animation: mascot-nudge 1.3s ease-in-out;
+}
+
 /* Mascot Popup Responsive */
 @media (max-width: 768px) {
   .mascot-popup {
