@@ -1170,6 +1170,23 @@ document.addEventListener("DOMContentLoaded", function () {
       speechBubble.classList.add("visible");
     }, 3000);
 
+    // Auto-hide speech bubble 10 seconds after page load
+    setTimeout(function () {
+      speechBubble.classList.remove("visible");
+    }, 10000);
+
+    // Idle nudge every 10 seconds — gentle "I'm still here" wiggle
+    setInterval(function () {
+      if (isDragging) return;
+      mascotImage.classList.add("nudging");
+    }, 10000);
+
+    mascotImage.addEventListener("animationend", function (e) {
+      if (e.animationName === "mascot-nudge") {
+        mascotImage.classList.remove("nudging");
+      }
+    });
+
     // Toggle speech bubble on mascot click
     mascotImage.addEventListener("click", function (e) {
       if (!hasDragged) {
