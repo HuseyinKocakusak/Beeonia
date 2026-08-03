@@ -1318,6 +1318,33 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "The Immunomodulatory Effects of Honey and Associated Flavonoids in Cancer (2021)",
+        titleTr: "Balın ve İlişkili Flavonoidlerin Kanserde İmmünomodülatör Etkileri (2021)",
+        date: "2026-08-07",
+        summaryEn: "Review examining how honey and its key flavonoids (quercetin, kaempferol, luteolin, apigenin) modulate immune responses in cancer, including effects on T-cell activation, NK cell activity, macrophage polarization, and tumor microenvironment regulation.",
+        summaryTr: "Bal ve temel flavonoidlerinin (kuersetin, kaempferol, luteolin, apigenin) kanserde bağışıklık yanıtlarını nasıl modüle ettiğini inceleyen derleme; T hücre aktivasyonu, NK hücre aktivitesi, makrofaj polarizasyonu ve tümör mikro-ortamı düzenlenmesi üzerine etkileri değerlendirilmiştir.",
+        categories: ["honey", "immunity"],
+        url: "https://doi.org/10.3390/nu13041269"
+      },
+      {
+        titleEn: "Detection of Serotonin, Melatonin, and Their Metabolites in Honey (2022)",
+        titleTr: "Balda Serotonin, Melatonin ve Metabolitlerinin Tespiti (2022)",
+        date: "2026-07-31",
+        summaryEn: "Study identifying and quantifying serotonin, melatonin, and their key metabolites in honey samples using validated analytical methods, supporting the hypothesis that honey's neuroactive compounds may contribute to its traditionally reported calming and sleep-supporting effects.",
+        summaryTr: "Doğrulanmış analitik yöntemler kullanılarak bal örneklerinde serotonin, melatonin ve temel metabolitlerinin tespit edilip ölçüldüğü çalışma; balın nöroaktif bileşenlerinin geleneksel olarak rapor edilen sakinleştirici ve uyku destekleyici etkilerine katkıda bulunabileceği hipotezini desteklemektedir.",
+        categories: ["honey", "brain"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9017714/"
+      },
+      {
+        titleEn: "Bee Bread Attenuates Atherosclerosis by Activating Nrf2/Keap1 and Modulating TNF-α/NF-κβ-Associated Mast Cell Migration in an Obese Rat Model (2022)",
+        titleTr: "Arı Ekmeğinin Obez Sıçan Modelinde Nrf2/Keap1 Aktivasyonu ve TNF-α/NF-κβ ile İlişkili Mast Hücre Migrasyonu Modülasyonu Yoluyla Aterosklerozla Mücadelesi (2022)",
+        date: "2026-07-24",
+        summaryEn: "In vivo study in obese rats showing that daily bee bread supplementation attenuates atherosclerosis progression by activating the Nrf2/Keap1 antioxidant pathway, suppressing NF-κβ-driven inflammation, reducing mast cell migration, and promoting mitochondrial-dependent apoptosis in vascular tissue.",
+        summaryTr: "Obez sıçanlarda yapılan in vivo çalışma; günlük arı ekmeği takviyesinin Nrf2/Keap1 antioksidan yolağını aktive ederek, NF-κβ kaynaklı inflamasyonu baskılayarak, mast hücre migrasyonunu azaltarak ve damar dokusunda mitokondriyal apoptozu destekleyerek ateroskleroz ilerlemesini yavaşlattığını göstermiştir.",
+        categories: ["pollen", "immunity"],
+        url: "https://doi.org/10.1039/D2FO00949H"
+      },
+      {
         titleEn: "Royal Jelly Supplementation Improves Endurance and Mitochondrial Biogenesis in Athletes: A Crossover Trial (2025)",
         titleTr: "Arı Sütü Takviyesinin Sporcularda Dayanıklılık ve Mitokondriyal Biyogenezi İyileştirmesi: Çapraz Geçişli Çalışma (2025)",
         date: "2026-07-17",
