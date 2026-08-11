@@ -1361,6 +1361,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses",
+        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler",
+        date: "2026-08-14",
+        summaryEn: "Study demonstrating that extracellular vesicles derived from royal jelly promote wound healing by modulating key cellular responses including cell migration, proliferation, and anti-inflammatory signaling.",
+        summaryTr: "Arı sütünden elde edilen ekstraselüler vesiküllerin hücre göçü, çoğalması ve anti-inflamatuar sinyal iletimi gibi temel hücresel yanıtları modüle ederek yara iyileşmesini desteklediğini gösteren çalışma.",
+        categories: ["royal-jelly", "wound-healing"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9989319/"
+      },
+      {
         titleEn: "The Immunomodulatory Effects of Honey and Associated Flavonoids in Cancer (2021)",
         titleTr: "Balın ve İlişkili Flavonoidlerin Kanserde İmmünomodülatör Etkileri (2021)",
         date: "2026-08-07",
@@ -1592,7 +1601,7 @@ document.addEventListener("DOMContentLoaded", function () {
         summaryEn: "Systematic review of propolis-functionalized biomaterials and their application in wound healing.",
         summaryTr: "Propolis ile fonksiyonelleştirilmiş biyomalzemeleri ve yara iyileşmesindeki uygulamalarını inceleyen sistematik derleme.",
         categories: ["propolis", "wound-healing"],
-        url: "https://doi.org/10.3390/bioengineering6030074"
+        url: "https://www.mdpi.com/2673-4176/6/3/74"
       },
       {
         titleEn: "Bee Products and Traditional Plant Therapies for Wound Care (2025)",
