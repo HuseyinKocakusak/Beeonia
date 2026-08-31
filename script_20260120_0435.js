@@ -1361,6 +1361,24 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
+        titleTr: "Balın Nöroprotektif Ajan Olarak Rolü: Alzheimer Hastalığındaki Moleküler Perspektifler (2025)",
+        date: "2026-08-28",
+        summaryEn: "Review examining the molecular mechanisms by which honey and its bioactive compounds (flavonoids, phenolic acids, methylglyoxal) exert neuroprotective effects in Alzheimer's disease, including modulation of amyloid-β aggregation, tau phosphorylation, neuroinflammation, and oxidative stress pathways.",
+        summaryTr: "Bal ve biyoaktif bileşenlerinin (flavonoidler, fenolik asitler, metilglioksal) Alzheimer hastalığında amiloid-β agregasyonu, tau fosforilasyonu, nöroinflamasyon ve oksidatif stres yolakları üzerindeki nöroprotektif etki mekanizmalarını inceleyen derleme.",
+        categories: ["honey", "brain"],
+        url: "https://www.mdpi.com/2072-6643/17/16/2577"
+      },
+      {
+        titleEn: "Ethanol Extract of Propolis Relieves Exercise-Induced Fatigue via Modulating Metabolites and Gut Microbiota in Mice (2025)",
+        titleTr: "Propolis Etanol Ekstresinin Metabolitler ve Bağırsak Mikrobiyotası Üzerindeki Modülatör Etkisiyle Egzersize Bağlı Yorgunluğu Azaltması (2025)",
+        date: "2026-08-21",
+        summaryEn: "Mouse study showing that ethanol extract of propolis significantly reduces exercise-induced fatigue by modulating serum metabolite profiles and gut microbiota composition, with notable effects on energy metabolism pathways and anti-fatigue biomarkers.",
+        summaryTr: "Propolis etanol ekstresinin serum metabolit profilleri ve bağırsak mikrobiyota bileşimini düzenleyerek egzersize bağlı yorgunluğu anlamlı biçimde azalttığını; enerji metabolizması yolakları ve yorgunluk karşıtı biyobelirteçler üzerinde belirgin etkiler gösterdiğini ortaya koyan fare çalışması.",
+        categories: ["propolis", "exercise"],
+        url: "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1549913/full"
+      },
+      {
         titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses",
         titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler",
         date: "2026-08-14",
