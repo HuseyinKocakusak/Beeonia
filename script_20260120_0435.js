@@ -1405,6 +1405,42 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Bee Products in Dermatology and Skin Care",
+        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri",
+        date: "2026-09-25",
+        summaryEn: "Comprehensive review of the therapeutic applications of bee products — honey, propolis, royal jelly, bee venom, and beeswax — in dermatology and skin care, covering wound healing, anti-aging, antimicrobial, and anti-inflammatory properties backed by clinical and in vitro evidence.",
+        summaryTr: "Bal, propolis, arı sütü, arı zehiri ve balmumu gibi arı ürünlerinin dermatoloji ve cilt bakımındaki terapötik uygulamalarını ele alan kapsamlı derleme; klinik ve in vitro kanıtlarla desteklenen yara iyileştirme, yaşlanma karşıtı, antimikrobiyal ve anti-inflamatuar özellikleri kapsamaktadır.",
+        categories: ["honey", "propolis", "royal-jelly"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7036894/"
+      },
+      {
+        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health",
+        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli",
+        date: "2026-09-18",
+        summaryEn: "Review exploring the antioxidant potential of bee-derived products — honey, propolis, royal jelly, and bee venom — in maintaining oral hygiene and dental health, with emphasis on antimicrobial, anti-inflammatory, and tissue-protective mechanisms.",
+        summaryTr: "Bal, propolis, arı sütü ve arı zehiri gibi arı kaynaklı ürünlerin ağız hijyeni ve diş sağlığının korunmasındaki antioksidan potansiyelini inceleyen derleme; antimikrobiyal, anti-inflamatuar ve doku koruyucu mekanizmalara odaklanmaktadır.",
+        categories: ["honey", "propolis"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10375990/#sec5-antioxidants-12-01452"
+      },
+      {
+        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types",
+        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular",
+        date: "2026-09-11",
+        summaryEn: "Study investigating honey as a bioindicator of environmental microplastic pollution, analyzing industrial and specialty honey types for microplastic content and distribution patterns, with implications for food safety and environmental monitoring.",
+        summaryTr: "Balın çevresel mikroplastik kirliliğinin biyogöstergesi olarak kullanılmasını araştıran çalışma; endüstriyel ve özel bal türlerinde mikroplastik içeriği ile dağılım örüntülerini analiz ederek gıda güvenliği ve çevre izleme açısından sonuçlarını ortaya koymaktadır.",
+        categories: ["honey"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12916803/"
+      },
+      {
+        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology",
+        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü",
+        date: "2026-09-04",
+        summaryEn: "Review examining the essential role of free amino acids and proteins in determining bee pollen quality, focusing on how the amino acid profile influences honey bee nutritional requirements, larval development, immune function, and overall colony health.",
+        summaryTr: "Serbest amino asitler ve proteinlerin arı poleni kalitesini belirlemedeki temel rolünü inceleyen derleme; amino asit profilinin bal arılarının beslenme gereksinimlerini, larva gelişimini, bağışıklık işlevini ve koloni sağlığını nasıl etkilediğine odaklanmaktadır.",
+        categories: ["pollen"],
+        url: "https://www.mdpi.com/1420-3049/29/11/2605"
+      },
+      {
         titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
         titleTr: "Balın Nöroprotektif Ajan Olarak Rolü: Alzheimer Hastalığındaki Moleküler Perspektifler (2025)",
         date: "2026-08-28",
