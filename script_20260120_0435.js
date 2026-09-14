@@ -688,6 +688,56 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initReviews() {
     const reviews = [
       {
+        name: "Erim Kılınç",
+        commentTr: "Çok iyi kalite",
+        commentEn: "Very good quality",
+        date: "10 September, 2026",
+        url: "https://www.instagram.com/p/DdHK38hqLD0/c/17863075578676039/",
+      },
+      {
+        name: "Batın Güleç",
+        commentTr:
+          "Çok titizlikle çalışılıyor, ellerinize sağlık. Petek bal ve arı ekmeğinizin elime ulaşmasını dört gözle bekliyorum 😍😍😍",
+        commentEn:
+          "You work very meticulously, well done. I am eagerly waiting for your comb honey and bee bread to reach me 😍😍😍",
+        date: "21 July, 2026",
+        url: "https://www.instagram.com/p/DbDvcNNqnMx/c/18128737780711661/",
+      },
+      {
+        name: "Şule Koç",
+        commentTr:
+          "Arı sağlığına verdiğiniz önem, balınızın kalitesine de yansıyor. Emeğinize sağlık, başarılarınız daim olsun🐝🍯",
+        commentEn:
+          "The importance you give to bee health is also reflected in the quality of your honey. Well done, may your success be lasting 🐝🍯",
+        date: "7 July, 2026",
+        url: "https://www.instagram.com/p/Daf9fFNqno8/c/18318666838275771/",
+      },
+      {
+        name: "Batın Güleç",
+        commentTr: "Ballar müthiş lezzetli ve diğer hiçbir bala benzemiyor.",
+        commentEn:
+          "The honeys are incredibly delicious and unlike any other honey.",
+        date: "9 June, 2026",
+        url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18377601637160808/",
+      },
+      {
+        name: "Ayşe Çetinkaya",
+        commentTr:
+          "alınn en iyisi olması için ilmik ilmik emek ve çaba, tebrikler 👏 👏 ve sonuç harika bir lezzetli bal 😍 emeğinize sağlık, ben yedim denedim siz de deneyin 👏👍🫶",
+        commentEn:
+          "Stitch by stitch effort and dedication to make the best of its kind, congratulations 👏 👏 and the result is a wonderful delicious honey 😍 well done, I ate and tried it, you try it too 👏👍🫶",
+        date: "8 June, 2026",
+        url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18087942740434121/",
+      },
+      {
+        name: "Nedret Şengonca Tort",
+        commentTr: "Bilinçli üretici ve tabiiki sonuç mutlaka harika 👏👏👏",
+        commentEn:
+          "Conscious producer and of course the result is definitely great 👏👏👏",
+        date: "1 June, 2026",
+        url: "https://www.instagram.com/p/DZCXO0hIk0Z/c/17976957774013745/",
+      },
+      {
         name: "Hakan Adıyaman",
         commentTr:
           "Gerçekten harika bir bal, emeğinize sağlık 🍯✨ Doğallığı ilk kaşıkta hissediliyor, teşekkürler! Gerçek bal arayanlara gönül rahatlığıyla öneririm. Muhteşem bir ürün!",
