@@ -433,13 +433,57 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalAnalyses = document.getElementById("modalAnalyses");
   const modalAnalysesLinks = document.getElementById("modalAnalysesLinks");
   const modalBackdrop = document.querySelector(".modal-backdrop");
+  const modalImgPrev = document.getElementById("modalImgPrev");
+  const modalImgNext = document.getElementById("modalImgNext");
+  const modalImgCounter = document.getElementById("modalImgCounter");
   let currentModalCard = null;
+  let _modalImages = [];
+  let _modalImgIndex = 0;
+
+  function _showModalImage(index) {
+    _modalImgIndex = ((index % _modalImages.length) + _modalImages.length) % _modalImages.length;
+    const entry = _modalImages[_modalImgIndex];
+    modalImage.src = typeof entry === "string" ? entry : (entry.src || entry);
+    modalImage.alt = (typeof entry === "object" && entry.alt) ? entry.alt : "Ürün";
+    if (_modalImages.length > 1) {
+      modalImgPrev.style.display = "";
+      modalImgNext.style.display = "";
+      modalImgCounter.textContent = (_modalImgIndex + 1) + " / " + _modalImages.length;
+      modalImgCounter.style.display = "";
+    } else {
+      modalImgPrev.style.display = "none";
+      modalImgNext.style.display = "none";
+      modalImgCounter.style.display = "none";
+    }
+  }
+
+  if (modalImgPrev) {
+    modalImgPrev.addEventListener("click", function (e) {
+      e.stopPropagation();
+      _showModalImage(_modalImgIndex - 1);
+    });
+  }
+  if (modalImgNext) {
+    modalImgNext.addEventListener("click", function (e) {
+      e.stopPropagation();
+      _showModalImage(_modalImgIndex + 1);
+    });
+  }
 
   function openModal(card) {
     currentModalCard = card;
     const img = card.querySelector(".product-image img");
 
-    modalImage.src = img.src;
+    // Build image list from data-images (JSON array) or fall back to card thumbnail
+    _modalImages = [];
+    _modalImgIndex = 0;
+    if (card.dataset.images) {
+      try { _modalImages = JSON.parse(card.dataset.images); } catch (e) {}
+    }
+    if (!_modalImages.length) {
+      _modalImages = [{ src: img.src, alt: img.alt || "Ürün" }];
+    }
+    _showModalImage(0);
     // Title may hold both languages as "TR | EN"; show the active one.
     const titleParts = (card.dataset.title || "").split(" | ");
     modalTitle.textContent =
