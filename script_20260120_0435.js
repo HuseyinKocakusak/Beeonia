@@ -68,7 +68,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!this.track) return;
 
-      this.slides = Array.from(this.track.children);
+      this.slides = Array.from(this.track.children).filter(
+        (el) => el.style.display !== "none",
+      );
       this.currentIndex = 0;
       this.slidesToShow = options.slidesToShow || 1;
       this.gap = options.gap || 24;
