@@ -156,6 +156,9 @@
         <button class="modal-close" id="modalClose">&times;</button>
         <div class="modal-image">
           <img src="" alt="Ürün" id="modalImage" />
+          <button class="modal-img-nav modal-img-prev" id="modalImgPrev" aria-label="Önceki resim">&#8249;</button>
+          <button class="modal-img-nav modal-img-next" id="modalImgNext" aria-label="Sonraki resim">&#8250;</button>
+          <div class="modal-img-counter" id="modalImgCounter"></div>
         </div>
         <div class="modal-info">
           <h2 id="modalTitle"></h2>
@@ -347,6 +350,28 @@
               </div>
               <div
                 class="product-card"
+                data-title="Petek Bal | Comb Honey"
+                data-origin="Yamanlar Mountain, Izmir"
+                data-origin-tr="Yamanlar Dağı, İzmir"
+                data-origin-en="Yamanlar Mountain, Izmir"
+                data-description-tr="Kovandan sofranıza. Müşterinin istediği gramajda hazırlanır."
+                data-description-en="From the hive to your table. Prepared in your desired weight."
+                data-variants='[{"weight":"Kg","price":"2.000₺"}]'
+                data-harvest-tr=""
+                data-harvest-en=""
+              >
+                <div class="product-image">
+                  <img src="images/products/petek-bal.jpg" alt="Petek Bal" />
+                  <div class="product-badge">★</div>
+                </div>
+                <div class="product-info">
+                  <h3 data-tr="Petek Bal" data-en="Comb Honey">Petek Bal</h3>
+                  <p data-tr="Kovandan Sofranıza" data-en="From the Hive to Your Table">Kovandan Sofranıza</p>
+                </div>
+              </div>
+              <div
+                class="product-card"
+                style="display:none"
                 data-title="Hayıt Balı | Vitex Honey"
                 data-origin="Aegean Coast"
                 data-origin-tr="Ege Kıyısı"
@@ -381,19 +406,12 @@
                 data-origin-en="Yamanlar Mountain, Izmir"
                 data-description-tr="Filtrelenmemiş, ısıl işlem görmemeiş, pestisitsiz ve yüksek kalite çam balı. Enerji ve canlılık için doğal destek."
                 data-description-en="Unfiltered, raw, no pesticide detected. Natural support for energy and vitality."
-                data-variants='[{"weight":"800g","price":"1250₺"},{"weight":"500g","price":"800₺"}]'
-                data-harvest-tr="Ekim 2026'da hasat edilecektir."
-                data-harvest-en="To be harvested in October 2026."
+                data-variants='[{"weight":"750g","price":"1100₺"},{"weight":"500g","price":"750₺"}]'
+                data-harvest-tr="11 Eylül 2026'da hasat edilmiştir."
+                data-harvest-en="Harvested on September 11, 2026."
               >
                 <div class="product-image">
                   <img src="images/products/pine honey 2.png" alt="Çam Balı" />
-                  <div
-                    class="product-status sold-out"
-                    data-tr="Tükendi"
-                    data-en="Sold Out"
-                  >
-                    Tükendi
-                  </div>
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -403,6 +421,7 @@
               </div>
               <div
                 class="product-card"
+                style="display:none"
                 data-title="PRJ-M2"
                 data-origin="Homeros Valley, Yamanlar Mountain"
                 data-origin-tr="Homeros Vadisi, Yamanlar Dağı"
@@ -432,6 +451,7 @@
               </div>
               <div
                 class="product-card"
+                style="display:none"
                 data-title="AP-IV"
                 data-origin="Yamanlar Mountain, Izmir"
                 data-origin-tr="Yamanlar Dağı, İzmir"
@@ -461,6 +481,7 @@
               </div>
               <div
                 class="product-card"
+                style="display:none"
                 data-title="Arı Sütü | Royal Jelly"
                 data-origin="Yamanlar Mountain, Izmir"
                 data-origin-tr="Yamanlar Dağı, İzmir"
