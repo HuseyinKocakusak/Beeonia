@@ -1361,6 +1361,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "From Toxin to Therapy: Biomedical Applications of Bee Venom in Cancer, Diabetes, and Neurodegenerative Disorders (2026)",
+        titleTr: "Toksin'den Terapiye: Arı Zehrinin Kanser, Diyabet ve Nörodejeneratif Bozukluklardaki Biyomedikal Uygulamaları (2026)",
+        date: "2026-10-02",
+        summaryEn: "Review examining the biomedical applications of bee venom and its key components (melittin, apamin, phospholipase A2) across cancer treatment, diabetes management, and neurodegenerative disorders, highlighting mechanisms of action and therapeutic potential.",
+        summaryTr: "Arı zehri ve temel bileşenlerinin (melittin, apamin, fosfolipaz A2) kanser tedavisi, diyabet yönetimi ve nörodejeneratif bozukluklardaki biyomedikal uygulamalarını; etki mekanizmalarını ve terapötik potansiyelini ele alan derleme.",
+        categories: ["immunity", "brain"],
+        url: "https://www.mdpi.com/1422-0067/27/11/4661"
+      },
+      {
         titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
         titleTr: "Balın Nöroprotektif Ajan Olarak Rolü: Alzheimer Hastalığındaki Moleküler Perspektifler (2025)",
         date: "2026-08-28",
@@ -1532,13 +1541,13 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://doi.org/10.3390/nu17162577"
       },
       {
-        titleEn: "Neuroprotective Effects of Royal Jelly and Its Active Compounds on Neurodegenerative Diseases (2024)",
-        titleTr: "Arı Sütü ve Aktif Bileşenlerinin Nörodejeneratif Hastalıklar Üzerindeki Nöroprotektif Etkileri (2024)",
+        titleEn: "Comparative Neuroprotective Effects of Royal Jelly and 10-Hydroxy-2-Decenoic Acid on Ischemia-Induced Inflammatory, Apoptotic, Epigenetic and Genotoxic Changes in a Rat Model of Ischemic Stroke (2024)",
+        titleTr: "Arı Sütü ve 10-Hidroksi-2-Dekenoik Asidin İskemik İnme Sıçan Modelinde İskemiye Bağlı İnflamatuar, Apoptotik, Epigenetik ve Genotoksik Değişiklikler Üzerindeki Karşılaştırmalı Nöroprotektif Etkileri (2024)",
         date: "2026-04-10",
-        summaryEn: "Review of how royal jelly and active compounds such as 10-HDA exert neuroprotective effects in neurodegenerative diseases.",
-        summaryTr: "Arı sütü ve 10-HDA gibi aktif bileşenlerinin nörodejeneratif hastalıklarda nasıl nöroprotektif etki gösterdiğini inceleyen derleme.",
+        summaryEn: "Research article comparing the neuroprotective effects of royal jelly and its unique compound 10-hydroxy-2-decenoic acid (10-HDA) in a rat model of ischemic stroke, evaluating their impact on ischemia-induced inflammatory, apoptotic, epigenetic, and genotoxic changes.",
+        summaryTr: "Arı sütü ve kendine özgü bileşeni 10-hidroksi-2-dekenoik asidin (10-HDA) iskemik inme sıçan modelinde nöroprotektif etkilerini karşılaştıran araştırma makalesi; iskemiye bağlı inflamatuar, apoptotik, epigenetik ve genotoksik değişiklikler üzerindeki etkileri değerlendirmektedir.",
         categories: ["royal-jelly", "brain"],
-        url: "https://doi.org/10.3389/fphar.2024.1351119"
+        url: "https://www.tandfonline.com/doi/abs/10.1080/1028415X.2024.2344141"
       },
       {
         titleEn: "Pro-Cognitive Effect of Royal Jelly Is Linked with Increased Burst Activity of Mesocorticolimbic Dopaminergic Neurons (2025)",
