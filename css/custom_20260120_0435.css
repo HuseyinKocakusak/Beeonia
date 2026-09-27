@@ -988,6 +988,8 @@ button {
 
 .modal-image {
   flex: 0 0 50%;
+  position: relative;
+  overflow: hidden;
 }
 
 .modal-image img {
@@ -995,6 +997,55 @@ button {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.modal-img-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(13, 16, 38, 0.65);
+  color: var(--accent-gold);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+}
+
+.modal-img-nav:hover {
+  background: rgba(212, 175, 55, 0.85);
+  color: var(--bg-primary);
+  border-color: var(--accent-gold);
+}
+
+.modal-img-prev {
+  left: 0.6rem;
+}
+
+.modal-img-next {
+  right: 0.6rem;
+}
+
+.modal-img-counter {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 16, 38, 0.65);
+  color: var(--accent-gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  pointer-events: none;
 }
 
 .modal-info {
