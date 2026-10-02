@@ -1457,6 +1457,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Bee Pollen Increases Hippocampal Brain-Derived Neurotrophic Factor and Suppresses Neuroinflammation in Adult Rats with Chronic Immobilization Stress (2021)",
+        titleTr: "Arı Poleni Kronik İmmobilizasyon Stresi Uygulanan Yetişkin Sıçanlarda Hipokampal Beyin Kaynaklı Nörotrofik Faktörü Artırır ve Neuroinflamasyonu Baskılar (2021)",
+        date: "2026-10-09",
+        summaryEn: "Study demonstrating that bee pollen supplementation increases hippocampal BDNF levels and suppresses neuroinflammatory markers in adult rats subjected to chronic immobilization stress, suggesting a neuroprotective and stress-attenuating role for bee pollen bioactive compounds.",
+        summaryTr: "Arı poleni takviyesinin kronik immobilizasyon stresi uygulanan yetişkin sıçanlarda hipokampal BDNF düzeylerini artırdığını ve neuroinflamatuar belirteçleri baskıladığını gösteren çalışma; arı poleni biyoaktif bileşenlerinin nöroprotektif ve stres azaltıcı rolüne işaret etmektedir.",
+        categories: ["pollen", "brain"],
+        url: "https://www.sciencedirect.com/science/article/pii/S0304394021007217"
+      },
+      {
         titleEn: "From Toxin to Therapy: Biomedical Applications of Bee Venom in Cancer, Diabetes, and Neurodegenerative Disorders (2026)",
         titleTr: "Toksin'den Terapiye: Arı Zehrinin Kanser, Diyabet ve Nörodejeneratif Bozukluklardaki Biyomedikal Uygulamaları (2026)",
         date: "2026-10-02",
