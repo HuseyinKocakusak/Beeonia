@@ -1457,6 +1457,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Royal Jelly for Management of Postmenopausal Symptoms: A Systematic Review and Meta-Analysis (2025)",
+        titleTr: "Menopoz Sonrası Semptomların Yönetiminde Arı Sütü: Sistematik Derleme ve Meta-Analiz (2025)",
+        date: "2026-10-16",
+        summaryEn: "Systematic review and meta-analysis evaluating the efficacy of royal jelly supplementation in managing postmenopausal symptoms, synthesizing evidence from randomized controlled trials on outcomes including hot flashes, bone density, lipid profiles, and quality of life.",
+        summaryTr: "Arı sütü takviyesinin menopoz sonrası semptomların yönetimindeki etkinliğini değerlendiren sistematik derleme ve meta-analiz; ateş basması, kemik yoğunluğu, lipit profili ve yaşam kalitesi gibi sonuçlar üzerine randomize kontrollü çalışmaların kanıtlarını sentezlemektedir.",
+        categories: ["royal-jelly", "immunity"],
+        url: "https://pubmed.ncbi.nlm.nih.gov/41401249/"
+      },
+      {
         titleEn: "Bee Pollen Increases Hippocampal Brain-Derived Neurotrophic Factor and Suppresses Neuroinflammation in Adult Rats with Chronic Immobilization Stress (2021)",
         titleTr: "Arı Poleni Kronik İmmobilizasyon Stresi Uygulanan Yetişkin Sıçanlarda Hipokampal Beyin Kaynaklı Nörotrofik Faktörü Artırır ve Neuroinflamasyonu Baskılar (2021)",
         date: "2026-10-09",
