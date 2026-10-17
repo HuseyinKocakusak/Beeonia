@@ -1457,6 +1457,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Effects of Propolis on Inflammation Markers in Patients Undergoing Hemodialysis: A Randomized, Double-Blind Controlled Clinical Trial (2023)",
+        titleTr: "Hemodiyaliz Hastalarında Propolisin İnflamasyon Belirteçleri Üzerindeki Etkileri: Randomize, Çift Kör Kontrollü Klinik Çalışma (2023)",
+        date: "2026-10-23",
+        summaryEn: "Randomized double-blind controlled clinical trial investigating the effects of propolis supplementation on inflammation markers (CRP, IL-6, TNF-α) in patients undergoing hemodialysis, demonstrating propolis's potential to attenuate chronic inflammation associated with end-stage renal disease.",
+        summaryTr: "Hemodiyaliz hastalarında propolis takviyesinin inflamasyon belirteçleri (CRP, IL-6, TNF-α) üzerindeki etkilerini araştıran randomize çift kör kontrollü klinik çalışma; propolisin son dönem böbrek hastalığıyla ilişkili kronik inflamasyonu azaltma potansiyelini ortaya koymaktadır.",
+        categories: ["propolis", "immunity"],
+        url: "https://www.sciencedirect.com/science/article/pii/S1744388123000130"
+      },
+      {
         titleEn: "Royal Jelly for Management of Postmenopausal Symptoms: A Systematic Review and Meta-Analysis (2025)",
         titleTr: "Menopoz Sonrası Semptomların Yönetiminde Arı Sütü: Sistematik Derleme ve Meta-Analiz (2025)",
         date: "2026-10-16",
