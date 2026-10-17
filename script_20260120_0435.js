@@ -1724,7 +1724,7 @@ document.addEventListener("DOMContentLoaded", function () {
         summaryEn: "Review of the immunomodulatory and anti-inflammatory properties shared across honey, propolis, royal jelly, and bee pollen.",
         summaryTr: "Bal, propolis, arı sütü ve arı poleninin ortak immünomodülatör ve anti-inflamatuar özelliklerini inceleyen derleme.",
         categories: ["honey", "propolis", "royal-jelly", "pollen", "immunity"],
-        url: "https://doi.org/10.3390/apitherapyreports5020019"
+        url: "https://www.mdpi.com/2673-5601/5/2/19"
       },
       {
         titleEn: "Propolis Supplementation on Inflammatory and Oxidative Stress Biomarkers: A Systematic Review and Meta-Analysis of RCTs (2025)",
