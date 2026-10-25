@@ -1457,6 +1457,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Propolis Add-On Therapy Alleviates Depressive Symptoms: A Randomized Placebo-Controlled Clinical Trial (2022)",
+        titleTr: "Eklenti Tedavi Olarak Propolis Depresif Semptomları Hafifletiyor: Randomize Plasebo Kontrollü Klinik Çalışma (2022)",
+        date: "2026-10-30",
+        summaryEn: "Randomized placebo-controlled clinical trial demonstrating that propolis supplementation as add-on therapy significantly alleviates depressive symptoms, with findings suggesting propolis bioactive compounds may modulate neuroinflammatory and oxidative stress pathways involved in depression.",
+        summaryTr: "Eklenti tedavi olarak propolis takviyesinin depresif semptomları anlamlı biçimde hafiflettiğini gösteren randomize plasebo kontrollü klinik çalışma; bulgular propolisin biyoaktif bileşenlerinin depresyonda rol oynayan nöroinflamatuar ve oksidatif stres yolaklarını modüle edebileceğine işaret etmektedir.",
+        categories: ["propolis", "brain"],
+        url: "https://pubmed.ncbi.nlm.nih.gov/35072307/"
+      },
+      {
         titleEn: "Effects of Propolis on Inflammation Markers in Patients Undergoing Hemodialysis: A Randomized, Double-Blind Controlled Clinical Trial (2023)",
         titleTr: "Hemodiyaliz Hastalarında Propolisin İnflamasyon Belirteçleri Üzerindeki Etkileri: Randomize, Çift Kör Kontrollü Klinik Çalışma (2023)",
         date: "2026-10-23",
