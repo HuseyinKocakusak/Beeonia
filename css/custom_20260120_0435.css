@@ -1155,6 +1155,14 @@ button {
   color: var(--accent-gold);
 }
 
+.modal-analyses-note {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+}
+
 /* ========================================
    Science / Literature Section
    ======================================== */

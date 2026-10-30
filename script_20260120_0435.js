@@ -536,12 +536,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (card.dataset.analyses) {
         try { analyses = JSON.parse(card.dataset.analyses); } catch (e) {}
       }
-      if (analyses.length) {
+      const analysesNote =
+        currentLang === "en"
+          ? card.dataset.analysesNoteEn || card.dataset.analysesNoteTr
+          : card.dataset.analysesNoteTr || card.dataset.analysesNoteEn;
+      if (analyses.length || analysesNote) {
         const titleEl = modalAnalyses.querySelector(".modal-analyses-title");
         if (titleEl) {
           titleEl.textContent = currentLang === "en" ? "Analyses" : "Analizler";
         }
-        modalAnalysesLinks.innerHTML = analyses.map((a) => {
+        const noteHtml = analysesNote
+          ? `<p class="modal-analyses-note">${analysesNote}</p>`
+          : "";
+        modalAnalysesLinks.innerHTML = noteHtml + analyses.map((a) => {
           const label = currentLang === "en" ? (a.labelEn || a.labelTr) : (a.labelTr || a.labelEn);
           return `<a class="modal-analysis-link" href="${a.file}" target="_blank" rel="noopener">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
