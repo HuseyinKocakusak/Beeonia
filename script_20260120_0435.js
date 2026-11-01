@@ -1464,6 +1464,15 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "Effects of Nutritional Supplementation on Honey Bee Apis mellifera L. Brood Development, Colony Population Growth, and Honey Yield in Central Ethiopia (2026)",
+        titleTr: "Besin Takviyesinin Bal Arısı Apis mellifera L.'de Yavru Gelişimi, Koloni Popülasyon Artışı ve Bal Verimi Üzerindeki Etkileri: Orta Etiyopya (2026)",
+        date: "2026-11-06",
+        summaryEn: "Field study from central Ethiopia evaluating how nutritional supplementation of honey bee colonies affects brood development, colony population growth, and honey yield, offering practical insights for colony management during periods of limited natural forage.",
+        summaryTr: "Orta Etiyopya'da yürütülen saha çalışması; bal arısı kolonilerine verilen besin takviyesinin yavru gelişimi, koloni popülasyon artışı ve bal verimi üzerindeki etkilerini değerlendirmekte ve doğal kaynakların kısıtlı olduğu dönemlerde koloni yönetimine yönelik pratik bulgular sunmaktadır.",
+        categories: ["honey"],
+        url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1813470/full"
+      },
+      {
         titleEn: "Propolis Add-On Therapy Alleviates Depressive Symptoms: A Randomized Placebo-Controlled Clinical Trial (2022)",
         titleTr: "Eklenti Tedavi Olarak Propolis Depresif Semptomları Hafifletiyor: Randomize Plasebo Kontrollü Klinik Çalışma (2022)",
         date: "2026-10-30",
