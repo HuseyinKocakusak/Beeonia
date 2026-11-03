@@ -1466,11 +1466,20 @@ document.addEventListener("DOMContentLoaded", function () {
       {
         titleEn: "Effects of Nutritional Supplementation on Honey Bee Apis mellifera L. Brood Development, Colony Population Growth, and Honey Yield in Central Ethiopia (2026)",
         titleTr: "Besin Takviyesinin Bal Arısı Apis mellifera L.'de Yavru Gelişimi, Koloni Popülasyon Artışı ve Bal Verimi Üzerindeki Etkileri: Orta Etiyopya (2026)",
-        date: "2026-11-06",
+        date: "2026-11-13",
         summaryEn: "Field study from central Ethiopia evaluating how nutritional supplementation of honey bee colonies affects brood development, colony population growth, and honey yield, offering practical insights for colony management during periods of limited natural forage.",
         summaryTr: "Orta Etiyopya'da yürütülen saha çalışması; bal arısı kolonilerine verilen besin takviyesinin yavru gelişimi, koloni popülasyon artışı ve bal verimi üzerindeki etkilerini değerlendirmekte ve doğal kaynakların kısıtlı olduğu dönemlerde koloni yönetimine yönelik pratik bulgular sunmaktadır.",
         categories: ["honey"],
         url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1813470/full"
+      },
+      {
+        titleEn: "A Multifunctional Dendrobium officinale Polysaccharide Hydrogel Loaded with Propolis Extract to Promote Oral Mucosal Repair (2026)",
+        titleTr: "Ağız Mukozası Onarımını Destekleyen, Propolis Ekstresi Yüklü Çok İşlevli Dendrobium officinale Polisakkarit Hidrojeli (2026)",
+        date: "2026-11-06",
+        summaryEn: "Study developing a propolis extract-loaded hydrogel built on Dendrobium officinale polysaccharide and hyaluronic acid, showing antioxidant, immunomodulatory, and pro-angiogenic properties; in rat oral ulcer and full-thickness skin wound models, the hydrogel supported repair across the different phases of healing.",
+        summaryTr: "Dendrobium officinale polisakkariti ve hyaluronik asit bazlı, propolis ekstresi yüklü bir hidrojel geliştiren çalışma; hidrojelin antioksidan, immünomodülatör ve damar oluşumunu destekleyici özellikler gösterdiği, sıçan ağız ülseri ve tam kat deri yarası modellerinde iyileşmenin farklı evrelerinde onarımı desteklediği bildirilmiştir.",
+        categories: ["propolis", "wound-healing"],
+        url: "https://doi.org/10.1016/j.phymed.2026.158869"
       },
       {
         titleEn: "Propolis Add-On Therapy Alleviates Depressive Symptoms: A Randomized Placebo-Controlled Clinical Trial (2022)",
