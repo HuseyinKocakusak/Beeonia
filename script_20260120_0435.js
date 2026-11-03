@@ -1464,13 +1464,67 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initScience() {
     const articles = [
       {
+        titleEn: "The Honey Bee \"Hive\" Microbiota: Meta-Analysis Reveals a Native and Aerobic Microbiota Prevalent Throughout the Social Resource Niche (2024)",
+        titleTr: "Bal Arısı \"Kovan\" Mikrobiyotası: Meta-Analiz, Sosyal Kaynak Nişinde Yaygın, Yerli ve Aerobik Bir Mikrobiyotayı Ortaya Koyuyor (2024)",
+        date: "2026-12-18",
+        summaryEn: "Meta-analysis of more than 3,800 public 16S rRNA sequence libraries showing that the oxygen-rich foregut and midgut of queens and workers share much of their bacterial community with the hive's larval rearing and food storage niches, defining a native \"social resource\" microbiota that appears to function mainly in disease prevention at both the individual and colony level.",
+        summaryTr: "3.800'den fazla açık erişimli 16S rRNA dizi kütüphanesini birleştiren meta-analiz; kraliçe ve işçi arıların oksijence zengin ön ve orta bağırsaklarının, kovandaki larva büyütme ve besin depolama alanlarıyla bakteri topluluğunun önemli bir kısmını paylaştığını göstermektedir. Bu ortak \"sosyal kaynak\" mikrobiyotasının hem bireysel hem de koloni düzeyinde ağırlıklı olarak hastalıkları önlemeye hizmet ettiği bildirilmektedir.",
+        categories: ["bee-welfare"],
+        url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2024.1410331/full"
+      },
+      {
+        titleEn: "Definition and Identification of Honey Bee Welfare Practices Within the Five Domains Framework for Sustainable Beekeeping (2024)",
+        titleTr: "Sürdürülebilir Arıcılık için Beş Alan Çerçevesinde Bal Arısı Refahı Uygulamalarının Tanımlanması ve Belirlenmesi (2024)",
+        date: "2026-12-11",
+        summaryEn: "Study defining the honey bee welfare practices that beekeepers should adopt within modern sustainable apiculture and classifying them according to the Five Domains Model used for other animal species, which covers nutrition, physical environment, health, behaviour, and mental state.",
+        summaryTr: "Modern ve sürdürülebilir arıcılıkta arıcıların benimsemesi gereken bal arısı refahı uygulamalarını tanımlayan ve bunları diğer hayvan türlerinde kullanılan Beş Alan Modeli'ne (beslenme, fiziksel çevre, sağlık, davranış ve zihinsel durum) göre sınıflandıran çalışma.",
+        categories: ["bee-welfare"],
+        url: "https://www.mdpi.com/2076-3417/14/24/11902"
+      },
+      {
+        titleEn: "Enhancing Honey Bee Health: Evaluating Pollen Substitute Diets in Field and Cage Experiments (2024)",
+        titleTr: "Bal Arısı Sağlığını Güçlendirmek: Polen İkame Diyetlerinin Saha ve Kafes Deneylerinde Değerlendirilmesi (2024)",
+        date: "2026-12-04",
+        summaryEn: "Field and cage study comparing four pollen substitute diets across 11 parameters and 21 amino acids; one formulation clearly outperformed the others in bee numbers, brood area, consumption, colony weight, and honey production, pointing toward more effective supplementary feeding for colony health.",
+        summaryTr: "Dört farklı polen ikame diyetini 11 parametre ve 21 amino asit üzerinden karşılaştıran saha ve kafes çalışması; diyetlerden biri arı sayısı, yavru alanı, tüketim, koloni ağırlığı ve bal üretiminde diğerlerinden belirgin biçimde üstün bulunmuş, bu da koloni sağlığı için daha etkili ek besleme formülasyonlarına işaret etmektedir.",
+        categories: ["bee-welfare"],
+        url: "https://www.mdpi.com/2075-4450/15/5/361"
+      },
+      {
         titleEn: "Effects of Nutritional Supplementation on Honey Bee Apis mellifera L. Brood Development, Colony Population Growth, and Honey Yield in Central Ethiopia (2026)",
         titleTr: "Besin Takviyesinin Bal Arısı Apis mellifera L.'de Yavru Gelişimi, Koloni Popülasyon Artışı ve Bal Verimi Üzerindeki Etkileri: Orta Etiyopya (2026)",
-        date: "2026-11-06",
+        date: "2026-11-27",
         summaryEn: "Field study from central Ethiopia evaluating how nutritional supplementation of honey bee colonies affects brood development, colony population growth, and honey yield, offering practical insights for colony management during periods of limited natural forage.",
         summaryTr: "Orta Etiyopya'da yürütülen saha çalışması; bal arısı kolonilerine verilen besin takviyesinin yavru gelişimi, koloni popülasyon artışı ve bal verimi üzerindeki etkilerini değerlendirmekte ve doğal kaynakların kısıtlı olduğu dönemlerde koloni yönetimine yönelik pratik bulgular sunmaktadır.",
-        categories: ["honey"],
+        categories: ["bee-welfare", "honey"],
         url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1813470/full"
+      },
+      {
+        titleEn: "A Laboratory Amitraz Resistance Assay for Varroa destructor May Not Be a Reliable Predictor of Field-Level Amitraz Efficacy (2026)",
+        titleTr: "Varroa destructor için Laboratuvar Amitraz Direnç Testi, Amitrazın Sahadaki Etkinliğini Güvenilir Biçimde Öngöremeyebilir (2026)",
+        date: "2026-11-20",
+        summaryEn: "Brief research report comparing a laboratory amitraz bioassay with mite genotype and with colony-level outcomes after a standard Apivar treatment: the assay identified the resistant genotype in about 95% of mites, yet colonies in both the high- and low-expected-efficacy groups showed large mite declines, indicating that the assay is a good marker of the resistance genotype but not of field-level treatment success.",
+        summaryTr: "Laboratuvar amitraz biyotestini akarların genotipiyle ve standart Apivar uygulaması sonrası koloni düzeyindeki sonuçlarla karşılaştıran kısa araştırma raporu; test, dirençli genotipi akarların yaklaşık %95'inde doğru belirlemiş, ancak hem yüksek hem de düşük etkinlik beklenen kolonilerde akar sayısı belirgin biçimde azalmıştır. Bulgular, testin direnç genotipi için iyi bir belirteç olduğunu, ancak tedavinin sahadaki başarısını öngörmediğini göstermektedir.",
+        categories: ["bee-welfare"],
+        url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1886628/full"
+      },
+      {
+        titleEn: "Propolis as a Natural Remedy in Reducing Dental Plaque and Gingival Inflammation: A Systematic Review and Meta-Analysis (2025)",
+        titleTr: "Diş Plağı ve Diş Eti İltihabını Azaltmada Doğal Bir Seçenek Olarak Propolis: Sistematik Derleme ve Meta-Analiz (2025)",
+        date: "2026-11-13",
+        summaryEn: "Systematic review and meta-analysis of seven randomized controlled trials showing that alcohol-free propolis mouthwashes significantly reduced plaque index and gingival index scores compared with baseline, with low heterogeneity between studies, supporting propolis-based oral care products as a preventive option in dental hygiene.",
+        summaryTr: "Yedi randomize kontrollü çalışmayı kapsayan sistematik derleme ve meta-analiz; alkolsüz propolisli ağız gargaralarının plak indeksi ve diş eti indeksi skorlarını başlangıca göre anlamlı biçimde düşürdüğünü ve çalışmalar arası heterojenliğin düşük olduğunu göstermekte, propolis içeren ağız bakım ürünlerini diş hijyeninde koruyucu bir seçenek olarak desteklemektedir.",
+        categories: ["propolis", "immunity"],
+        url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12470411/"
+      },
+      {
+        titleEn: "A Multifunctional Dendrobium officinale Polysaccharide Hydrogel Loaded with Propolis Extract to Promote Oral Mucosal Repair (2026)",
+        titleTr: "Ağız Mukozası Onarımını Destekleyen, Propolis Ekstresi Yüklü Çok İşlevli Dendrobium officinale Polisakkarit Hidrojeli (2026)",
+        date: "2026-11-06",
+        summaryEn: "Study developing a propolis extract-loaded hydrogel built on Dendrobium officinale polysaccharide and hyaluronic acid, showing antioxidant, immunomodulatory, and pro-angiogenic properties; in rat oral ulcer and full-thickness skin wound models, the hydrogel supported repair across the different phases of healing.",
+        summaryTr: "Dendrobium officinale polisakkariti ve hyaluronik asit bazlı, propolis ekstresi yüklü bir hidrojel geliştiren çalışma; hidrojelin antioksidan, immünomodülatör ve damar oluşumunu destekleyici özellikler gösterdiği, sıçan ağız ülseri ve tam kat deri yarası modellerinde iyileşmenin farklı evrelerinde onarımı desteklediği bildirilmiştir.",
+        categories: ["propolis", "wound-healing"],
+        url: "https://doi.org/10.1016/j.phymed.2026.158869"
       },
       {
         titleEn: "Propolis Add-On Therapy Alleviates Depressive Symptoms: A Randomized Placebo-Controlled Clinical Trial (2022)",
@@ -1878,13 +1932,24 @@ document.addEventListener("DOMContentLoaded", function () {
       "wound-healing": { en: "Wound Healing", tr: "Yara İyileşmesi" },
       "propolis": { en: "Propolis", tr: "Propolis" },
       "royal-jelly": { en: "Royal Jelly", tr: "Arı Sütü" },
-      "pollen": { en: "Pollen", tr: "Polen" }
+      "pollen": { en: "Pollen", tr: "Polen" },
+      "bee-welfare": { en: "Bee Welfare", tr: "Arı Refahı" }
     };
 
+    function todayString() {
+      var now = new Date();
+      var m = String(now.getMonth() + 1).padStart(2, "0");
+      var d = String(now.getDate()).padStart(2, "0");
+      return now.getFullYear() + "-" + m + "-" + d;
+    }
+
     function getFilteredArticles() {
-      let filtered = currentCategory === "all"
-        ? articles
-        : articles.filter(function(a) { return a.categories.indexOf(currentCategory) !== -1; });
+      var today = todayString();
+      // YYYY-MM-DD strings compare correctly as text; future-dated articles stay hidden until their day.
+      let filtered = articles.filter(function(a) {
+        return a.date <= today &&
+          (currentCategory === "all" || a.categories.indexOf(currentCategory) !== -1);
+      });
       // Sort by date descending (newest first)
       filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
       return filtered;
@@ -1984,6 +2049,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     }
+
+    // A category whose articles are all still scheduled would open an empty list, so hide its button.
+    var todayForCategories = todayString();
+    categoryBtns.forEach(function(btn) {
+      var cat = btn.getAttribute("data-category");
+      if (cat === "all") return;
+      var hasVisible = articles.some(function(a) {
+        return a.date <= todayForCategories && a.categories.indexOf(cat) !== -1;
+      });
+      if (!hasVisible) btn.style.display = "none";
+    });
 
     // Category filter click handlers
     categoryBtns.forEach(function(btn) {
