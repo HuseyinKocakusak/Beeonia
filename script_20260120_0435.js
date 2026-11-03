@@ -1881,10 +1881,20 @@ document.addEventListener("DOMContentLoaded", function () {
       "pollen": { en: "Pollen", tr: "Polen" }
     };
 
+    function todayString() {
+      var now = new Date();
+      var m = String(now.getMonth() + 1).padStart(2, "0");
+      var d = String(now.getDate()).padStart(2, "0");
+      return now.getFullYear() + "-" + m + "-" + d;
+    }
+
     function getFilteredArticles() {
-      let filtered = currentCategory === "all"
-        ? articles
-        : articles.filter(function(a) { return a.categories.indexOf(currentCategory) !== -1; });
+      var today = todayString();
+      // YYYY-MM-DD strings compare correctly as text; future-dated articles stay hidden until their day.
+      let filtered = articles.filter(function(a) {
+        return a.date <= today &&
+          (currentCategory === "all" || a.categories.indexOf(currentCategory) !== -1);
+      });
       // Sort by date descending (newest first)
       filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
       return filtered;
