@@ -1575,7 +1575,7 @@ button {
 
 .values-subsection-desc {
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: 1.1025rem;
   line-height: 1.85;
   color: var(--text-secondary);
   font-style: italic;
