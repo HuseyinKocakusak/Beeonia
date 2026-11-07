@@ -2,6 +2,17 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
+    <!-- lang-redirect:start -->
+    <script>
+      // Visitors who picked English before go straight to /en/. Search
+      // engines keep no storage, so they always index this Turkish page.
+      try {
+        if (localStorage.getItem("beeonia-lang") === "en") {
+          location.replace("/en/" + location.hash);
+        }
+      } catch (e) {}
+    </script>
+    <!-- lang-redirect:end -->
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2E65HT870R"></script>
     <script>
@@ -19,7 +30,7 @@
     </title>
     <meta
       name="description"
-      content="Beeonia - Ege'nin premium arı ürünleri. Çam balı, propolis, arı sütü ve polen. Bilimsel araştırmalarla desteklenen, izlenebilir üretim süreçleriyle arıcılık ürünleri. İzmir, Türkiye."
+      content="Beeonia - Ege'nin premium arı ürünleri. Çam balı, çiçek balı, petek bal, propolis ve polen. Bilimsel araştırmalarla desteklenen, izlenebilir üretim süreçleriyle arıcılık ürünleri. İzmir, Türkiye."
     />
     <meta
       name="keywords"
@@ -34,7 +45,7 @@
 
     <!-- Language Alternates -->
     <link rel="alternate" hreflang="tr" href="https://beeonia.com/" />
-    <link rel="alternate" hreflang="en" href="https://beeonia.com/" />
+    <link rel="alternate" hreflang="en" href="https://beeonia.com/en/" />
     <link rel="alternate" hreflang="x-default" href="https://beeonia.com/" />
 
     <!-- Open Graph / Facebook -->
@@ -42,11 +53,11 @@
     <meta property="og:url" content="https://beeonia.com/" />
     <meta
       property="og:title"
-      content="BEEONIA | Premium Arı Ürünleri - Çam Balı, Propolis, Arı Sütü"
+      content="BEEONIA | Premium Arı Ürünleri - Çam Balı, Propolis, Polen"
     />
     <meta
       property="og:description"
-      content="Ege'nin doğal arı ürünleri. Premium çam balı, propolis, arı sütü ve polen. Bilimsel araştırmalarla desteklenen, doğadan sofraya saf arıcılık ürünleri."
+      content="Ege'nin doğal arı ürünleri. Premium çam balı, çiçek balı, propolis ve polen. Bilimsel araştırmalarla desteklenen, doğadan sofraya saf arıcılık ürünleri."
     />
     <meta
       property="og:image"
@@ -62,11 +73,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="BEEONIA | Premium Arı Ürünleri - Çam Balı, Propolis, Arı Sütü"
+      content="BEEONIA | Premium Arı Ürünleri - Çam Balı, Propolis, Polen"
     />
     <meta
       name="twitter:description"
-      content="Ege'nin doğal arı ürünleri. Premium çam balı, propolis, arı sütü ve polen. Doğadan sofraya saf arıcılık ürünleri."
+      content="Ege'nin doğal arı ürünleri. Premium çam balı, çiçek balı, propolis ve polen. Doğadan sofraya saf arıcılık ürünleri."
     />
     <meta
       name="twitter:image"
@@ -82,7 +93,7 @@
         "url": "https://beeonia.com",
         "logo": "https://beeonia.com/images/Beeonia.png",
         "image": "https://beeonia.com/images/Beeonia.png",
-        "description": "Ege'nin doğal arı ürünleri. Premium çam balı, propolis, arı sütü ve polen.",
+        "description": "Ege'nin doğal arı ürünleri. Premium çam balı, çiçek balı, propolis ve polen.",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "İzmir",
@@ -146,7 +157,7 @@
       sizes="192x192"
       href="/favicons/favicon-192x192.png"
     />
-    <link rel="stylesheet" href="css/custom_20260120_0435.css" />
+    <link rel="stylesheet" href="/css/custom_20260120_0435.css" />
     <link rel="preconnect" href="//fonts.googleapis.com" />
     <link rel="preconnect" href="//fonts.gstatic.com" crossorigin />
     <link
@@ -267,13 +278,13 @@
             >Ürünler</a
           >
           <a href="#gallery" class="nav-link" data-tr="Galeri" data-en="Gallery"
-            >galeri</a
+            >Galeri</a
           >
           <a href="#about" class="nav-link" data-tr="Hakkımızda" data-en="About"
-            >hakkımızda</a
+            >Hakkımızda</a
           >
           <a href="#team" class="nav-link" data-tr="İletişim" data-en="Contact"
-            >iletişim</a
+            >İletişim</a
           >
           <a
             href="#science"
@@ -308,10 +319,10 @@
     <!-- Mobile Navigation -->
     <nav class="mobile-nav" id="mobileNav">
       <a href="#home" class="nav-link" data-tr="Ana sayfa" data-en="Home"
-        >ana sayfa</a
+        >Ana sayfa</a
       >
       <a href="#products" class="nav-link" data-tr="Ürünler" data-en="Products"
-        >ürünler</a
+        >Ürünler</a
       >
       <a href="#gallery" class="nav-link" data-tr="galeri" data-en="gallery"
         >galeri</a
@@ -327,7 +338,7 @@
         class="nav-link"
         data-tr="Literatür"
         data-en="Literature"
-        >literatür</a
+        >Literatür</a
       >
     </nav>
 
@@ -340,24 +351,15 @@
             class="hero-tagline"
             data-tr="Metabolik sağlığınıza, hiçbir kimyasalın girmediği kovanlarımızla değer katmak amacıyla, bilimin ışığında analizli ve güvenilir arı ürünleri üretiyoruz."
             data-en="To bring real value to your metabolic health through hives that no chemical ever enters, we produce lab-analyzed, reliable bee products guided by science."
-          >
-            To bring real value to your metabolic health through hives that no
-            chemical ever enters, we produce lab-analyzed, reliable bee products
-            guided by science.
-          </p>
+          >Metabolik sağlığınıza, hiçbir kimyasalın girmediği kovanlarımızla değer katmak amacıyla, bilimin ışığında analizli ve güvenilir arı ürünleri üretiyoruz.</p>
         </div>
 
         <!-- Products Section -->
         <div class="products-section" id="products">
-          <h2 class="section-title" data-tr="ÜRÜNLER" data-en="PRODUCTS">
-            PRODUCTS
-          </h2>
-          <p class="products-hint" data-tr="Detayları keşfetmek için bir ürüne tıklayın" data-en="Tap any product to explore its details">
-            <svg class="products-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <h2 class="section-title" data-tr="ÜRÜNLER" data-en="PRODUCTS">ÜRÜNLER</h2>
+          <p class="products-hint" data-tr="Detayları keşfetmek için bir ürüne tıklayın" data-en="Tap any product to explore its details"><svg class="products-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 11V6a2 2 0 00-2-2 2 2 0 00-2 2M14 10V5a2 2 0 00-2-2 2 2 0 00-2 2v1M10 11V9a2 2 0 00-2-2 2 2 0 00-2 2v5c0 3.31 2.69 6 6 6h1a6 6 0 006-6v-3a2 2 0 00-2-2 2 2 0 00-2 2v1"/>
-            </svg>
-            Tap any product to explore its details
-          </p>
+            </svg>Detayları keşfetmek için bir ürüne tıklayın</p>
           <div class="products-carousel">
             <button class="carousel-btn prev" id="productsPrev">
               <svg
@@ -387,7 +389,7 @@
                 data-analyses-note-en="Analysis in progress."
               >
                 <div class="product-image">
-                  <img src="images/products/pine honey 2.png" alt="Çam Balı" />
+                  <img src="/images/products/pine honey 2.png" alt="Çam Balı" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -413,7 +415,7 @@
                 data-harvest-en="Harvested on August 26, 2026."
               >
                 <div class="product-image">
-                  <img src="images/products/Çam-Çiçek Özel.png" alt="Çam-Çiçek Özel" />
+                  <img src="/images/products/Çam-Çiçek Özel.png" alt="Çam-Çiçek Özel" />
                   <div class="product-status collection" data-tr="Koleksiyon Serisi" data-en="Collection Series">Koleksiyon Serisi</div>
                   <div class="product-badge">★</div>
                 </div>
@@ -436,10 +438,10 @@
                 data-variants='[{"weight":"Kg","price":"2.000₺"}]'
                 data-harvest-tr="11 Eylül 2026'da hasat edilmiştir. Kilogram fiyatı üzerinden talep edilen gramajda hazırlanır."
                 data-harvest-en="Harvested on September 11, 2026. Prepared in your desired weight based on the kilogram price."
-                data-images='[{"src":"images/products/petek-bal.jpg","alt":"Petek Bal"},{"src":"images/products/petek-bal-2.jpg","alt":"Petek Bal"}]'
+                data-images='[{"src":"/images/products/petek-bal.jpg","alt":"Petek Bal"},{"src":"/images/products/petek-bal-2.jpg","alt":"Petek Bal"}]'
               >
                 <div class="product-image">
-                  <img src="images/products/petek-bal.jpg" alt="Petek Bal" />
+                  <img src="/images/products/petek-bal.jpg" alt="Petek Bal" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -461,10 +463,10 @@
                 data-variants='[{"weight":"750g","price":"1100₺"},{"weight":"500g","price":"750₺"}]'
                 data-harvest-tr="29 Haziran 2026'da hasat edilmiştir."
                 data-harvest-en="Harvested in June 2026."
-                data-analyses='[{"labelTr":"NMR","labelEn":"NMR","file":"files/analyses/BEEONIA_analiz_polifloral_NMR_2026.pdf"},{"labelTr":"Elektriksel İletkenlik | Diyastaz | ß-FF","labelEn":"Electrical Conductivity | Diastase | ß-FF","file":"files/analyses/BEEONIA_analiz_polifloral_Diyastaz_Iletkenlik_FF_2026.pdf"}]'
+                data-analyses='[{"labelTr":"NMR","labelEn":"NMR","file":"/files/analyses/BEEONIA_analiz_polifloral_NMR_2026.pdf"},{"labelTr":"Elektriksel İletkenlik | Diyastaz | ß-FF","labelEn":"Electrical Conductivity | Diastase | ß-FF","file":"/files/analyses/BEEONIA_analiz_polifloral_Diyastaz_Iletkenlik_FF_2026.pdf"}]'
               >
                 <div class="product-image">
-                  <img src="images/products/Karaçalı.jpg" alt="Polifloralı Çiçek Balı" />
+                  <img src="/images/products/Karaçalı.jpg" alt="Polifloralı Çiçek Balı" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -488,7 +490,7 @@
                 data-harvest-en="21 May 2026 sold out. 10 June 2026 harvest. Sold out. 15 June 2026. In stock. 22 June 2026. In stock."
               >
                 <div class="product-image">
-                  <img src="images/products/polen.jpg" alt="Polen" />
+                  <img src="/images/products/polen.jpg" alt="Polen" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -513,7 +515,7 @@
                 data-harvest-en="2026 harvest."
               >
                 <div class="product-image">
-                  <img src="images/products/propolis.png" alt="Propolis" />
+                  <img src="/images/products/propolis.png" alt="Propolis" />
                   <div class="product-badge">★</div>
                 </div>
                 <div class="product-info">
@@ -538,9 +540,7 @@
 
         <!-- Gallery Section - Polaroid Clothesline -->
         <div class="gallery-section" id="gallery">
-          <h2 class="section-title" data-tr="GALERİ" data-en="GALLERY">
-            GALLERY
-          </h2>
+          <h2 class="section-title" data-tr="GALERİ" data-en="GALLERY">GALERİ</h2>
           <div class="clothesline-wrapper">
             <!-- Scroll hint arrows -->
             <button
@@ -607,7 +607,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_1732.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_1732.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">September 11, 2026</span>
@@ -625,7 +625,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_0164.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_0164.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 29, 2026</span>
@@ -643,7 +643,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_0197.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_0197.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 29, 2026</span>
@@ -661,7 +661,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_0214.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_0214.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 29, 2026</span>
@@ -679,7 +679,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_0244.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_0244.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 29, 2026</span>
@@ -697,7 +697,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_20260615_141848.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_20260615_141848.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 15, 2026</span>
@@ -715,7 +715,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/DSC02740.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/DSC02740.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 1, 2026</span>
@@ -733,7 +733,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/DSC02743.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/DSC02743.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">June 1, 2026</span>
@@ -752,7 +752,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG_20260521_154634_cropped.jpg"
+                        src="/images/gallery/IMG_20260521_154634_cropped.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -773,7 +773,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG_20260521_154503.jpg"
+                        src="/images/gallery/IMG_20260521_154503.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -794,7 +794,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG_20260521_153715.jpg"
+                        src="/images/gallery/IMG_20260521_153715.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -815,7 +815,7 @@
                   </div>
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
-                      <img src="images/gallery/IMG_3627.jpg" alt="Arıcılık" />
+                      <img src="/images/gallery/IMG_3627.jpg" alt="Arıcılık" />
                     </div>
                     <div class="polaroid-caption">
                       <span class="polaroid-date">January 10, 2026</span>
@@ -835,7 +835,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/püren-10kasım25.jpg"
+                        src="/images/gallery/püren-10kasım25.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -856,7 +856,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG-20251031-WA0037.jpg"
+                        src="/images/gallery/IMG-20251031-WA0037.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -877,7 +877,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG-20251031-WA0020.jpg"
+                        src="/images/gallery/IMG-20251031-WA0020.jpg"
                         alt="Bal Hasadı"
                       />
                     </div>
@@ -898,7 +898,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/IMG-20251031-WA0033.jpg"
+                        src="/images/gallery/IMG-20251031-WA0033.jpg"
                         alt="Doğal Bal"
                       />
                     </div>
@@ -923,7 +923,7 @@
                   <div class="polaroid-card">
                     <div class="polaroid-photo">
                       <img
-                        src="images/gallery/mehmet-püren1-25Ekim25.jpg"
+                        src="/images/gallery/mehmet-püren1-25Ekim25.jpg"
                         alt="Arıcılık"
                       />
                     </div>
@@ -941,9 +941,7 @@
 
       <!-- About Section -->
       <section class="about-section" id="about">
-        <h2 class="section-title" data-tr="DEĞERLERİMİZ" data-en="VALUES">
-          ABOUT
-        </h2>
+        <h2 class="section-title" data-tr="DEĞERLERİMİZ" data-en="VALUES">DEĞERLERİMİZ</h2>
         <!-- Vision Subsection -->
         <div class="values-subsection">
           <div class="values-subsection-header">
@@ -965,19 +963,14 @@
                 class="values-subsection-title"
                 data-tr="VİZYONUMUZ"
                 data-en="OUR VISION"
-              >
-                OUR VISION
-              </h3>
+              >VİZYONUMUZ</h3>
             </div>
             <div class="values-subsection-divider"></div>
             <p
               class="values-subsection-desc"
               data-tr="Bilimle kolonilerimizin refahını koruyor, bize güvenenlerin sağlığına ortak oluyoruz."
               data-en="We use science to protect the welfare of our colonies and to be a partner in the health of everyone who trusts us."
-            >
-              We use science to protect the welfare of our colonies and to be a
-              partner in the health of everyone who trusts us.
-            </p>
+            >Bilimle kolonilerimizin refahını koruyor, bize güvenenlerin sağlığına ortak oluyoruz.</p>
           </div>
           <div class="values-cards-grid">
             <div class="value-card">
@@ -998,18 +991,12 @@
                 class="value-card-title"
                 data-tr="Bilim Temelli Üretim"
                 data-en="Science-Based Production"
-              >
-                Science-Based Production
-              </p>
+              >Bilim Temelli Üretim</p>
               <p
                 class="value-card-desc"
                 data-tr="Arıcılığı bilimsel bilgi, titiz analiz ve tam izlenebilirlik üzerine inşa ederek tutarlı biçimde yüksek kaliteli, düşük kalıntılı bal üretiyoruz."
                 data-en="Building beekeeping on scientific knowledge, rigorous analysis, and full traceability to ensure consistently high-quality, low-residue honey."
-              >
-                Building beekeeping on scientific knowledge, rigorous analysis,
-                and full traceability to ensure consistently high-quality,
-                low-residue honey.
-              </p>
+              >Arıcılığı bilimsel bilgi, titiz analiz ve tam izlenebilirlik üzerine inşa ederek tutarlı biçimde yüksek kaliteli, düşük kalıntılı bal üretiyoruz.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1029,16 +1016,12 @@
                 class="value-card-title"
                 data-tr="Gezginci Arıcılık"
                 data-en="Migratory Beekeeping"
-              >
-                Migratory Beekeeping
-              </p>
+              >Gezginci Arıcılık</p>
               <p
                 class="value-card-desc"
                 data-tr="Yamanlar Dağı'nın yabani çiçeklerinden Menderes'in fundalıklarına ve İç Ege'nin karaçalılarına uzanan mevsimlik göç ile püren dahil istisnai bal çeşitleri elde ediyoruz."
                 data-en="Seasonal migration across diverse flora zones — from Yamanlar Mountain's wildflowers to Menderes' heather and the blackthorn of Inner Aegean — for exceptional honey varieties including broom honey."
-              >
-                Yamanlar Dağı'nın yabani çiçeklerinden Menderes'in fundalıklarına ve İç Ege'nin karaçalılarına uzanan mevsimlik göç ile püren dahil istisnai bal çeşitleri elde ediyoruz.
-              </p>
+              >Yamanlar Dağı'nın yabani çiçeklerinden Menderes'in fundalıklarına ve İç Ege'nin karaçalılarına uzanan mevsimlik göç ile püren dahil istisnai bal çeşitleri elde ediyoruz.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1057,18 +1040,12 @@
                 class="value-card-title"
                 data-tr="Biyoçeşitlilik &amp; Sürdürülebilirlik"
                 data-en="Biodiversity &amp; Sustainability"
-              >
-                Biodiversity &amp; Sustainability
-              </p>
+              >Biyoçeşitlilik &amp; Sürdürülebilirlik</p>
               <p
                 class="value-card-desc"
                 data-tr="Çevresel korumaya katkıda bulunuyor, sektörde güvenilir ve bilim temelli üretim modellerinin standardını belirliyoruz."
                 data-en="Contributing to environmental preservation and setting the standard for reliable, science-based production models in the industry."
-              >
-                Contributing to environmental preservation and setting the
-                standard for reliable, science-based production models in the
-                industry.
-              </p>
+              >Çevresel korumaya katkıda bulunuyor, sektörde güvenilir ve bilim temelli üretim modellerinin standardını belirliyoruz.</p>
             </div>
           </div>
         </div>
@@ -1095,19 +1072,14 @@
                 class="values-subsection-title"
                 data-tr="MİSYONUMUZ"
                 data-en="OUR MISSION"
-              >
-                OUR MISSION
-              </h3>
+              >MİSYONUMUZ</h3>
             </div>
             <div class="values-subsection-divider"></div>
             <p
               class="values-subsection-desc"
               data-tr="Doğayı önceliklendiren bilim temelli, izlenebilir süreçlerle güvenilir arı ürünleri sunuyoruz."
               data-en="Offering reliable bee products through science-based, traceable processes that prioritize nature."
-            >
-              Offering reliable bee products through science-based,
-              traceable processes that prioritize nature.
-            </p>
+            >Doğayı önceliklendiren bilim temelli, izlenebilir süreçlerle güvenilir arı ürünleri sunuyoruz.</p>
           </div>
           <div class="values-cards-grid">
             <div class="value-card value-card--accented">
@@ -1129,17 +1101,12 @@
                 class="value-card-title"
                 data-tr="Bilimsel Bütünlük"
                 data-en="Scientific Integrity"
-              >
-                Scientific Integrity
-              </p>
+              >Bilimsel Bütünlük</p>
               <p
                 class="value-card-desc"
                 data-tr="Tam güvenilirlik için hijyen standartları, laboratuvar analizi ve güncel bilimsel verilere dayanan her adım."
                 data-en="Every step grounded in hygiene standards, laboratory analysis, and current scientific data for full reliability."
-              >
-                Every step grounded in hygiene standards, laboratory analysis,
-                and current scientific data for full reliability.
-              </p>
+              >Tam güvenilirlik için hijyen standartları, laboratuvar analizi ve güncel bilimsel verilere dayanan her adım.</p>
             </div>
             <div class="value-card value-card--accented">
               <div class="value-card-icon">
@@ -1162,19 +1129,12 @@
                 class="value-card-title"
                 data-tr="Minimal Müdahale"
                 data-en="Minimal Intervention"
-              >
-                Minimal Intervention
-              </p>
+              >Minimal Müdahale</p>
               <p
                 class="value-card-desc"
                 data-tr="Kovana hiçbir kimyasal sokmuyor, üretim amacıyla koloni refahından en ufak bir taviz vermiyoruz. Kolonilerimizi müdahalesiz bir yaklaşımla, flora ve iklim koşullarına göre konumlandırıyoruz."
                 data-en="We put no chemicals into the hive and make no compromise on colony welfare for the sake of production. Our colonies are positioned by flora and climate, with a non-interventionist approach."
-              >
-                We put no chemicals into the hive and make no compromise on
-                colony welfare for the sake of production. Our colonies are
-                positioned by flora and climate, with a non-interventionist
-                approach.
-              </p>
+              >Kovana hiçbir kimyasal sokmuyor, üretim amacıyla koloni refahından en ufak bir taviz vermiyoruz. Kolonilerimizi müdahalesiz bir yaklaşımla, flora ve iklim koşullarına göre konumlandırıyoruz.</p>
             </div>
             <div class="value-card value-card--accented">
               <div class="value-card-icon">
@@ -1194,17 +1154,12 @@
                 class="value-card-title"
                 data-tr="Bilgi Paylaşımı"
                 data-en="Knowledge Sharing"
-              >
-                Knowledge Sharing
-              </p>
+              >Bilgi Paylaşımı</p>
               <p
                 class="value-card-desc"
                 data-tr="Daha bilinçli bir bal kültürü oluşturmak için tüketiciler ve arıcılarla içgörüleri açıkça paylaşıyoruz."
                 data-en="Openly sharing insights with consumers and beekeepers to foster a more conscious honey culture."
-              >
-                Openly sharing insights with consumers and beekeepers to foster
-                a more conscious honey culture.
-              </p>
+              >Daha bilinçli bir bal kültürü oluşturmak için tüketiciler ve arıcılarla içgörüleri açıkça paylaşıyoruz.</p>
             </div>
           </div>
         </div>
@@ -1231,9 +1186,7 @@
                 class="values-subsection-title"
                 data-tr="PRENSİPLERİMİZ"
                 data-en="OUR PRINCIPLES"
-              >
-                OUR PRINCIPLES
-              </h3>
+              >PRENSİPLERİMİZ</h3>
             </div>
             <div class="values-subsection-divider"></div>
           </div>
@@ -1256,17 +1209,12 @@
                 class="value-card-title"
                 data-tr="Şeffaflık"
                 data-en="Transparency"
-              >
-                Transparency
-              </p>
+              >Şeffaflık</p>
               <p
                 class="value-card-desc"
                 data-tr="Ürün kaynaklarını, hasat dönemlerini ve yöntemleri açıkça paylaşıyoruz. Yanıltıcı veya abartılı iddialardan uzak duruyoruz."
                 data-en="Openly sharing product origins, harvest periods, and methods. Free from misleading or exaggerated claims."
-              >
-                Openly sharing product origins, harvest periods, and methods.
-                Free from misleading or exaggerated claims.
-              </p>
+              >Ürün kaynaklarını, hasat dönemlerini ve yöntemleri açıkça paylaşıyoruz. Yanıltıcı veya abartılı iddialardan uzak duruyoruz.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1286,17 +1234,12 @@
                 class="value-card-title"
                 data-tr="İzlenebilirlik"
                 data-en="Traceability"
-              >
-                Traceability
-              </p>
+              >İzlenebilirlik</p>
               <p
                 class="value-card-desc"
                 data-tr="Tarla seçiminden nihai ürüne kadar her üretim adımının eksiksiz dokümantasyonu."
                 data-en="Complete documentation of every production step, from field selection to final product."
-              >
-                Complete documentation of every production step, from field
-                selection to final product.
-              </p>
+              >Tarla seçiminden nihai ürüne kadar her üretim adımının eksiksiz dokümantasyonu.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1318,17 +1261,12 @@
                 class="value-card-title"
                 data-tr="Bilimsel Yaklaşım"
                 data-en="Scientific Approach"
-              >
-                Scientific Approach
-              </p>
+              >Bilimsel Yaklaşım</p>
               <p
                 class="value-card-desc"
                 data-tr="Güncel literatür, saha gözlemleri ve veri odaklı kararlarla sürekli gelişim."
                 data-en="Continuously improving through current literature, field observations, and data-driven decisions."
-              >
-                Continuously improving through current literature, field
-                observations, and data-driven decisions.
-              </p>
+              >Güncel literatür, saha gözlemleri ve veri odaklı kararlarla sürekli gelişim.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1349,17 +1287,12 @@
                 class="value-card-title"
                 data-tr="Arı Refahı"
                 data-en="Bee Welfare"
-              >
-                Bee Welfare
-              </p>
+              >Arı Refahı</p>
               <p
                 class="value-card-desc"
                 data-tr="Her üretim kararında arılarımızın sağlığını ve davranışını önceliklendiriyoruz."
                 data-en="Prioritizing the health and natural behavior of our bees in every production decision."
-              >
-                Prioritizing the health and behavior of our bees in
-                every production decision.
-              </p>
+              >Her üretim kararında arılarımızın sağlığını ve davranışını önceliklendiriyoruz.</p>
             </div>
             <div class="value-card">
               <div class="value-card-icon">
@@ -1381,32 +1314,24 @@
                 class="value-card-title"
                 data-tr="Çevresel Özen"
                 data-en="Environmental Care"
-              >
-                Environmental Care
-              </p>
+              >Çevresel Özen</p>
               <p
                 class="value-card-desc"
                 data-tr="Sıfır mikroplastik ve pestisit maruziyetini hedefleyerek, düzenli olarak yürüttüğümüz saha araştırmalarıyla belirlediğimiz bakir lokasyonlara konumlanıyoruz."
                 data-en="Targeting zero microplastic and pesticide exposure, we place our colonies in pristine locations identified through regular field surveys."
-              >
-                Targeting zero microplastic and pesticide exposure, we place our
-                colonies in pristine locations identified through regular field
-                surveys.
-              </p>
+              >Sıfır mikroplastik ve pestisit maruziyetini hedefleyerek, düzenli olarak yürüttüğümüz saha araştırmalarıyla belirlediğimiz bakir lokasyonlara konumlanıyoruz.</p>
             </div>
           </div>
         </div>
 
         <!-- Team Section -->
         <div class="team-section" id="team">
-          <h2 class="section-title" data-tr="EKİBİMİZ" data-en="WHO WE ARE">
-            WHO WE ARE
-          </h2>
+          <h2 class="section-title" data-tr="EKİBİMİZ" data-en="WHO WE ARE">EKİBİMİZ</h2>
           <div class="team-grid">
             <div class="team-member">
               <div class="member-image">
                 <img
-                  src="images/ekip/huseyin-kocakusak.png"
+                  src="/images/ekip/huseyin-kocakusak.png"
                   alt="Hüseyin Kocakuşak"
                 />
               </div>
@@ -1415,9 +1340,7 @@
                 class="member-title"
                 data-tr="Viyana Üniversitesi, Doktora Adayı"
                 data-en="PhD. Candidate at University of Vienna"
-              >
-                PhD. Candidate at University of Vienna
-              </p>
+              >Viyana Üniversitesi, Doktora Adayı</p>
               <div class="member-social">
                 <a
                   href="//www.instagram.com/huseyin_kocakusak/"
@@ -1456,7 +1379,7 @@
             <div class="team-member">
               <div class="member-image">
                 <img
-                  src="images/ekip/osman-falakali.png"
+                  src="/images/ekip/osman-falakali.png"
                   alt="Osman Falakali"
                 />
               </div>
@@ -1465,9 +1388,7 @@
                 class="member-title"
                 data-tr="Uzman Arıcı"
                 data-en="Expert Beekeeper"
-              >
-                Expert Beekeeper
-              </p>
+              >Uzman Arıcı</p>
               <div class="member-social">
                 <a
                   href="//www.instagram.com/osmanfalakali/"
@@ -1495,7 +1416,7 @@
             <div class="team-member">
               <div class="member-image">
                 <img
-                  src="images/ekip/mehmet-kocakusak.png"
+                  src="/images/ekip/mehmet-kocakusak.png"
                   alt="Mehmet Kocakuşak"
                 />
               </div>
@@ -1504,9 +1425,7 @@
                 class="member-title"
                 data-tr="Uzman Arıcı"
                 data-en="Expert Beekeeper"
-              >
-                Expert Beekeeper
-              </p>
+              >Uzman Arıcı</p>
               <div class="member-social">
                 <a
                   href="//www.instagram.com/mehmet_kocakusak/"
@@ -1536,9 +1455,7 @@
 
         <!-- Testimonials Section -->
         <div class="testimonials-section visible" id="testimonials">
-          <h2 class="section-title" data-tr="BEEONIALILAR" data-en="BEEONIANS">
-            MÜŞTERİ YORUMLARI
-          </h2>
+          <h2 class="section-title" data-tr="BEEONIALILAR" data-en="BEEONIANS">BEEONIALILAR</h2>
           <div class="reviews-container">
             <div class="reviews-carousel">
               <button class="carousel-btn prev" id="reviewsPrev">
@@ -1589,9 +1506,7 @@
 
         <!-- FAQ Section -->
         <div class="faq-section" id="faq">
-          <h2 class="section-title" data-tr="SIK SORULAN SORULAR" data-en="FAQ">
-            SIK SORULAN SORULAR
-          </h2>
+          <h2 class="section-title" data-tr="SIK SORULAN SORULAR" data-en="FAQ">SIK SORULAN SORULAR</h2>
           <div class="faq-container">
             <!-- FAQ Item 1 -->
             <div class="faq-item">
@@ -1618,26 +1533,11 @@
                   <p
                     data-tr="Ürünler bölümünde herhangi bir ürün kartına dokunduğunuzda bir pencere açılır. Bu pencerede ürünün açıklamasını, hasat tarihini, boyut seçeneklerini ve fiyatlarını görebilirsiniz. Laboratuvar analizi bulunan ürünlerde analiz raporlarının PDF bağlantıları pencerenin en altındaki Analizler bölümünde yer alır."
                     data-en="Tap any product card in the Products section and a window opens. There you can see the product description, harvest date, size options and prices. For products with laboratory analyses, the PDF links to the reports are in the Analyses section at the bottom of the window."
-                  >
-                    Ürünler bölümünde herhangi bir ürün kartına dokunduğunuzda
-                    bir pencere açılır. Bu pencerede ürünün açıklamasını, hasat
-                    tarihini, boyut seçeneklerini ve fiyatlarını görebilirsiniz.
-                    Laboratuvar analizi bulunan ürünlerde analiz raporlarının PDF
-                    bağlantıları pencerenin en altındaki Analizler bölümünde yer
-                    alır.
-                  </p>
+                  >Ürünler bölümünde herhangi bir ürün kartına dokunduğunuzda bir pencere açılır. Bu pencerede ürünün açıklamasını, hasat tarihini, boyut seçeneklerini ve fiyatlarını görebilirsiniz. Laboratuvar analizi bulunan ürünlerde analiz raporlarının PDF bağlantıları pencerenin en altındaki Analizler bölümünde yer alır.</p>
                   <p
                     data-tr="Sipariş vermek için aynı pencerede boyutu ve adedi seçip Sepete ekle butonuna basın. Sağ üstteki sepet simgesinden sepetinizi açın; ad soyad, telefon, şehir ve isterseniz bir not yazın. Sipariş mesajınız siz yazdıkça hazırlanır. WhatsApp ile gönder butonu, mesajınız hazır şekilde +90 544 460 18 22 numarasıyla bir WhatsApp sohbeti açar; siparişi iletmek için WhatsApp'ta Gönder'e basmanız yeterlidir."
                     data-en="To order, choose the size and quantity in the same window and press Add to basket. Open your basket from the icon at the top right and enter your full name, phone, city and, if you like, a note. Your order message is built as you type. The Send via WhatsApp button opens a WhatsApp chat with +90 544 460 18 22 with your message ready; press Send in WhatsApp to place the order."
-                  >
-                    Sipariş vermek için aynı pencerede boyutu ve adedi seçip
-                    Sepete ekle butonuna basın. Sağ üstteki sepet simgesinden
-                    sepetinizi açın; ad soyad, telefon, şehir ve isterseniz bir
-                    not yazın. Sipariş mesajınız siz yazdıkça hazırlanır.
-                    WhatsApp ile gönder butonu, mesajınız hazır şekilde +90 544
-                    460 18 22 numarasıyla bir WhatsApp sohbeti açar; siparişi
-                    iletmek için WhatsApp'ta Gönder'e basmanız yeterlidir.
-                  </p>
+                  >Sipariş vermek için aynı pencerede boyutu ve adedi seçip Sepete ekle butonuna basın. Sağ üstteki sepet simgesinden sepetinizi açın; ad soyad, telefon, şehir ve isterseniz bir not yazın. Sipariş mesajınız siz yazdıkça hazırlanır. WhatsApp ile gönder butonu, mesajınız hazır şekilde +90 544 460 18 22 numarasıyla bir WhatsApp sohbeti açar; siparişi iletmek için WhatsApp'ta Gönder'e basmanız yeterlidir.</p>
                 </div>
               </div>
             </div>
@@ -1667,162 +1567,79 @@
                   <p
                     data-tr="BEEONIA olarak bizim için en yüksek kalite rastgele bir iddia değil, her zaman laboratuvarda kanıtlanabilir bilim standartlarına ulaşma hedefidir. Üretim felsefemizin merkezine bilimsel verilerin doğruluğunu koyuyoruz."
                     data-en="At BEEONIA, the highest quality is not a random claim for us, but the goal of always reaching scientifically provable, laboratory-verifiable standards. We place the accuracy of scientific data at the center of our production philosophy."
-                  >
-                    BEEONIA olarak bizim için en yüksek kalite rastgele bir
-                    iddia değil, her zaman laboratuvarda kanıtlanabilir bilim
-                    standartlarına ulaşma hedefidir. Üretim felsefemizin
-                    merkezine bilimsel verilerin doğruluğunu koyuyoruz.
-                  </p>
+                  >BEEONIA olarak bizim için en yüksek kalite rastgele bir iddia değil, her zaman laboratuvarda kanıtlanabilir bilim standartlarına ulaşma hedefidir. Üretim felsefemizin merkezine bilimsel verilerin doğruluğunu koyuyoruz.</p>
                   <p
                     data-tr="Laboratuvar analizlerimizin en üst düzeyde ve kusursuz parametrelerle çıkmasını garantilemek için arıcılık yöntemlerimizi tamamen bilim temelli bir refah modeli üzerine kuruyoruz. Analiz raporlarına, ürün kartına tıkladığınızda açılan pencerenin en altındaki Analizler bölümünde yer alan PDF bağlantılarından ulaşabilirsiniz."
                     data-en="To guarantee that our laboratory analyses come out at the highest level with flawless parameters, we build our beekeeping methods on a fully science-based welfare model. You can access the analysis reports through the PDF links in the Analyses section at the bottom of the window that opens when you click on a product card."
-                  >
-                    Laboratuvar analizlerimizin en üst düzeyde ve kusursuz
-                    parametrelerle çıkmasını garantilemek için arıcılık
-                    yöntemlerimizi tamamen bilim temelli bir refah modeli üzerine
-                    kuruyoruz. Analiz raporlarına, ürün kartına tıkladığınızda
-                    açılan pencerenin en altındaki Analizler bölümünde yer alan
-                    PDF bağlantılarından ulaşabilirsiniz.
-                  </p>
+                  >Laboratuvar analizlerimizin en üst düzeyde ve kusursuz parametrelerle çıkmasını garantilemek için arıcılık yöntemlerimizi tamamen bilim temelli bir refah modeli üzerine kuruyoruz. Analiz raporlarına, ürün kartına tıkladığınızda açılan pencerenin en altındaki Analizler bölümünde yer alan PDF bağlantılarından ulaşabilirsiniz.</p>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="🛡️ Kovan Müdahalelerinde Önceliğimiz Arı Refahı"
                       data-en="🛡️ Our Priority in Hive Interventions Is Bee Welfare"
-                    >
-                      🛡️ Kovan Müdahalelerinde Önceliğimiz Arı Refahı
-                    </h4>
+                    >🛡️ Kovan Müdahalelerinde Önceliğimiz Arı Refahı</h4>
                     <p
                       data-tr="Ticari kaygılarla bal miktarını maksimize etmeye çalışmak yerine koloni sağlığını koruyoruz. Çünkü öngörümüz, en nitelikli ve saf balın ancak stresten uzak yaşayan sağlıklı bir koloniden elde edilebileceği yönündedir."
                       data-en="Instead of trying to maximize honey quantity for commercial concerns, we protect colony health. Because our conviction is that the most qualified and pure honey can only be obtained from a healthy colony living free of stress."
-                    >
-                      Ticari kaygılarla bal miktarını maksimize etmeye çalışmak
-                      yerine koloni sağlığını koruyoruz. Çünkü öngörümüz, en
-                      nitelikli ve saf balın ancak stresten uzak yaşayan
-                      sağlıklı bir koloniden elde edilebileceği yönündedir.
-                    </p>
+                    >Ticari kaygılarla bal miktarını maksimize etmeye çalışmak yerine koloni sağlığını koruyoruz. Çünkü öngörümüz, en nitelikli ve saf balın ancak stresten uzak yaşayan sağlıklı bir koloniden elde edilebileceği yönündedir.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="📍 Doğru Konum ve Gezginci Arıcılık"
                       data-en="📍 The Right Location and Migratory Beekeeping"
-                    >
-                      📍 Doğru Konum ve Gezginci Arıcılık
-                    </h4>
+                    >📍 Doğru Konum ve Gezginci Arıcılık</h4>
                     <p
                       data-tr="Ballarımızın biyokimyasal imzasını en nitelikli seviyeye taşımak amacıyla arılarımızı sadece doğru florayla buluşturmakla kalmıyor, kovanlarımızı doğrudan zengin nektar kaynaklarının merkezine konumlandırıyoruz. Bu sayede arılarımızın uçuş mesafelerini mümkün olan en kısa mesafeye indirerek ciddi bir enerji tasarrufu sağlamalarını (energy budgeting) destekliyor (PMID: 40331619), yorulmalarının ve yıpranmalarının önüne geçiyoruz."
                       data-en="To carry the biochemical signature of our honey to the highest level, we not only bring our bees together with the right flora, but also position our hives directly at the center of rich nectar sources. In this way, by reducing our bees' flight distances to the shortest possible range, we support significant energy savings (energy budgeting) (PMID: 40331619) and prevent their fatigue and wear."
-                    >
-                      Ballarımızın biyokimyasal imzasını en nitelikli seviyeye
-                      taşımak amacıyla arılarımızı sadece doğru florayla
-                      buluşturmakla kalmıyor, kovanlarımızı doğrudan zengin
-                      nektar kaynaklarının merkezine konumlandırıyoruz. Bu
-                      sayede arılarımızın uçuş mesafelerini mümkün olan en kısa
-                      mesafeye indirerek ciddi bir enerji tasarrufu
-                      sağlamalarını (energy budgeting) destekliyor (PMID:
-                      40331619), yorulmalarının ve yıpranmalarının önüne
-                      geçiyoruz.
-                    </p>
+                    >Ballarımızın biyokimyasal imzasını en nitelikli seviyeye taşımak amacıyla arılarımızı sadece doğru florayla buluşturmakla kalmıyor, kovanlarımızı doğrudan zengin nektar kaynaklarının merkezine konumlandırıyoruz. Bu sayede arılarımızın uçuş mesafelerini mümkün olan en kısa mesafeye indirerek ciddi bir enerji tasarrufu sağlamalarını (energy budgeting) destekliyor (PMID: 40331619), yorulmalarının ve yıpranmalarının önüne geçiyoruz.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="🗺️ Topografik Konumlandırma Avantajı ve Sağlıklı Yaşam Süresi"
                       data-en="🗺️ Topographic Positioning Advantage and Healthspan"
-                    >
-                      🗺️ Topografik Konumlandırma Avantajı ve Sağlıklı Yaşam
-                      Süresi
-                    </h4>
+                    >🗺️ Topografik Konumlandırma Avantajı ve Sağlıklı Yaşam Süresi</h4>
                     <p
                       data-tr="Arılarımızın sadece kronolojik yaşam sürelerini değil, bu süreyi ne kadar kaliteli ve zinde geçirdiklerini, yani sağlıklı yaşam sürelerini (healthspan) önemsiyoruz. Bunu; verimli kaynaklara yakınlığın yanı sıra arazinin eğimini hesaplayarak ağır nektar yüküyle kovana dönen işçi arıların yer çekiminden destek alarak yokuş aşağı süzülmelerini sağlayan topografik konumlandırma avantajı gibi detaylar ile destekliyoruz."
                       data-en="We care not only about our bees' chronological lifespan, but about how qualified and vigorous they spend that time — that is, their healthspan. We support this with details such as the topographic positioning advantage: in addition to proximity to productive sources, by calculating the slope of the terrain, we enable worker bees returning to the hive with heavy nectar loads to glide downhill with the support of gravity."
-                    >
-                      Arılarımızın sadece kronolojik yaşam sürelerini değil, bu
-                      süreyi ne kadar kaliteli ve zinde geçirdiklerini, yani
-                      sağlıklı yaşam sürelerini (healthspan) önemsiyoruz. Bunu;
-                      verimli kaynaklara yakınlığın yanı sıra arazinin eğimini
-                      hesaplayarak ağır nektar yüküyle kovana dönen işçi
-                      arıların yer çekiminden destek alarak yokuş aşağı
-                      süzülmelerini sağlayan topografik konumlandırma avantajı
-                      gibi detaylar ile destekliyoruz.
-                    </p>
+                    >Arılarımızın sadece kronolojik yaşam sürelerini değil, bu süreyi ne kadar kaliteli ve zinde geçirdiklerini, yani sağlıklı yaşam sürelerini (healthspan) önemsiyoruz. Bunu; verimli kaynaklara yakınlığın yanı sıra arazinin eğimini hesaplayarak ağır nektar yüküyle kovana dönen işçi arıların yer çekiminden destek alarak yokuş aşağı süzülmelerini sağlayan topografik konumlandırma avantajı gibi detaylar ile destekliyoruz.</p>
                   </div>
 
                   <div class="faq-subsection">
-                    <h4 data-tr="🌾 Beslenme" data-en="🌾 Nutrition">
-                      🌾 Beslenme
-                    </h4>
+                    <h4 data-tr="🌾 Beslenme" data-en="🌾 Nutrition">🌾 Beslenme</h4>
                     <p
                       data-tr="Arılarımızın gelişim döneminde ihtiyaç duydukları temel protein kaynağı olan poleni, kar amacı güderek asla kısıtlamıyor; stoklarının en fazla %3'ünü alarak kovan içinde yeterlinin çok daha üzerinde bir miktarda onlara bırakıyor ve kolonilerin bilişsel fonksiyonlarını, metabolik aktivitelerini ve mitokondriyal enerji üretimlerini en üst düzeyde desteklemeyi hedefliyoruz (PMID: 36994419). Böylece hem yaşam sürelerini en sağlıklı temel üzerine inşa ediyor hem de hastalıklara dirençli, güçlü bir healthspan sunuyoruz (PMID: 36354809). Beslenme kendi hayatımızda da en değer verdiğimiz parametreler arasında yer alıyor. Aynı özeni arılarımıza da gösteriyoruz."
                       data-en="We never restrict pollen — the essential protein source our bees need during their developmental period — for the sake of profit; by taking at most 3% of stocks, we leave them an amount far above what is sufficient inside the hive and aim to maximally support the colonies' cognitive functions, metabolic activity, and mitochondrial energy production (PMID: 36994419). Thus, we both build their lifespan on the healthiest foundation and offer a strong, disease-resistant healthspan (PMID: 36354809). Nutrition is among the parameters we value most in our own lives. We show the same care to our bees."
-                    >
-                      Arılarımızın gelişim döneminde ihtiyaç duydukları temel
-                      protein kaynağı olan poleni, kar amacı güderek asla
-                      kısıtlamıyor; stoklarının en fazla %3'ünü alarak kovan
-                      içinde yeterlinin çok daha üzerinde bir miktarda onlara
-                      bırakıyor ve kolonilerin bilişsel fonksiyonlarını,
-                      metabolik aktivitelerini ve mitokondriyal enerji
-                      üretimlerini en üst düzeyde desteklemeyi hedefliyoruz
-                      (PMID: 36994419). Böylece hem yaşam sürelerini en sağlıklı
-                      temel üzerine inşa ediyor hem de hastalıklara dirençli,
-                      güçlü bir healthspan sunuyoruz (PMID: 36354809). Beslenme
-                      kendi hayatımızda da en değer verdiğimiz parametreler
-                      arasında yer alıyor. Aynı özeni arılarımıza da gösteriyoruz.
-                    </p>
+                    >Arılarımızın gelişim döneminde ihtiyaç duydukları temel protein kaynağı olan poleni, kar amacı güderek asla kısıtlamıyor; stoklarının en fazla %3'ünü alarak kovan içinde yeterlinin çok daha üzerinde bir miktarda onlara bırakıyor ve kolonilerin bilişsel fonksiyonlarını, metabolik aktivitelerini ve mitokondriyal enerji üretimlerini en üst düzeyde desteklemeyi hedefliyoruz (PMID: 36994419). Böylece hem yaşam sürelerini en sağlıklı temel üzerine inşa ediyor hem de hastalıklara dirençli, güçlü bir healthspan sunuyoruz (PMID: 36354809). Beslenme kendi hayatımızda da en değer verdiğimiz parametreler arasında yer alıyor. Aynı özeni arılarımıza da gösteriyoruz.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="🌡️ Sürdürülebilir Kovan Mikroiklimi ve Isı Dengesi"
                       data-en="🌡️ Sustainable Hive Microclimate and Heat Balance"
-                    >
-                      🌡️ Sürdürülebilir Kovan Mikroiklimi ve Isı Dengesi
-                    </h4>
+                    >🌡️ Sürdürülebilir Kovan Mikroiklimi ve Isı Dengesi</h4>
                     <p
                       data-tr="Özellikle sıcak ve kurak yaz günlerinde arıların dehidrasyon stresi yaşamasını engellemek için apiyar yakınında kesintisiz temiz su kaynakları bulunduruyoruz (PMID: 38227669). Arıların enerjilerini kovanı soğutmak için harcayıp bitap düşmelerini önleyecek konumlandırma stratejileriyle, koloninin enerjisini ve metabolik verimliliğini koruyoruz (PMID: 37848056)."
                       data-en="Especially on hot and dry summer days, we keep uninterrupted clean water sources near the apiary to prevent bees from experiencing dehydration stress (PMID: 38227669). With positioning strategies that prevent bees from exhausting themselves by spending their energy to cool the hive, we protect the colony's energy and metabolic efficiency (PMID: 37848056)."
-                    >
-                      Özellikle sıcak ve kurak yaz günlerinde arıların
-                      dehidrasyon stresi yaşamasını engellemek için apiyar
-                      yakınında kesintisiz temiz su kaynakları bulunduruyoruz
-                      (PMID: 38227669). Arıların enerjilerini kovanı soğutmak
-                      için harcayıp bitap düşmelerini önleyecek konumlandırma
-                      stratejileriyle, koloninin enerjisini ve metabolik
-                      verimliliğini koruyoruz (PMID: 37848056).
-                    </p>
+                    >Özellikle sıcak ve kurak yaz günlerinde arıların dehidrasyon stresi yaşamasını engellemek için apiyar yakınında kesintisiz temiz su kaynakları bulunduruyoruz (PMID: 38227669). Arıların enerjilerini kovanı soğutmak için harcayıp bitap düşmelerini önleyecek konumlandırma stratejileriyle, koloninin enerjisini ve metabolik verimliliğini koruyoruz (PMID: 37848056).</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="🧼 Ekspozomal Faktörleri Minimumda Tutuyoruz"
                       data-en="🧼 We Keep Exposomal Factors at a Minimum"
-                    >
-                      🧼 Ekspozomal Faktörleri Minimumda Tutuyoruz
-                    </h4>
+                    >🧼 Ekspozomal Faktörleri Minimumda Tutuyoruz</h4>
                     <p
                       data-tr="Arılarımızı çevresel stres faktörlerinden, kirlilikten ve baskıdan korumayı günlük hayatımızda kendimiz için de aldığımız bir karar ve yaşam felsefesi olarak görüyoruz. Onların doğal sağlığını her şeyin önünde tutarak, bu etkilerden uzak kalabilecekleri en izole apiyarları seçiyoruz."
                       data-en="We see protecting our bees from environmental stress factors, pollution, and pressure as a decision and life philosophy we also adopt for ourselves in daily life. By keeping their natural health above all else, we choose the most isolated apiaries where they can stay away from these effects."
-                    >
-                      Arılarımızı çevresel stres faktörlerinden, kirlilikten ve
-                      baskıdan korumayı günlük hayatımızda kendimiz için de
-                      aldığımız bir karar ve yaşam felsefesi olarak görüyoruz.
-                      Onların doğal sağlığını her şeyin önünde tutarak, bu
-                      etkilerden uzak kalabilecekleri en izole apiyarları
-                      seçiyoruz.
-                    </p>
+                    >Arılarımızı çevresel stres faktörlerinden, kirlilikten ve baskıdan korumayı günlük hayatımızda kendimiz için de aldığımız bir karar ve yaşam felsefesi olarak görüyoruz. Onların doğal sağlığını her şeyin önünde tutarak, bu etkilerden uzak kalabilecekleri en izole apiyarları seçiyoruz.</p>
                   </div>
 
                   <p
                     data-tr="Biz arılarımızın sağlığına ve bilimin rehberliğine inanarak üretiyoruz. Bu kaliteyi analiz raporlarımızla şeffaf bir şekilde sizinle paylaşıyoruz. Raporları görmek için ilgili ürüne tıklayın; PDF dosyaları açılan pencerenin en altında yer alıyor."
                     data-en="We produce by believing in the health of our bees and the guidance of science. We share this quality with you transparently through our analysis reports. To view them, click on the relevant product; the PDF files are at the bottom of the window that opens."
-                  >
-                    Biz arılarımızın sağlığına ve bilimin rehberliğine inanarak
-                    üretiyoruz. Bu kaliteyi analiz raporlarımızla şeffaf bir
-                    şekilde sizinle paylaşıyoruz. Raporları görmek için ilgili
-                    ürüne tıklayın; PDF dosyaları açılan pencerenin en altında
-                    yer alıyor.
-                  </p>
+                  >Biz arılarımızın sağlığına ve bilimin rehberliğine inanarak üretiyoruz. Bu kaliteyi analiz raporlarımızla şeffaf bir şekilde sizinle paylaşıyoruz. Raporları görmek için ilgili ürüne tıklayın; PDF dosyaları açılan pencerenin en altında yer alıyor.</p>
                   <div class="faq-references">
                     <span
                       class="ref-title"
@@ -1890,7 +1707,7 @@
                   class="faq-title"
                   data-tr="Balın 'Analizli' Olması Kaliteyi Garantiler mi?"
                   data-en="Does 'Analyzed' Honey Guarantee Quality?"
-                  >Balın "Analizli" Olması Kaliteyi Garantiler mi?</span
+                  >Balın 'Analizli' Olması Kaliteyi Garantiler mi?</span
                 >
                 <svg
                   class="faq-icon"
@@ -1907,24 +1724,11 @@
                   <p
                     data-tr="Tek bir parametreye (örneğin nem veya HMF değeri) dayalı kalite değerlendirmesi yanıltıcı olabilir. Kapsamlı bir analiz; prolin içeriği (olgunluk göstergesi, >180 mg/kg), diastaz aktivitesi (enzim bütünlüğü, >8 Schade), elektriksel iletkenlik (mineral profili) ve toplam fenolik madde içeriğini birlikte değerlendirmelidir."
                     data-en="Quality assessment based on a single parameter (such as moisture or HMF value) can be misleading. A comprehensive analysis should evaluate proline content (maturity indicator, >180 mg/kg), diastase activity (enzyme integrity, >8 Schade), electrical conductivity (mineral profile), and total phenolic content together."
-                  >
-                    Tek bir parametreye (örneğin nem veya HMF değeri) dayalı
-                    kalite değerlendirmesi yanıltıcı olabilir. Kapsamlı bir
-                    analiz; prolin içeriği (olgunluk göstergesi, >180 mg/kg),
-                    diastaz aktivitesi (enzim bütünlüğü, >8 Schade), elektriksel
-                    iletkenlik (mineral profili) ve toplam fenolik madde
-                    içeriğini birlikte değerlendirmelidir.
-                  </p>
+                  >Tek bir parametreye (örneğin nem veya HMF değeri) dayalı kalite değerlendirmesi yanıltıcı olabilir. Kapsamlı bir analiz; prolin içeriği (olgunluk göstergesi, &gt;180 mg/kg), diastaz aktivitesi (enzim bütünlüğü, &gt;8 Schade), elektriksel iletkenlik (mineral profili) ve toplam fenolik madde içeriğini birlikte değerlendirmelidir.</p>
                   <p
                     data-tr="Bunların ötesinde, biz arı ve insan sağlığını koruyan bir üretim anlayışı benimsiyoruz: akarisit, pestisit ve mikroplastik kalıntısı içermeyen bal üretimi. Çünkü gerçek kalite, yalnızca balın kimyasal kompozisyonunda değil, üretim sürecinin bütünlüğünde yatar."
                     data-en="Beyond these, we adopt a production approach that protects both bee and human health: honey production free from acaricide, pesticide, and microplastic residues. Because true quality lies not only in the chemical composition of honey, but in the integrity of the production process."
-                  >
-                    Bunların ötesinde, biz arı ve insan sağlığını koruyan bir
-                    üretim anlayışı benimsiyoruz: akarisit, pestisit ve
-                    mikroplastik kalıntısı içermeyen bal üretimi. Çünkü gerçek
-                    kalite, yalnızca balın kimyasal kompozisyonunda değil,
-                    üretim sürecinin bütünlüğünde yatar.
-                  </p>
+                  >Bunların ötesinde, biz arı ve insan sağlığını koruyan bir üretim anlayışı benimsiyoruz: akarisit, pestisit ve mikroplastik kalıntısı içermeyen bal üretimi. Çünkü gerçek kalite, yalnızca balın kimyasal kompozisyonunda değil, üretim sürecinin bütünlüğünde yatar.</p>
                   <div class="faq-references">
                     <span
                       class="ref-title"
@@ -1975,23 +1779,11 @@
                   <p
                     data-tr="Isıl işlem, balın enzimatik yapısını doğrudan etkiler. Diastaz aktivitesi 49°C üzerindeki sıcaklıklarda belirgin şekilde azalmaya başlar; 65°C'de 5 saat maruziyetle yaklaşık %60 kayıp yaşanır. İnvertaz enzimi ısıya daha duyarlıdır: 75°C'de 24 saatlik ısıtmayla aktivite %85-95 oranında düşer."
                     data-en="Heat treatment directly affects the enzymatic structure of honey. Diastase activity begins to decrease significantly at temperatures above 49°C; approximately 60% loss occurs with 5 hours of exposure at 65°C. Invertase enzyme is more sensitive to heat: activity drops by 85-95% with 24 hours of heating at 75°C."
-                  >
-                    Isıl işlem, balın enzimatik yapısını doğrudan etkiler.
-                    Diastaz aktivitesi 49°C üzerindeki sıcaklıklarda belirgin
-                    şekilde azalmaya başlar; 65°C'de 5 saat maruziyetle yaklaşık
-                    %60 kayıp yaşanır. İnvertaz enzimi ısıya daha duyarlıdır:
-                    75°C'de 24 saatlik ısıtmayla aktivite %85-95 oranında düşer.
-                  </p>
+                  >Isıl işlem, balın enzimatik yapısını doğrudan etkiler. Diastaz aktivitesi 49°C üzerindeki sıcaklıklarda belirgin şekilde azalmaya başlar; 65°C'de 5 saat maruziyetle yaklaşık %60 kayıp yaşanır. İnvertaz enzimi ısıya daha duyarlıdır: 75°C'de 24 saatlik ısıtmayla aktivite %85-95 oranında düşer.</p>
                   <p
                     data-tr="Aynı zamanda sıcaklık artışı, potansiyel genotoksik etkisi bildirilen HMF (hidroksimetilfurfural) oluşumunu hızlandırır. Balın biyoaktif bileşenlerinden faydalanmak için 40°C altındaki içeceklere eklenmesi veya ayrı tüketilmesi önerilir."
                     data-en="At the same time, temperature increase accelerates the formation of HMF (hydroxymethylfurfural), which has been reported to have potential genotoxic effects. To benefit from the bioactive components of honey, it is recommended to add it to beverages below 40°C or consume it separately."
-                  >
-                    Aynı zamanda sıcaklık artışı, potansiyel genotoksik etkisi
-                    bildirilen HMF (hidroksimetilfurfural) oluşumunu
-                    hızlandırır. Balın biyoaktif bileşenlerinden faydalanmak
-                    için 40°C altındaki içeceklere eklenmesi veya ayrı
-                    tüketilmesi önerilir.
-                  </p>
+                  >Aynı zamanda sıcaklık artışı, potansiyel genotoksik etkisi bildirilen HMF (hidroksimetilfurfural) oluşumunu hızlandırır. Balın biyoaktif bileşenlerinden faydalanmak için 40°C altındaki içeceklere eklenmesi veya ayrı tüketilmesi önerilir.</p>
                   <div class="faq-references">
                     <span
                       class="ref-title"
@@ -2047,32 +1839,17 @@
                   <p
                     data-tr="Kristallenme, balın doğal bir fiziksel sürecidir ve kalite bozulması göstergesi değildir. Aksine, işlenmemiş, ısıl müdahale görmemiş balın karakteristik özelliğidir. Kristallenme eğilimini belirleyen birden fazla parametre vardır; bunların başında fruktoz/glukoz (F/G) oranı gelir: F/G <1.11 olan ballar hızlı kristallenir (haftalar içinde), F/G >1.33 olan ballar aylarca hatta yıllarca sıvı kalabilir."
                     data-en="Crystallization is a natural physical process of honey and is not an indicator of quality deterioration. On the contrary, it is a characteristic feature of unprocessed, non-heat-treated honey. Multiple parameters determine crystallization tendency; the primary one is the fructose/glucose (F/G) ratio: honeys with F/G <1.11 crystallize quickly (within weeks), honeys with F/G >1.33 can remain liquid for months or even years."
-                  >
-                    Kristallenme, balın doğal bir fiziksel sürecidir ve kalite
-                    bozulması göstergesi değildir. Aksine, işlenmemiş, ısıl
-                    müdahale görmemiş balın karakteristik özelliğidir.
-                    Kristallenme eğilimini belirleyen birden fazla parametre
-                    vardır; bunların başında fruktoz/glukoz (F/G) oranı gelir:
-                    F/G &lt;1.11 olan ballar hızlı kristallenir (haftalar
-                    içinde), F/G &gt;1.33 olan ballar aylarca hatta yıllarca
-                    sıvı kalabilir.
-                  </p>
+                  >Kristallenme, balın doğal bir fiziksel sürecidir ve kalite bozulması göstergesi değildir. Aksine, işlenmemiş, ısıl müdahale görmemiş balın karakteristik özelliğidir. Kristallenme eğilimini belirleyen birden fazla parametre vardır; bunların başında fruktoz/glukoz (F/G) oranı gelir: F/G &lt;1.11 olan ballar hızlı kristallenir (haftalar içinde), F/G &gt;1.33 olan ballar aylarca hatta yıllarca sıvı kalabilir.</p>
                   <div class="faq-table">
                     <table>
                       <thead>
                         <tr>
-                          <th data-tr="Bal Türü" data-en="Honey Type">
-                            Bal Türü
-                          </th>
-                          <th data-tr="F/G Oranı" data-en="F/G Ratio">
-                            F/G Oranı
-                          </th>
+                          <th data-tr="Bal Türü" data-en="Honey Type">Bal Türü</th>
+                          <th data-tr="F/G Oranı" data-en="F/G Ratio">F/G Oranı</th>
                           <th
                             data-tr="Kristallenme Süresi"
                             data-en="Crystallization Time"
-                          >
-                            Kristallenme Süresi
-                          </th>
+                          >Kristallenme Süresi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2080,32 +1857,22 @@
                           <td
                             data-tr="Karaçalı (Paliurus spina-christi)"
                             data-en="Christ's Thorn (Paliurus spina-christi)"
-                          >
-                            Karaçalı
-                          </td>
+                          >Karaçalı (Paliurus spina-christi)</td>
                           <td>1.05-1.20</td>
-                          <td data-tr="4-8 hafta" data-en="4-8 weeks">
-                            4-8 hafta
-                          </td>
+                          <td data-tr="4-8 hafta" data-en="4-8 weeks">4-8 hafta</td>
                         </tr>
                         <tr>
                           <td
                             data-tr="Hayıt (Vitex agnus-castus)"
                             data-en="Chaste Tree (Vitex agnus-castus)"
-                          >
-                            Hayıt (Vitex)
-                          </td>
+                          >Hayıt (Vitex agnus-castus)</td>
                           <td>1.15-1.28</td>
-                          <td data-tr="3-6 ay" data-en="3-6 months">
-                            3-6 ay
-                          </td>
+                          <td data-tr="3-6 ay" data-en="3-6 months">3-6 ay</td>
                         </tr>
                         <tr>
                           <td data-tr="Kestane" data-en="Chestnut">Kestane</td>
                           <td>1.35-1.55</td>
-                          <td data-tr="12-24 ay" data-en="12-24 months">
-                            12-24 ay
-                          </td>
+                          <td data-tr="12-24 ay" data-en="12-24 months">12-24 ay</td>
                         </tr>
                         <tr>
                           <td data-tr="Akasya" data-en="Acacia">Akasya</td>
@@ -2116,16 +1883,12 @@
                           <td
                             data-tr="Çam Balı (honeydew)"
                             data-en="Pine Honey (honeydew)"
-                          >
-                            Çam Balı
-                          </td>
+                          >Çam Balı (honeydew)</td>
                           <td>1.50-2.10</td>
                           <td
                             data-tr="Yıllar / pratikte kristallenmez"
                             data-en="Years / practically does not crystallize"
-                          >
-                            Yıllar / pratikte kristallenmez
-                          </td>
+                          >Yıllar / pratikte kristallenmez</td>
                         </tr>
                       </tbody>
                     </table>
@@ -2135,62 +1898,22 @@
                     <h4
                       data-tr="Çiçek Balı ile Çam Balı Neden Farklı Davranır?"
                       data-en="Why Do Flower Honey and Pine Honey Behave Differently?"
-                    >
-                      Çiçek Balı ile Çam Balı Neden Farklı Davranır?
-                    </h4>
+                    >Çiçek Balı ile Çam Balı Neden Farklı Davranır?</h4>
                     <p
                       data-tr="Çiçek balları, bitkilerden toplanan nektardan üretilir; şeker yapıları ağırlıklı olarak glukoz ve fruktozdan oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G oranına bağlıdır. Çam balı ise tamamen farklı bir kaynaktan gelir: bir kabuklu bit (koşnil) türü olan basra böceğinin (Marchalina hellenica) çam ağaçlarının özsuyuyla beslenirken salgıladığı bal özünden (honeydew) elde edilir. Bu salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü trisakkaritin yanı sıra yüksek mineral ve enzim konsantrasyonu içerir. Bu oligosakkaritler, glukozun kristal kafesi oluşturmasını fiziksel olarak engeller. Sonuç olarak çam balı, F/G oranı 1.50-2.10 gibi son derece yüksek değerlere ulaşır ve normal depolama koşullarında neredeyse hiç kristallenmez. Bu, kalitesizliğin değil; yapısının bir yansımasıdır."
                       data-en="Flower honeys are produced from nectar collected from plants; their sugar composition consists mainly of glucose and fructose. Therefore, their crystallization tendency largely depends on the F/G ratio. Pine honey, however, comes from an entirely different source: it is obtained from the honeydew excreted by the scale insect Marchalina hellenica (known in Turkey as the basra böceği) as it feeds on the sap of pine trees. This secretion contains high-molecular-weight trisaccharides such as melezitose (5-30%) and erlose, as well as high mineral and enzyme concentrations. These oligosaccharides physically prevent glucose from forming a crystal lattice. As a result, pine honey reaches extremely high F/G ratios of 1.50-2.10 and practically never crystallizes under normal storage conditions. This is not a sign of poor quality, but a reflection of its unique composition."
-                    >
-                      Çiçek balları, bitkilerden toplanan nektardan üretilir;
-                      şeker yapıları ağırlıklı olarak glukoz ve fruktozdan
-                      oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G
-                      oranına bağlıdır. Çam balı ise tamamen farklı bir
-                      kaynaktan gelir: bir kabuklu bit (koşnil) türü olan basra
-                      böceğinin (<em>Marchalina hellenica</em>) çam ağaçlarının
-                      özsuyuyla beslenirken salgıladığı bal özünden (honeydew)
-                      elde edilir. Bu
-                      salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü
-                      trisakkaritin yanı sıra yüksek mineral ve enzim
-                      konsantrasyonu içerir. Bu oligosakkaritler, glukozun
-                      kristal kafesi oluşturmasını fiziksel olarak engeller.
-                      Sonuç olarak çam balı, F/G oranı 1.50-2.10 gibi son
-                      derece yüksek değerlere ulaşır ve normal depolama
-                      koşullarında neredeyse hiç kristallenmez. Bu, kalitesizliğin
-                      değil; yapısının bir yansımasıdır.
-                    </p>
+                    >Çiçek balları, bitkilerden toplanan nektardan üretilir; şeker yapıları ağırlıklı olarak glukoz ve fruktozdan oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G oranına bağlıdır. Çam balı ise tamamen farklı bir kaynaktan gelir: bir kabuklu bit (koşnil) türü olan basra böceğinin (<em>Marchalina hellenica</em>) çam ağaçlarının özsuyuyla beslenirken salgıladığı bal özünden (honeydew) elde edilir. Bu salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü trisakkaritin yanı sıra yüksek mineral ve enzim konsantrasyonu içerir. Bu oligosakkaritler, glukozun kristal kafesi oluşturmasını fiziksel olarak engeller. Sonuç olarak çam balı, F/G oranı 1.50-2.10 gibi son derece yüksek değerlere ulaşır ve normal depolama koşullarında neredeyse hiç kristallenmez. Bu, kalitesizliğin değil; yapısının bir yansımasıdır.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="F/G Oranı Dışındaki Kristallenme Parametreleri"
                       data-en="Crystallization Parameters Beyond the F/G Ratio"
-                    >
-                      F/G Oranı Dışındaki Kristallenme Parametreleri
-                    </h4>
+                    >F/G Oranı Dışındaki Kristallenme Parametreleri</h4>
                     <p
                       data-tr="Glukoz/su (G/W) oranı ikinci kritik parametredir: G/W >2.0 olduğunda kristallenme hızlı ve tam gerçekleşir; G/W <1.7 olduğunda glukoz doygunluğa ulaşamadığı için kristallenme yavaşlar veya durur. Sıcaklık da belirleyici bir rol üstlenir: 10-14°C, kristal çekirdeği oluşumunu (nucleation) hızlandıran optimal aralıktır; 25°C üzerinde glukozun suda çözünürlüğü artar ve kristallenme inhibe olur. Ayrıca filtrelenmemiş doğal ballar bünyelerinde taşıdıkları ince polen tanelerini, balmumu partikülleri ve hava kabarcıklarını çekirdeklenme (nucleation) merkezi olarak kullanır; bu nedenle sanayi filtrasyonuna tabi tutulmamış ballar tipik olarak daha hızlı kristallenir. Son olarak, yüksek moleküllü oligosakkaritler (özellikle çam balındaki melezitoz) glukoz moleküllerinin düzenli kristal kafes kurmasını sterik olarak engeller ve bu honeylar pratikte kristallenmez. Kristallenmiş balı 40°C altında su banyosunda ısıtarak akışkan hale getirebilirsiniz."
                       data-en="The glucose/water (G/W) ratio is the second critical parameter: when G/W >2.0, crystallization occurs quickly and completely; when G/W <1.7, glucose cannot reach saturation and crystallization slows or stops. Temperature also plays a decisive role: 10-14°C is the optimal range that accelerates crystal nucleus formation (nucleation); above 25°C, the solubility of glucose in water increases and crystallization is inhibited. Additionally, unfiltered natural honeys use the fine pollen grains, beeswax particles, and air bubbles they carry as nucleation centers; therefore, honeys not subjected to industrial filtration typically crystallize faster. Finally, high-molecular-weight oligosaccharides (especially melezitose in pine honey) sterically prevent glucose molecules from forming a regular crystal lattice, and these honeys practically never crystallize. You can liquefy crystallized honey by heating it in a water bath below 40°C."
-                    >
-                      Glukoz/su (G/W) oranı ikinci kritik parametredir: G/W
-                      &gt;2.0 olduğunda kristallenme hızlı ve tam gerçekleşir;
-                      G/W &lt;1.7 olduğunda glukoz doygunluğa ulaşamadığı için
-                      kristallenme yavaşlar veya durur. Sıcaklık da belirleyici
-                      bir rol üstlenir: 10-14°C, kristal çekirdeği oluşumunu
-                      (nucleation) hızlandıran optimal aralıktır; 25°C üzerinde
-                      glukozun suda çözünürlüğü artar ve kristallenme inhibe
-                      olur. Ayrıca filtrelenmemiş doğal ballar bünyelerinde
-                      taşıdıkları ince polen tanelerini, balmumu partikülleri ve
-                      hava kabarcıklarını çekirdeklenme (nucleation) merkezi
-                      olarak kullanır; bu nedenle sanayi filtrasyonuna tabi
-                      tutulmamış ballar tipik olarak daha hızlı kristallenir.
-                      Son olarak, yüksek moleküllü oligosakkaritler (özellikle
-                      çam balındaki melezitoz) glukoz moleküllerinin düzenli
-                      kristal kafes kurmasını sterik olarak engeller ve bu
-                      ballar pratikte kristallenmez. Kristallenmiş balı 40°C
-                      altında su banyosunda ısıtarak akışkan hale
-                      getirebilirsiniz.
-                    </p>
+                    >Glukoz/su (G/W) oranı ikinci kritik parametredir: G/W &gt;2.0 olduğunda kristallenme hızlı ve tam gerçekleşir; G/W &lt;1.7 olduğunda glukoz doygunluğa ulaşamadığı için kristallenme yavaşlar veya durur. Sıcaklık da belirleyici bir rol üstlenir: 10-14°C, kristal çekirdeği oluşumunu (nucleation) hızlandıran optimal aralıktır; 25°C üzerinde glukozun suda çözünürlüğü artar ve kristallenme inhibe olur. Ayrıca filtrelenmemiş doğal ballar bünyelerinde taşıdıkları ince polen tanelerini, balmumu partikülleri ve hava kabarcıklarını çekirdeklenme (nucleation) merkezi olarak kullanır; bu nedenle sanayi filtrasyonuna tabi tutulmamış ballar tipik olarak daha hızlı kristallenir. Son olarak, yüksek moleküllü oligosakkaritler (özellikle çam balındaki melezitoz) glukoz moleküllerinin düzenli kristal kafes kurmasını sterik olarak engeller ve bu honeylar pratikte kristallenmez. Kristallenmiş balı 40°C altında su banyosunda ısıtarak akışkan hale getirebilirsiniz.</p>
                   </div>
 
                   <div class="faq-references">
@@ -2254,80 +1977,46 @@
                   <p
                     data-tr="Varroa destructor, günümüzde koloni kayıplarının en önemli biyotik faktörlerinden biridir. Ancak mücadelede kullanılan sentetik akarisitlerin (amitraz, coumaphos, tau-fluvalinate) hem arı sağlığı hem de bal kalitesi üzerinde belgelenmiş olumsuz etkileri bulunmaktadır."
                     data-en="Varroa destructor is one of the most important biotic factors of colony losses today. However, synthetic acaricides used in control (amitraz, coumaphos, tau-fluvalinate) have documented negative effects on both bee health and honey quality."
-                  >
-                    Varroa destructor, günümüzde koloni kayıplarının en önemli
-                    biyotik faktörlerinden biridir. Ancak mücadelede kullanılan
-                    sentetik akarisitlerin (amitraz, coumaphos, tau-fluvalinate)
-                    hem arı sağlığı hem de bal kalitesi üzerinde belgelenmiş
-                    olumsuz etkileri bulunmaktadır.
-                  </p>
+                  >Varroa destructor, günümüzde koloni kayıplarının en önemli biyotik faktörlerinden biridir. Ancak mücadelede kullanılan sentetik akarisitlerin (amitraz, coumaphos, tau-fluvalinate) hem arı sağlığı hem de bal kalitesi üzerinde belgelenmiş olumsuz etkileri bulunmaktadır.</p>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="Balmumunda Birikim ve Bala Geçiş"
                       data-en="Accumulation in Beeswax and Transfer to Honey"
-                    >
-                      Balmumunda Birikim ve Bala Geçiş
-                    </h4>
+                    >Balmumunda Birikim ve Bala Geçiş</h4>
                     <p
                       data-tr="Sentetik akarisitler lipofilik yapıları nedeniyle balmumunda birikim gösterir. Coumaphos'un balmumundaki yarı ömrü 115-346 gün arasında değişir ve eritme işlemiyle bile tam olarak uzaklaştırılamaz. Bu kalıntılar balmumundan bala ve kuluçka hücrelerine difüzyonla geçebilir."
                       data-en="Synthetic acaricides accumulate in beeswax due to their lipophilic structures. The half-life of coumaphos in beeswax ranges from 115-346 days and cannot be completely removed even by melting. These residues can diffuse from beeswax to honey and brood cells."
-                    >
-                      Sentetik akarisitler lipofilik yapıları nedeniyle
-                      balmumunda birikim gösterir. Coumaphos'un balmumundaki
-                      yarı ömrü 115-346 gün arasında değişir ve eritme işlemiyle
-                      bile tam olarak uzaklaştırılamaz. Bu kalıntılar
-                      balmumundan bala ve kuluçka hücrelerine difüzyonla
-                      geçebilir.
-                    </p>
+                    >Sentetik akarisitler lipofilik yapıları nedeniyle balmumunda birikim gösterir. Coumaphos'un balmumundaki yarı ömrü 115-346 gün arasında değişir ve eritme işlemiyle bile tam olarak uzaklaştırılamaz. Bu kalıntılar balmumundan bala ve kuluçka hücrelerine difüzyonla geçebilir.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="Erkek Arı Üreme Fizyolojisi Üzerindeki Etkiler"
                       data-en="Effects on Drone Reproductive Physiology"
-                    >
-                      Erkek Arı Üreme Fizyolojisi Üzerindeki Etkiler
-                    </h4>
+                    >Erkek Arı Üreme Fizyolojisi Üzerindeki Etkiler</h4>
                     <p
                       data-tr="Gelişim döneminde akarisitlere maruz kalan erkek arılarda sperm canlılığı önemli ölçüde azalır. Coumaphos ve fluvalinate kontaminasyonlu balmumunda yetiştirilen dronelarda sperm canlılığı kontrol grubuna kıyasla düşük bulunmuştur."
                       data-en="Sperm viability significantly decreases in drones exposed to acaricides during development. Sperm viability was found to be lower in drones raised in coumaphos and fluvalinate contaminated beeswax compared to the control group."
-                    >
-                      Gelişim döneminde akarisitlere maruz kalan erkek arılarda
-                      sperm canlılığı önemli ölçüde azalır. Coumaphos ve
-                      fluvalinate kontaminasyonlu balmumunda yetiştirilen
-                      dronelarda sperm canlılığı kontrol grubuna kıyasla düşük
-                      bulunmuştur.
-                    </p>
+                    >Gelişim döneminde akarisitlere maruz kalan erkek arılarda sperm canlılığı önemli ölçüde azalır. Coumaphos ve fluvalinate kontaminasyonlu balmumunda yetiştirilen dronelarda sperm canlılığı kontrol grubuna kıyasla düşük bulunmuştur.</p>
                   </div>
 
                   <div class="faq-subsection">
                     <h4
                       data-tr="Kraliçe Sağlığı ve Koloni Geleceği"
                       data-en="Queen Health and Colony Future"
-                    >
-                      Kraliçe Sağlığı ve Koloni Geleceği
-                    </h4>
+                    >Kraliçe Sağlığı ve Koloni Geleceği</h4>
                     <p
                       data-tr="Coumaphos'un subletal dozları (100 ppm), spermatheca'da depolanan spermin canlılığını %33 oranında azaltma eğilimi göstermiştir. Akarisitlere maruz kalan kraliçelerde detoksifikasyon, bağışıklık ve gelişim ile ilişkili genlerin ekspresyonunda down-regülasyon saptanmıştır."
                       data-en="Sublethal doses of coumaphos (100 ppm) showed a tendency to reduce the viability of sperm stored in the spermatheca by 33%. Down-regulation was detected in the expression of genes related to detoxification, immunity, and development in queens exposed to acaricides."
-                    >
-                      Coumaphos'un subletal dozları (100 ppm), spermatheca'da
-                      depolanan spermin canlılığını %33 oranında azaltma eğilimi
-                      göstermiştir. Akarisitlere maruz kalan kraliçelerde
-                      detoksifikasyon, bağışıklık ve gelişim ile ilişkili
-                      genlerin ekspresyonunda down-regülasyon saptanmıştır.
-                    </p>
+                    >Coumaphos'un subletal dozları (100 ppm), spermatheca'da depolanan spermin canlılığını %33 oranında azaltma eğilimi göstermiştir. Akarisitlere maruz kalan kraliçelerde detoksifikasyon, bağışıklık ve gelişim ile ilişkili genlerin ekspresyonunda down-regülasyon saptanmıştır.</p>
                   </div>
 
                   <p
                     class="faq-highlight"
                     data-tr="Mücadele yöntemlerimiz hakkında detaylı bilgi için bizimle iletişime geçebilirsiniz."
                     data-en="For detailed information about our control methods, please contact us."
-                  >
-                    Mücadele yöntemlerimiz hakkında detaylı bilgi için bizimle
-                    iletişime geçebilirsiniz.
-                  </p>
+                  >Mücadele yöntemlerimiz hakkında detaylı bilgi için bizimle iletişime geçebilirsiniz.</p>
 
                   <div class="faq-references">
                     <span
@@ -2404,54 +2093,38 @@
                   <p
                     data-tr="Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir."
                     data-en="Bee pollen is rich in phenolic compounds, flavonoids, fatty acids, and secondary plant metabolites. These components confer documented antimicrobial, antioxidant, anti-inflammatory, and anti-carcinogenic effects (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Because the outer coat of raw pollen (sporoderm) is resistant to digestive enzymes, a simple pre-treatment before consumption is recommended to improve absorption of its bioactive components."
-                  >
-                    Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir.
-                  </p>
+                  >Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir.</p>
                   <p
                     data-tr="Arı ekmeği (perga), polenin kovanda doğal fermentasyonla olgunlaşmış hâlidir. Fermentasyon süreci sporodermi yumuşatarak biyoaktif bileşenlerin emilimini artırır; çalışmalar, arı ekmeğindeki fenolik bileşik biyoyararlanımının ham polene kıyasla belirgin biçimde yüksek olduğunu ortaya koymaktadır (Mărgăoan et al., 2019; Aylanc et al., 2021; Kieliszek et al., 2018)."
                     data-en="Bee bread (perga) is the naturally fermented form of pollen, matured inside the hive. The fermentation process softens the sporoderm and enhances the absorption of bioactive compounds; studies show that the bioaccessibility of phenolic compounds in bee bread is significantly higher than in raw pollen (Mărgăoan et al., 2019; Aylanc et al., 2021; Kieliszek et al., 2018)."
-                  >
-                    Arı ekmeği (perga), polenin kovanda doğal fermentasyonla olgunlaşmış hâlidir. Fermentasyon süreci sporodermi yumuşatarak biyoaktif bileşenlerin emilimini artırır; çalışmalar, arı ekmeğindeki fenolik bileşik biyoyararlanımının ham polene kıyasla belirgin biçimde yüksek olduğunu ortaya koymaktadır (Mărgăoan et al., 2019; Aylanc et al., 2021; Kieliszek et al., 2018).
-                  </p>
+                  >Arı ekmeği (perga), polenin kovanda doğal fermentasyonla olgunlaşmış hâlidir. Fermentasyon süreci sporodermi yumuşatarak biyoaktif bileşenlerin emilimini artırır; çalışmalar, arı ekmeğindeki fenolik bileşik biyoyararlanımının ham polene kıyasla belirgin biçimde yüksek olduğunu ortaya koymaktadır (Mărgăoan et al., 2019; Aylanc et al., 2021; Kieliszek et al., 2018).</p>
                   <div class="faq-subsection">
                     <h4
                       data-tr="Önerilen Yöntemler"
                       data-en="Recommended Methods"
-                    >
-                      Önerilen Yöntemler
-                    </h4>
+                    >Önerilen Yöntemler</h4>
                     <p
                       data-tr="Bal içinde bekletme: Polen tanelerini eşit hacimde ham balla karıştırın, oda sıcaklığında en az 12–24 saat bekletin. Bu yöntemde balın asidik ortamı ve enzimleri sporodermi kısmen yumuşatır."
                       data-en="Soaking in honey: Mix pollen granules with an equal volume of raw honey and leave at room temperature for at least 12–24 hours. The acidic environment and enzymes in honey partially soften the sporoderm."
-                    >
-                      <strong data-tr="Bal içinde bekletme:" data-en="Soaking in honey:">Bal içinde bekletme:</strong> Polen tanelerini eşit hacimde ham balla karıştırın, oda sıcaklığında en az 12–24 saat bekletin. Bu yöntemde balın asidik ortamı ve enzimleri sporodermi kısmen yumuşatır.
-                    </p>
+                    ><strong data-tr="Bal içinde bekletme:" data-en="Soaking in honey:">Bal içinde bekletme:</strong> Polen tanelerini eşit hacimde ham balla karıştırın, oda sıcaklığında en az 12–24 saat bekletin. Bu yöntemde balın asidik ortamı ve enzimleri sporodermi kısmen yumuşatır.</p>
                     <p
                       data-tr="Yoğurt içinde bekletme: Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Karabagias et al., 2018; Özcan et al., 2024)."
                       data-en="Soaking in yogurt: Mix one teaspoon of pollen (approx. 5 g) with a small amount of yogurt and leave at room temperature for 15–30 minutes. The acidic pH of yogurt (≈4–4.5) softens the sporoderm quickly; the granules visibly dissolve within this time. The combined use of bee pollen with yogurt has also been investigated by researchers in the context of functional foods, and has been shown to improve the nutritional and antioxidant profile of yogurt (Karabagias et al., 2018; Özcan et al., 2024)."
-                    >
-                      <strong data-tr="Yoğurt içinde bekletme:" data-en="Soaking in yogurt:">Yoğurt içinde bekletme:</strong> Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Karabagias et al., 2018; Özcan et al., 2024).
-                    </p>
+                    ><strong data-tr="Yoğurt içinde bekletme:" data-en="Soaking in yogurt:">Yoğurt içinde bekletme:</strong> Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Karabagias et al., 2018; Özcan et al., 2024).</p>
                     <p
                       data-tr="Öğütme: Taze ya da dondurularak kurutulmuş (freeze-dried) poleni değirmende ya da blenderda öğütmek sporodermi mekanik olarak açar ve en hızlı çözümdür."
                       data-en="Grinding: Grinding fresh or freeze-dried pollen in a mill or blender mechanically breaks open the sporoderm and is the fastest method."
-                    >
-                      <strong data-tr="Öğütme:" data-en="Grinding:">Öğütme:</strong> Taze ya da dondurularak kurutulmuş (freeze-dried) poleni değirmende ya da blenderda öğütmek sporodermi mekanik olarak açar ve en hızlı çözümdür.
-                    </p>
+                    ><strong data-tr="Öğütme:" data-en="Grinding:">Öğütme:</strong> Taze ya da dondurularak kurutulmuş (freeze-dried) poleni değirmende ya da blenderda öğütmek sporodermi mekanik olarak açar ve en hızlı çözümdür.</p>
                   </div>
                   <div class="faq-subsection">
                     <h4
                       data-tr="Miktar ve Zamanlama"
                       data-en="Amount and Timing"
-                    >
-                      Miktar ve Zamanlama
-                    </h4>
+                    >Miktar ve Zamanlama</h4>
                     <p
                       data-tr="Klinik çalışmalarda genellikle günde 20–40 g (yaklaşık 2–4 yemek kaşığı) toz/granül polen kullanılmıştır. Sabah kahvaltısında veya egzersiz öncesinde tüketilmesi yaygın protokoldür. İlk kez başlayanlar için 1 tatlı kaşığıyla (≈5 g) başlayıp 1–2 hafta içinde tolere edilen doza çıkılması önerilir."
                       data-en="Clinical studies generally use 20–40 g (approximately 2–4 tablespoons) of powdered/granule pollen per day. Consumption at breakfast or before exercise is a common protocol. For first-time users, starting with 1 teaspoon (≈5 g) and increasing to the tolerated dose within 1–2 weeks is recommended."
-                    >
-                      Klinik çalışmalarda genellikle günde 20–40 g (yaklaşık 2–4 yemek kaşığı) toz/granül polen kullanılmıştır. Sabah kahvaltısında veya egzersiz öncesinde tüketilmesi yaygın protokoldür. İlk kez başlayanlar için 1 tatlı kaşığıyla (≈5 g) başlayıp 1–2 hafta içinde tolere edilen doza çıkılması önerilir.
-                    </p>
+                    >Klinik çalışmalarda genellikle günde 20–40 g (yaklaşık 2–4 yemek kaşığı) toz/granül polen kullanılmıştır. Sabah kahvaltısında veya egzersiz öncesinde tüketilmesi yaygın protokoldür. İlk kez başlayanlar için 1 tatlı kaşığıyla (≈5 g) başlayıp 1–2 hafta içinde tolere edilen doza çıkılması önerilir.</p>
                   </div>
                   <div class="faq-references">
                     <span
@@ -2512,98 +2185,73 @@
 
       <!-- Science Section -->
       <section class="science-section" id="science">
-        <h2 class="section-title" data-tr="LİTERATÜR" data-en="LITERATURE">
-          LITERATURE
-        </h2>
+        <h2 class="section-title" data-tr="LİTERATÜR" data-en="LITERATURE">LİTERATÜR</h2>
         <p
           class="science-subtitle"
           data-tr="Ürünlerimizin sağlık etkisi ve uzun ömür üzerine faydalı olabilecek bilimsel makaleler."
           data-en="Scientific articles that may be useful for a better understanding of our products' health impact and longevity."
-        >
-          Scientific articles that may be useful for a better understanding of
-          our products' health impact and longevity.
-        </p>
+        >Ürünlerimizin sağlık etkisi ve uzun ömür üzerine faydalı olabilecek bilimsel makaleler.</p>
         <div class="science-categories" id="scienceCategories">
           <button
             class="category-btn active"
             data-category="all"
             data-tr="Tümü"
             data-en="All"
-          >
-            All
-          </button>
+          >Tümü</button>
           <button
             class="category-btn"
             data-category="honey"
             data-tr="Bal"
             data-en="Honey"
-          >
-            Honey
-          </button>
+          >Bal</button>
           <button
             class="category-btn"
             data-category="brain"
             data-tr="Beyin"
             data-en="Brain"
-          >
-            Brain
-          </button>
+          >Beyin</button>
           <button
             class="category-btn"
             data-category="exercise"
             data-tr="Egzersiz"
             data-en="Exercise"
-          >
-            Exercise
-          </button>
+          >Egzersiz</button>
           <button
             class="category-btn"
             data-category="immunity"
             data-tr="Bağışıklık"
             data-en="Immunity"
-          >
-            Immunity
-          </button>
+          >Bağışıklık</button>
           <button
             class="category-btn"
             data-category="wound-healing"
             data-tr="Yara İyileşmesi"
             data-en="Wound Healing"
-          >
-            Wound Healing
-          </button>
+          >Yara İyileşmesi</button>
           <button
             class="category-btn"
             data-category="propolis"
             data-tr="Propolis"
             data-en="Propolis"
-          >
-            Propolis
-          </button>
+          >Propolis</button>
           <button
             class="category-btn"
             data-category="royal-jelly"
             data-tr="Arı Sütü"
             data-en="Royal Jelly"
-          >
-            Royal Jelly
-          </button>
+          >Arı Sütü</button>
           <button
             class="category-btn"
             data-category="pollen"
             data-tr="Polen"
             data-en="Pollen"
-          >
-            Pollen
-          </button>
+          >Polen</button>
           <button
             class="category-btn"
             data-category="bee-welfare"
             data-tr="Arı Refahı"
             data-en="Bee Welfare"
-          >
-            Bee Welfare
-          </button>
+          >Arı Refahı</button>
         </div>
         <div class="science-grid" id="scienceGrid">
           <!-- Articles will be rendered by JavaScript -->
@@ -2621,15 +2269,10 @@
           class="mascot-text"
           data-tr="BEEONIA topraklarına hoşgeldin! Beeonia, IONIA bölgesindeki arılar anlamına geliyor. Ionia, Anadolu'da bugünkü İzmir ve Aydın illerinin sahil şeridine Antik Çağ'da verilen addır."
           data-en="Welcome to the lands of BEEONIA! Beeonia means the bees of Ionia. Ionia is the ancient name for the coastal region of Anatolia, present-day İzmir and Aydın."
-        >
-          Hello! I'm Beeonia's mascot. Our name comes from BEE and IONIA. Ionia
-          is the İzmir and Aydın region, famous for honey production since
-          ancient times. We combine thousands of years of beekeeping tradition
-          with modern science!
-        </p>
+        >BEEONIA topraklarına hoşgeldin! Beeonia, IONIA bölgesindeki arılar anlamına geliyor. Ionia, Anadolu'da bugünkü İzmir ve Aydın illerinin sahil şeridine Antik Çağ'da verilen addır.</p>
       </div>
       <div class="mascot-image" id="mascotImage">
-        <img src="images/maskot.png" alt="Beeonia Mascot" draggable="false" />
+        <img src="/images/maskot.png" alt="Beeonia Mascot" draggable="false" />
       </div>
     </div>
 
@@ -2638,7 +2281,7 @@
       <div class="footer-container">
         <div class="footer-logo">
           <a href="https://beeonia.com" target="_blank">
-            <img src="images/Beeonia.png" alt="BEEONIA Logo" />
+            <img src="/images/Beeonia.png" alt="BEEONIA Logo" />
           </a>
         </div>
         <div class="footer-main">
@@ -2651,7 +2294,7 @@
             >
               <path d="M18 15l-6-6-6 6" />
             </svg>
-            <span data-tr="En başa dön" data-en="Back to top">Back to top</span>
+            <span data-tr="En başa dön" data-en="Back to top">En başa dön</span>
           </button>
           <div class="footer-social">
             <a
@@ -2697,22 +2340,22 @@
             <span>Izmir, Turkey</span>
           </div>
           <nav class="footer-nav">
-            <a href="#" data-tr="Çerezler" data-en="Cookies">Cookies</a>
+            <a href="#" data-tr="Çerezler" data-en="Cookies">Çerezler</a>
             <a href="#" data-tr="Legal" data-en="Legal">Legal</a>
             <a href="#" data-tr="Privacy" data-en="Privacy">Privacy</a>
             <a href="#" data-tr="Sosyal Medya" data-en="Social Media"
-              >Social Media</a
+              >Sosyal Medya</a
             >
           </nav>
           <p class="footer-copyright">
             Copyright © 2026 | BEEONIA |
             <span data-tr="Arı Ürünleri" data-en="bee products"
-              >bee products</span
+              >Arı Ürünleri</span
             >
           </p>
         </div>
       </div>
     </footer>
-    <script src="script_20260120_0435.js"></script>
+    <script src="/script_20260120_0435.js"></script>
   </body>
 </html>

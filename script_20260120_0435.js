@@ -7,15 +7,53 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   // Language Switching
   // ========================================
-  let currentLang = "en";
+  // The Turkish site lives at "/" and the English one at "/en/". The page
+  // language comes from the URL; the visitor's explicit choice is stored so
+  // later visits to "/" open the English page (see the inline script in the
+  // <head> of index.html).
+  const LANG_STORAGE_KEY = "beeonia-lang";
+  const pageLang = /^\/en(\/|$)/.test(window.location.pathname) ? "en" : "tr";
+  let currentLang = pageLang;
   const langBtns = document.querySelectorAll(".lang-btn");
+
+  // Replace an element's text with the translation while keeping child
+  // elements such as icons (<svg>), <strong> or <em> in place. Each child's
+  // text is located inside the translated string; if that fails the element
+  // falls back to plain text.
+  function setLocalizedText(el, text, lang) {
+    const kids = Array.from(el.children);
+    if (!kids.length) {
+      el.textContent = text;
+      return;
+    }
+    const nodes = [];
+    let rest = text;
+    for (const kid of kids) {
+      if (kid.tagName.toLowerCase() === "svg") {
+        nodes.push(kid);
+        continue;
+      }
+      const kidText = kid.getAttribute(`data-${lang}`) || kid.textContent;
+      const idx = rest.indexOf(kidText);
+      if (!kidText || idx < 0) {
+        el.textContent = text;
+        return;
+      }
+      if (idx > 0) nodes.push(document.createTextNode(rest.slice(0, idx)));
+      if (kid.hasAttribute(`data-${lang}`)) kid.textContent = kidText;
+      nodes.push(kid);
+      rest = rest.slice(idx + kidText.length);
+    }
+    if (rest) nodes.push(document.createTextNode(rest));
+    el.replaceChildren(...nodes);
+  }
 
   function updateLanguage(lang) {
     currentLang = lang;
 
     // Update all elements with data-tr and data-en attributes
     document.querySelectorAll("[data-tr][data-en]").forEach((el) => {
-      el.textContent = el.getAttribute(`data-${lang}`);
+      setLocalizedText(el, el.getAttribute(`data-${lang}`), lang);
     });
 
     // Update active button
@@ -32,8 +70,22 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  function rememberLanguage(lang) {
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch (e) {
+      /* storage blocked: the choice simply is not remembered */
+    }
+  }
+
   langBtns.forEach((btn) => {
-    btn.addEventListener("click", () => updateLanguage(btn.dataset.lang));
+    btn.addEventListener("click", () => {
+      const lang = btn.dataset.lang;
+      rememberLanguage(lang);
+      if (lang === pageLang) return;
+      // Switch to the other language's address, keeping the section anchor.
+      window.location.href = (lang === "en" ? "/en/" : "/") + window.location.hash;
+    });
   });
 
   // ========================================
@@ -2971,7 +3023,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initial Setup
   // ========================================
   // Trigger initial language setting
-  updateLanguage("tr");
+  updateLanguage(pageLang);
 
   // Show elements that should be visible on load
   setTimeout(() => {
