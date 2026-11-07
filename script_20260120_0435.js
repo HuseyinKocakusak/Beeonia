@@ -758,7 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const fields = {
       name: document.getElementById("cartName"),
       phone: document.getElementById("cartPhone"),
-      city: document.getElementById("cartCity"),
+      address: document.getElementById("cartAddress"),
       note: document.getElementById("cartNote"),
     };
     if (!drawer || !cartBtn) return;
@@ -770,7 +770,7 @@ document.addEventListener("DOMContentLoaded", function () {
         subtotal: "Ara toplam",
         name: "Ad Soyad",
         phone: "Telefon",
-        city: "Şehir",
+        address: "Adres",
         note: "Not",
         remove: "Kaldır",
         decrease: "Azalt",
@@ -780,8 +780,8 @@ document.addEventListener("DOMContentLoaded", function () {
         placeholders: {
           name: "Adınız ve soyadınız",
           phone: "05xx xxx xx xx",
-          city: "Örn. İzmir",
-          note: "Adres, teslimat zamanı veya petek bal gramajı gibi notlar",
+          address: "Mahalle, sokak, no, ilçe / il",
+          note: "Teslimat zamanı veya petek bal gramajı gibi notlar",
         },
         missing: "WhatsApp'a göndermek için doldurun: ",
         emptyHint: "Sepetinize en az bir ürün ekleyin.",
@@ -794,7 +794,7 @@ document.addEventListener("DOMContentLoaded", function () {
         subtotal: "Subtotal",
         name: "Full name",
         phone: "Phone",
-        city: "City",
+        address: "Address",
         note: "Note",
         remove: "Remove",
         decrease: "Decrease",
@@ -804,8 +804,8 @@ document.addEventListener("DOMContentLoaded", function () {
         placeholders: {
           name: "Your full name",
           phone: "+90 5xx xxx xx xx",
-          city: "e.g. Izmir",
-          note: "Address, delivery time, comb honey weight, etc.",
+          address: "Street, number, district, city",
+          note: "Delivery time, comb honey weight, etc.",
         },
         missing: "To send via WhatsApp, please fill in: ",
         emptyHint: "Add at least one product to your basket.",
@@ -819,7 +819,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ----- State -----
-    let state = { items: [], customer: { name: "", phone: "", city: "", note: "" } };
+    let state = { items: [], customer: { name: "", phone: "", address: "", note: "" } };
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
       if (saved && Array.isArray(saved.items)) {
@@ -921,7 +921,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const info = [];
       if (c.name.trim()) info.push(`${t.name}: ${c.name.trim()}`);
       if (c.phone.trim()) info.push(`${t.phone}: ${c.phone.trim()}`);
-      if (c.city.trim()) info.push(`${t.city}: ${c.city.trim()}`);
+      if (c.address.trim()) info.push(`${t.address}: ${c.address.trim()}`);
       if (c.note.trim()) info.push(`${t.note}: ${c.note.trim()}`);
       if (info.length) lines.push("", ...info);
       return { text: lines.join("\n"), total: total };
@@ -935,7 +935,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const digits = c.phone.replace(/\D/g, "");
       if (!c.phone.trim()) missing.push(t.phone);
       else if (digits.length < 10) missing.push(t.phoneInvalid);
-      if (!c.city.trim()) missing.push(t.city);
+      if (!c.address.trim()) missing.push(t.address);
       return missing;
     }
 
@@ -1060,7 +1060,7 @@ document.addEventListener("DOMContentLoaded", function () {
     waBtn.addEventListener("click", (e) => {
       if (waBtn.getAttribute("aria-disabled") === "true") {
         e.preventDefault();
-        const firstEmpty = ["name", "phone", "city"].find(
+        const firstEmpty = ["name", "phone", "address"].find(
           (k) => !state.customer[k].trim() ||
             (k === "phone" && state.customer.phone.replace(/\D/g, "").length < 10),
         );
