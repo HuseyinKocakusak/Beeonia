@@ -472,8 +472,60 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Size and quantity chosen in the open modal for "Sepete ekle".
+  let _modalVariants = [];
+  let _selectedVariant = 0;
+  let _modalQty = 1;
+
+  function getCardVariants(card) {
+    let variants = [];
+    if (card.dataset.variants) {
+      try {
+        variants = JSON.parse(card.dataset.variants);
+      } catch (e) {
+        variants = [];
+      }
+    }
+    if (!variants.length) {
+      variants = [{ weight: card.dataset.weight, price: card.dataset.price }];
+    }
+    return variants.filter((v) => v.weight || v.price);
+  }
+
+  function renderModalVariants() {
+    const selectable = _modalVariants.length > 1;
+    modalDetails.innerHTML = _modalVariants
+      .map((v, i) => {
+        const weight = v.weight
+          ? `<span class="modal-weight">${v.weight}</span>`
+          : "";
+        const price = v.price
+          ? `<span class="modal-price">${v.price}</span>`
+          : "";
+        if (!selectable) {
+          return `<div class="modal-variant">${weight}${price}</div>`;
+        }
+        const on = i === _selectedVariant;
+        return `<button type="button" class="modal-variant selectable${on ? " selected" : ""}" data-index="${i}" aria-pressed="${on}"><span class="variant-radio" aria-hidden="true"></span>${weight}${price}</button>`;
+      })
+      .join("");
+    modalDetails.querySelectorAll(".modal-variant.selectable").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        _selectedVariant = parseInt(btn.dataset.index, 10) || 0;
+        renderModalVariants();
+      });
+    });
+  }
+
   function openModal(card) {
+    const reopening = currentModalCard === card && modal.classList.contains("active");
     currentModalCard = card;
+    if (!reopening) {
+      _selectedVariant = 0;
+      _modalQty = 1;
+      hideOrderFeedback();
+    }
     const img = card.querySelector(".product-image img");
 
     // Build image list from data-images (JSON array) or fall back to card thumbnail
@@ -492,6 +544,14 @@ document.addEventListener("DOMContentLoaded", function () {
       currentLang === "en" && titleParts.length > 1
         ? titleParts[titleParts.length - 1]
         : titleParts[0];
+    // Optional series label (e.g. "Koleksiyon Serisi") for limited products.
+    const modalSeries = document.getElementById("modalSeries");
+    if (modalSeries) {
+      const series =
+        currentLang === "tr" ? card.dataset.seriesTr : card.dataset.seriesEn;
+      modalSeries.textContent = series || "";
+      modalSeries.hidden = !series;
+    }
     modalOrigin.textContent =
       currentLang === "tr"
         ? card.dataset.originTr || card.dataset.origin
@@ -502,30 +562,12 @@ document.addEventListener("DOMContentLoaded", function () {
         : card.dataset.descriptionEn;
     // Build weight/price rows. Products with multiple grammages use
     // data-variants (JSON array of {weight, price}); others fall back to a
-    // single data-weight/data-price. Price is omitted when empty.
-    let variants = [];
-    if (card.dataset.variants) {
-      try {
-        variants = JSON.parse(card.dataset.variants);
-      } catch (e) {
-        variants = [];
-      }
-    }
-    if (!variants.length) {
-      variants = [{ weight: card.dataset.weight, price: card.dataset.price }];
-    }
-    modalDetails.innerHTML = variants
-      .filter((v) => v.weight || v.price)
-      .map((v) => {
-        const weight = v.weight
-          ? `<span class="modal-weight">${v.weight}</span>`
-          : "";
-        const price = v.price
-          ? `<span class="modal-price">${v.price}</span>`
-          : "";
-        return `<div class="modal-variant">${weight}${price}</div>`;
-      })
-      .join("");
+    // single data-weight/data-price. With several sizes the rows double as
+    // the size picker for the basket.
+    _modalVariants = getCardVariants(card);
+    if (_selectedVariant >= _modalVariants.length) _selectedVariant = 0;
+    renderModalVariants();
+    updateModalQty();
 
     modalHarvest.textContent =
       currentLang === "tr" ? card.dataset.harvestTr : card.dataset.harvestEn;
@@ -567,8 +609,51 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function closeModal() {
     modal.classList.remove("active");
-    document.body.classList.remove("modal-open");
+    if (!document.getElementById("cartDrawer").classList.contains("active")) {
+      document.body.classList.remove("modal-open");
+    }
   }
+
+  // ----- Quantity + "Sepete ekle" inside the modal -----
+  const modalQtyEl = document.getElementById("modalQty");
+  const modalOrderFeedback = document.getElementById("modalOrderFeedback");
+  const modalOrderFeedbackText = document.getElementById("modalOrderFeedbackText");
+
+  function updateModalQty() {
+    if (modalQtyEl) modalQtyEl.textContent = String(_modalQty);
+  }
+
+  function hideOrderFeedback() {
+    if (modalOrderFeedback) modalOrderFeedback.hidden = true;
+  }
+
+  document.getElementById("modalQtyMinus").addEventListener("click", (e) => {
+    e.stopPropagation();
+    _modalQty = Math.max(1, _modalQty - 1);
+    updateModalQty();
+  });
+  document.getElementById("modalQtyPlus").addEventListener("click", (e) => {
+    e.stopPropagation();
+    _modalQty = Math.min(99, _modalQty + 1);
+    updateModalQty();
+  });
+  document.getElementById("modalAddToCart").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!currentModalCard || !_modalVariants.length) return;
+    const variant = _modalVariants[_selectedVariant] || _modalVariants[0];
+    window.beeoniaCart.add(currentModalCard, variant, _modalQty);
+    const name = window.beeoniaCart.productName(currentModalCard);
+    modalOrderFeedbackText.textContent =
+      currentLang === "tr"
+        ? `${name} (${variant.weight}) × ${_modalQty} sepete eklendi.`
+        : `${name} (${variant.weight}) × ${_modalQty} added to your basket.`;
+    modalOrderFeedback.hidden = false;
+  });
+  document.getElementById("modalGoToCart").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeModal();
+    window.beeoniaCart.open();
+  });
 
   // Product card click handlers
   document.querySelectorAll(".product-card").forEach((card) => {
@@ -597,6 +682,386 @@ document.addEventListener("DOMContentLoaded", function () {
       closeModal();
     }
   });
+
+  // ========================================
+  // Basket + WhatsApp Order
+  // ========================================
+  // The basket lives in localStorage so it survives page reloads and the
+  // TR/EN page switch. Nothing is sent anywhere: the final step only opens
+  // WhatsApp with a ready-made message the customer still has to send.
+  (function initCart() {
+    const WHATSAPP_NUMBER = "905444601822";
+    const STORAGE_KEY = "beeonia-cart-v1";
+
+    const drawer = document.getElementById("cartDrawer");
+    const cartBtn = document.getElementById("cartBtn");
+    const cartCount = document.getElementById("cartCount");
+    const itemsEl = document.getElementById("cartItems");
+    const emptyEl = document.getElementById("cartEmpty");
+    const subtotalRow = document.getElementById("cartSubtotalRow");
+    const subtotalEl = document.getElementById("cartSubtotal");
+    const previewEl = document.getElementById("cartPreview");
+    const hintEl = document.getElementById("cartHint");
+    const waBtn = document.getElementById("cartWhatsApp");
+    const fields = {
+      name: document.getElementById("cartName"),
+      phone: document.getElementById("cartPhone"),
+      city: document.getElementById("cartCity"),
+      note: document.getElementById("cartNote"),
+    };
+    if (!drawer || !cartBtn) return;
+
+    const T = {
+      tr: {
+        greeting: "Merhaba BEEONIA, sipariş vermek istiyorum.",
+        order: "Sipariş:",
+        subtotal: "Ara toplam",
+        name: "Ad Soyad",
+        phone: "Telefon",
+        city: "Şehir",
+        note: "Not",
+        remove: "Kaldır",
+        decrease: "Azalt",
+        increase: "Artır",
+        basket: "Sepet",
+        close: "Kapat",
+        placeholders: {
+          name: "Adınız ve soyadınız",
+          phone: "05xx xxx xx xx",
+          city: "Örn. İzmir",
+          note: "Adres, teslimat zamanı veya petek bal gramajı gibi notlar",
+        },
+        missing: "WhatsApp'a göndermek için doldurun: ",
+        emptyHint: "Sepetinize en az bir ürün ekleyin.",
+        ready: "Buton WhatsApp'ı mesajınız hazır şekilde açar; göndermek için WhatsApp'ta Gönder'e basmanız yeterli.",
+        phoneInvalid: "geçerli bir telefon numarası",
+      },
+      en: {
+        greeting: "Hello BEEONIA, I would like to place an order.",
+        order: "Order:",
+        subtotal: "Subtotal",
+        name: "Full name",
+        phone: "Phone",
+        city: "City",
+        note: "Note",
+        remove: "Remove",
+        decrease: "Decrease",
+        increase: "Increase",
+        basket: "Basket",
+        close: "Close",
+        placeholders: {
+          name: "Your full name",
+          phone: "+90 5xx xxx xx xx",
+          city: "e.g. Izmir",
+          note: "Address, delivery time, comb honey weight, etc.",
+        },
+        missing: "To send via WhatsApp, please fill in: ",
+        emptyHint: "Add at least one product to your basket.",
+        ready: "The button opens WhatsApp with your message ready; just press Send in WhatsApp.",
+        phoneInvalid: "a valid phone number",
+      },
+    };
+
+    function lang() {
+      return document.documentElement.lang === "en" ? "en" : "tr";
+    }
+
+    // ----- State -----
+    let state = { items: [], customer: { name: "", phone: "", city: "", note: "" } };
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (saved && Array.isArray(saved.items)) {
+        state.items = saved.items.filter((it) => it && it.id && it.qty > 0);
+        state.customer = Object.assign(state.customer, saved.customer || {});
+      }
+    } catch (e) {
+      /* storage unavailable or corrupt: start empty */
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        /* private mode etc. The basket still works for this visit. */
+      }
+    }
+
+    // ----- Product helpers -----
+    function findCard(id) {
+      return document.querySelector(`.product-card[data-product-id="${id}"]`);
+    }
+
+    function productName(card, l) {
+      const h = card.querySelector(".product-info h3");
+      const key = l || lang();
+      return (h && h.getAttribute(`data-${key}`)) || card.dataset.title || "";
+    }
+
+    // "1100₺" -> 1100, "2.000₺" -> 2000
+    function parsePrice(str) {
+      const digits = String(str || "").replace(/[^\d]/g, "");
+      return digits ? parseInt(digits, 10) : 0;
+    }
+
+    function formatPrice(n) {
+      return n.toLocaleString("tr-TR") + "₺";
+    }
+
+    // Refresh names/prices from the page so a stored basket never shows
+    // outdated prices; drop items whose product or size no longer exists.
+    function syncWithPage() {
+      state.items = state.items.filter((it) => {
+        const card = findCard(it.id);
+        if (!card) return false;
+        const variants = getCardVariants(card);
+        const v = variants.find((x) => x.weight === it.weight);
+        if (!v) return false;
+        it.price = v.price;
+        it.nameTr = productName(card, "tr");
+        it.nameEn = productName(card, "en");
+        return true;
+      });
+    }
+
+    function itemName(it) {
+      return lang() === "en" ? it.nameEn || it.nameTr : it.nameTr || it.nameEn;
+    }
+
+    function add(card, variant, qty) {
+      const id = card.dataset.productId;
+      if (!id) return;
+      const existing = state.items.find((it) => it.id === id && it.weight === variant.weight);
+      if (existing) {
+        existing.qty = Math.min(99, existing.qty + qty);
+      } else {
+        state.items.push({
+          id: id,
+          weight: variant.weight,
+          price: variant.price,
+          qty: qty,
+          nameTr: productName(card, "tr"),
+          nameEn: productName(card, "en"),
+        });
+      }
+      save();
+      render();
+      cartBtn.classList.remove("bump");
+      void cartBtn.offsetWidth; // restart the animation
+      cartBtn.classList.add("bump");
+    }
+
+    // ----- Message -----
+    function buildMessage() {
+      const t = T[lang()];
+      const c = state.customer;
+      const lines = [t.greeting, "", t.order];
+      let total = 0;
+      state.items.forEach((it, i) => {
+        const unit = parsePrice(it.price);
+        const line = unit * it.qty;
+        total += line;
+        lines.push(
+          `${i + 1}. ${itemName(it)} (${it.weight}) × ${it.qty}` +
+            (unit ? ` = ${formatPrice(line)}` : ""),
+        );
+      });
+      if (total) lines.push(`${t.subtotal}: ${formatPrice(total)}`);
+      const info = [];
+      if (c.name.trim()) info.push(`${t.name}: ${c.name.trim()}`);
+      if (c.phone.trim()) info.push(`${t.phone}: ${c.phone.trim()}`);
+      if (c.city.trim()) info.push(`${t.city}: ${c.city.trim()}`);
+      if (c.note.trim()) info.push(`${t.note}: ${c.note.trim()}`);
+      if (info.length) lines.push("", ...info);
+      return { text: lines.join("\n"), total: total };
+    }
+
+    function missingFields() {
+      const t = T[lang()];
+      const c = state.customer;
+      const missing = [];
+      if (!c.name.trim()) missing.push(t.name);
+      const digits = c.phone.replace(/\D/g, "");
+      if (!c.phone.trim()) missing.push(t.phone);
+      else if (digits.length < 10) missing.push(t.phoneInvalid);
+      if (!c.city.trim()) missing.push(t.city);
+      return missing;
+    }
+
+    // Only the parts that change while typing; keeps input focus intact.
+    function updateMessage() {
+      const t = T[lang()];
+      const msg = buildMessage();
+      previewEl.textContent = msg.text;
+      const missing = missingFields();
+      let ready = false;
+      if (!state.items.length) {
+        hintEl.textContent = t.emptyHint;
+      } else if (missing.length) {
+        hintEl.textContent = t.missing + missing.join(", ");
+      } else {
+        hintEl.textContent = t.ready;
+        ready = true;
+      }
+      hintEl.classList.toggle("ready", ready);
+      waBtn.setAttribute("aria-disabled", String(!ready));
+      waBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg.text)}`;
+    }
+
+    function render() {
+      const t = T[lang()];
+      const count = state.items.reduce((n, it) => n + it.qty, 0);
+      cartCount.textContent = String(count);
+      cartCount.hidden = count === 0;
+      cartBtn.setAttribute("aria-label", `${t.basket} (${count})`);
+
+      emptyEl.hidden = state.items.length > 0;
+      itemsEl.innerHTML = "";
+      state.items.forEach((it, idx) => {
+        const li = document.createElement("li");
+        li.className = "cart-item";
+        const unit = parsePrice(it.price);
+
+        const info = document.createElement("div");
+        info.className = "cart-item-info";
+        const name = document.createElement("span");
+        name.className = "cart-item-name";
+        name.textContent = itemName(it);
+        const meta = document.createElement("span");
+        meta.className = "cart-item-meta";
+        meta.textContent = `${it.weight}${it.price ? " · " + it.price : ""}`;
+        info.append(name, meta);
+
+        const controls = document.createElement("div");
+        controls.className = "cart-item-controls";
+        const stepper = document.createElement("div");
+        stepper.className = "qty-stepper qty-stepper--small";
+        const minus = document.createElement("button");
+        minus.type = "button";
+        minus.className = "qty-btn";
+        minus.textContent = "−";
+        minus.setAttribute("aria-label", t.decrease);
+        const val = document.createElement("span");
+        val.className = "qty-value";
+        val.textContent = String(it.qty);
+        const plus = document.createElement("button");
+        plus.type = "button";
+        plus.className = "qty-btn";
+        plus.textContent = "+";
+        plus.setAttribute("aria-label", t.increase);
+        stepper.append(minus, val, plus);
+
+        const lineTotal = document.createElement("span");
+        lineTotal.className = "cart-item-total";
+        lineTotal.textContent = unit ? formatPrice(unit * it.qty) : "";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "cart-item-remove";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", t.remove);
+
+        minus.addEventListener("click", () => {
+          if (it.qty > 1) it.qty -= 1;
+          else state.items.splice(idx, 1);
+          save();
+          render();
+        });
+        plus.addEventListener("click", () => {
+          it.qty = Math.min(99, it.qty + 1);
+          save();
+          render();
+        });
+        remove.addEventListener("click", () => {
+          state.items.splice(idx, 1);
+          save();
+          render();
+        });
+
+        controls.append(stepper, lineTotal, remove);
+        li.append(info, controls);
+        itemsEl.appendChild(li);
+      });
+
+      const msg = buildMessage();
+      subtotalRow.hidden = !msg.total;
+      subtotalEl.textContent = msg.total ? formatPrice(msg.total) : "";
+
+      Object.keys(fields).forEach((k) => {
+        if (fields[k]) fields[k].placeholder = t.placeholders[k];
+      });
+      document.getElementById("cartClose").setAttribute("aria-label", t.close);
+      updateMessage();
+    }
+
+    // ----- Form -----
+    Object.keys(fields).forEach((k) => {
+      const el = fields[k];
+      if (!el) return;
+      el.value = state.customer[k] || "";
+      el.addEventListener("input", () => {
+        state.customer[k] = el.value;
+        save();
+        updateMessage();
+      });
+    });
+
+    waBtn.addEventListener("click", (e) => {
+      if (waBtn.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        const firstEmpty = ["name", "phone", "city"].find(
+          (k) => !state.customer[k].trim() ||
+            (k === "phone" && state.customer.phone.replace(/\D/g, "").length < 10),
+        );
+        if (state.items.length && firstEmpty) fields[firstEmpty].focus();
+        hintEl.classList.remove("shake");
+        void hintEl.offsetWidth;
+        hintEl.classList.add("shake");
+        return;
+      }
+      if (typeof gtag === "function") {
+        gtag("event", "whatsapp_order", { value: buildMessage().total, currency: "TRY" });
+      }
+    });
+
+    document.getElementById("cartClear").addEventListener("click", () => {
+      state.items = [];
+      save();
+      render();
+    });
+
+    // ----- Open / close -----
+    function open() {
+      drawer.classList.add("active");
+      drawer.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+      render();
+      setTimeout(() => document.getElementById("cartClose").focus(), 50);
+    }
+
+    function close() {
+      drawer.classList.remove("active");
+      drawer.setAttribute("aria-hidden", "true");
+      if (!document.getElementById("productModal").classList.contains("active")) {
+        document.body.classList.remove("modal-open");
+      }
+      cartBtn.focus();
+    }
+
+    cartBtn.addEventListener("click", open);
+    document.getElementById("cartClose").addEventListener("click", close);
+    document.getElementById("cartBackdrop").addEventListener("click", close);
+    document.getElementById("cartBrowse").addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer.classList.contains("active")) close();
+    });
+    document.addEventListener("languageChanged", render);
+
+    window.beeoniaCart = { add: add, open: open, productName: productName };
+
+    syncWithPage();
+    save();
+    render();
+  })();
 
   // ========================================
   // Back to Top
@@ -640,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
+    ".gallery-section, .products-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
   );
 
   const revealObserver = new IntersectionObserver(
@@ -695,14 +1160,14 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initReviews() {
     const reviews = [
       {
-        name: "Erim Kılınç",
+        name: "Erim K.",
         commentTr: "Çok iyi kalite",
         commentEn: "Very good quality",
         date: "10 September, 2026",
         url: "https://www.instagram.com/p/DdHK38hqLD0/c/17863075578676039/",
       },
       {
-        name: "Batın Güleç",
+        name: "Batın G.",
         commentTr:
           "Çok titizlikle çalışılıyor, ellerinize sağlık. Petek bal ve arı ekmeğinizin elime ulaşmasını dört gözle bekliyorum 😍😍😍",
         commentEn:
@@ -711,7 +1176,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DbDvcNNqnMx/c/18128737780711661/",
       },
       {
-        name: "Şule Koç",
+        name: "Şule K.",
         commentTr:
           "Arı sağlığına verdiğiniz önem, balınızın kalitesine de yansıyor. Emeğinize sağlık, başarılarınız daim olsun🐝🍯",
         commentEn:
@@ -720,7 +1185,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/Daf9fFNqno8/c/18318666838275771/",
       },
       {
-        name: "Batın Güleç",
+        name: "Batın G.",
         commentTr: "Ballar müthiş lezzetli ve diğer hiçbir bala benzemiyor.",
         commentEn:
           "The honeys are incredibly delicious and unlike any other honey.",
@@ -728,7 +1193,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18377601637160808/",
       },
       {
-        name: "Ayşe Çetinkaya",
+        name: "Ayşe Ç.",
         commentTr:
           "alınn en iyisi olması için ilmik ilmik emek ve çaba, tebrikler 👏 👏 ve sonuç harika bir lezzetli bal 😍 emeğinize sağlık, ben yedim denedim siz de deneyin 👏👍🫶",
         commentEn:
@@ -737,7 +1202,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18087942740434121/",
       },
       {
-        name: "Nedret Şengonca Tort",
+        name: "Nedret Ş. T.",
         commentTr: "Bilinçli üretici ve tabiiki sonuç mutlaka harika 👏👏👏",
         commentEn:
           "Conscious producer and of course the result is definitely great 👏👏👏",
@@ -745,7 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZCXO0hIk0Z/c/17976957774013745/",
       },
       {
-        name: "Hakan Adıyaman",
+        name: "Hakan A.",
         commentTr:
           "Gerçekten harika bir bal, emeğinize sağlık 🍯✨ Doğallığı ilk kaşıkta hissediliyor, teşekkürler! Gerçek bal arayanlara gönül rahatlığıyla öneririm. Muhteşem bir ürün!",
         commentEn:
@@ -754,7 +1219,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DQcT4f_jJzN/c/17902895868316341/?img_index=1",
       },
       {
-        name: "Zafer Hinislioğlu",
+        name: "Zafer H.",
         commentTr:
           "Siparişimiz hızlı bir şekilde ulaştı. Gerçek anlamda Doğal-Bio bal tadabildiğimiz için şanslıyız, tavsiye ediyoruz. Guvenilirliği ve tazeliği için emeğinize sağlık. Alın ve aldırın, Afiyet olsun...",
         commentEn:
@@ -763,7 +1228,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DQcT4f_jJzN/c/18050346845447293/",
       },
       {
-        name: "İmam Karadağ",
+        name: "İmam K.",
         commentTr:
           "Arkadaşlar burdaki ürünler bir harika herkese tavsiye ederim",
         commentEn:
@@ -772,7 +1237,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DTavyE8jD3V/c/17953422657063196/",
       },
       {
-        name: "Hakan Demirtel",
+        name: "Hakan D.",
         commentTr:
           "Muhteşem. Tam özlediğimiz tat. Bu lezzet bizi çocukluğumuzda yediğimiz o lezzetli, kıvamlı, katkısız, katıksız mis kokulu bal tadıyla yeniden buluşturdu. Ellerinize, emeğinize sağlık.",
         commentEn:
@@ -781,7 +1246,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOv6qyXDDC8/c/17977905290794155/",
       },
       {
-        name: "Yusuf Güdücü",
+        name: "Yusuf G.",
         commentTr:
           "Gerçek bir bilimcinin verdiği güven ve eşsiz lezzetiyle kahvaltıların Seda Sayan'ı. Emeğinize sağlık Ege Arıcılık 🐝",
         commentEn:
@@ -790,7 +1255,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DSfwhDWjF3u/c/18543127087017166/",
       },
       {
-        name: "Rasim Rabia Gören",
+        name: "Rasim Rabia G.",
         commentTr:
           "Orjinal bal buna denir çocuklarımıza güvenle yediriyoruz ve yiyiyoruz. Şiddetle tavsiye ederim, herkes bir şans verip almalı. Emeklerinize sağlık 👏👏",
         commentEn:
@@ -806,14 +1271,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18083034712902055/",
       },
       {
-        name: "Kadir Gören",
+        name: "Kadir G.",
         commentTr: "Dünyanın en güzel balıdır bu, ellerinize sağlık.",
         commentEn: "This is the most beautiful honey in the world, thank you.",
         date: "13 September, 2025",
         url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18088731997839464/",
       },
       {
-        name: "Kiraz Naide",
+        name: "Kiraz N.",
         commentTr:
           "Emeklerinize sağlık balı sizden almakla doğru tercih yapmışız",
         commentEn:
@@ -822,7 +1287,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOOwb0GDAR7/c/18287629336261593/",
       },
       {
-        name: "Aslı Kılınç",
+        name: "Aslı K.",
         commentTr:
           "Doğal ve özlediğimiz gerçek bal lezzeti 👍 Gönül rahatlığıyla tavsiye ederim💯",
         commentEn:
@@ -831,7 +1296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18317756617208716/",
       },
       {
-        name: "Av. Demet Kozacıoğlu",
+        name: "Av. Demet K.",
         commentTr:
           "Güvenilir ellerden doğal bal almak isteyen herkese tavsiye ederim , teşekkürler 🙏🏻",
         commentEn:
@@ -840,14 +1305,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18143009455416285/",
       },
       {
-        name: "Nilay Bilgin",
+        name: "Nilay B.",
         commentTr: "Lezzetli, doğal, güvenli.",
         commentEn: "Delicious, natural, safe.",
         date: "3 September, 2025",
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18519352420027476/",
       },
       {
-        name: "Semra Çangiri",
+        name: "Semra Ç.",
         commentTr:
           "Lezzeti ve aroması çok güzel. Emeklerinize sağlık. Doğal bal yemek isteyenler kaçırmasın.",
         commentEn:
@@ -856,7 +1321,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18484451644077387/",
       },
       {
-        name: "Prof. Dr. Zafer Kozacıoğlu",
+        name: "Prof. Dr. Zafer K.",
         commentTr:
           "Ege arıcılık tan son mahsül balımızı aldık. Bebeğimiz ve biz güvenle ve lezzetle yiyoruz. Bu devirde güvenle önemli.. Osman bey e teşekkürlerimi sunuyorum..",
         commentEn:
@@ -865,7 +1330,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18167154961318978/",
       },
       {
-        name: "Nevin Çiftlikçi",
+        name: "Nevin Ç.",
         commentTr: "Gözü kapalı güvenebileceğimiz tek adres.Çok teşekkürler 🙏",
         commentEn:
           "The only address we can trust blindly. Thank you very much 🙏",
@@ -873,7 +1338,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090888745707762/",
       },
       {
-        name: "Kaan Kılınç",
+        name: "Kaan K.",
         commentTr:
           "Kavanoz bal ve petek baldan aldık çok memnun kaldık gerçekten çok doğal",
         commentEn:
@@ -882,7 +1347,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18404546206112811/",
       },
       {
-        name: "Ayşe Aydın",
+        name: "Ayşe A.",
         commentTr: "Emeğinize sağlık 👏 doğallığı ve tadı mükemmel 🌻",
         commentEn:
           "Thank you for your effort 👏 its naturalness and taste are perfect 🌻",
@@ -890,7 +1355,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/17860922025466897/",
       },
       {
-        name: "Hakan Bilgin",
+        name: "Hakan B.",
         commentTr:
           "Hayıt balını kullandık. Aroması nadir, lezzeti mükemmeldi. Üreten arkadaşların emeklerine sağlık",
         commentEn:
@@ -899,7 +1364,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/17876862222284743/",
       },
       {
-        name: "Erim Kılınç",
+        name: "Erim K.",
         commentTr:
           "Hem petek balı hemde kavanoz balından aldım, birinci sınıf Rahmetli dedemin kovanları olduğu için çocukluğumun lezzetine tekrar kavuşmuş oldum",
         commentEn:
@@ -908,21 +1373,21 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18038453081437367/",
       },
       {
-        name: "Faruk Kurt",
+        name: "Faruk K.",
         commentTr: "Çok beğendim. Çok güvenilir emeklerinize sağlık 👏",
         commentEn: "I loved it. Very reliable, thank you for your effort 👏",
         date: "29 August, 2025",
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090214426746958/",
       },
       {
-        name: "Ferhat Karaca",
+        name: "Ferhat K.",
         commentTr: "Harika olmuş emeklerinize sağlık 👏",
         commentEn: "It turned out great, thank you for your effort 👏",
         date: "29 August, 2025",
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18174250735353086/",
       },
       {
-        name: "Özlem Duraydın",
+        name: "Özlem D.",
         commentTr: "Çok lezzetli mükemmel bir bal.Emeğinize sağlık👏",
         commentEn:
           "A very delicious, perfect honey. Thank you for your effort👏",
@@ -930,14 +1395,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18522901870028596/",
       },
       {
-        name: "İpek Aydın",
+        name: "İpek A.",
         commentTr: "Ellerinize sağlık çok kaliteli ve lezzetliydi 👏🏻",
         commentEn: "Thank you, it was very high quality and delicious 👏🏻",
         date: "10 August, 2025",
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18075902464809215/",
       },
       {
-        name: "Diş Hekimi Soner Çoruk",
+        name: "Diş Hekimi Soner Ç.",
         commentTr: "Gerçek bal için teşekkürler",
         commentEn: "Thank you for real honey",
         date: "15 August, 2025",
@@ -953,7 +1418,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/17860051446397889/",
       },
       {
-        name: "İbrahim Zaralıoğlu",
+        name: "İbrahim Z.",
         commentTr:
           "Göndermiş olduğunuz bal elime ulaştı. Tadı kokusu harika elinize emeğinize sağlık",
         commentEn:
@@ -975,12 +1440,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let reviewInterval = null;
 
     // Get initials from name
+    // Titles such as "Prof. Dr." or "Av." are skipped so the avatar shows
+    // the person's own initials (e.g. "Prof. Dr. Zafer K." -> "ZK").
+    const NAME_TITLES = ["prof.", "dr.", "av.", "diş", "hekimi", "dt."];
     function getInitials(name) {
-      const parts = name.split(" ");
+      const parts = name
+        .split(" ")
+        .filter((p) => p && NAME_TITLES.indexOf(p.toLocaleLowerCase("tr")) === -1);
       if (parts.length >= 2) {
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toLocaleUpperCase("tr");
       }
-      return name.substring(0, 2).toUpperCase();
+      return name.substring(0, 2).toLocaleUpperCase("tr");
     }
 
     // Get color class based on index
@@ -1572,8 +2042,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.mdpi.com/1422-0067/27/11/4661"
       },
       {
-        titleEn: "Bee Products in Dermatology and Skin Care",
-        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri",
+        titleEn: "Bee Products in Dermatology and Skin Care (2020)",
+        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri (2020)",
         date: "2026-09-25",
         summaryEn: "Comprehensive review of the therapeutic applications of bee products — honey, propolis, royal jelly, bee venom, and beeswax — in dermatology and skin care, covering wound healing, anti-aging, antimicrobial, and anti-inflammatory properties backed by clinical and in vitro evidence.",
         summaryTr: "Bal, propolis, arı sütü, arı zehiri ve balmumu gibi arı ürünlerinin dermatoloji ve cilt bakımındaki terapötik uygulamalarını ele alan kapsamlı derleme; klinik ve in vitro kanıtlarla desteklenen yara iyileştirme, yaşlanma karşıtı, antimikrobiyal ve anti-inflamatuar özellikleri kapsamaktadır.",
@@ -1581,8 +2051,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7036894/"
       },
       {
-        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health",
-        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli",
+        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health (2023)",
+        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli (2023)",
         date: "2026-09-18",
         summaryEn: "Review exploring the antioxidant potential of bee-derived products — honey, propolis, royal jelly, and bee venom — in maintaining oral hygiene and dental health, with emphasis on antimicrobial, anti-inflammatory, and tissue-protective mechanisms.",
         summaryTr: "Bal, propolis, arı sütü ve arı zehiri gibi arı kaynaklı ürünlerin ağız hijyeni ve diş sağlığının korunmasındaki antioksidan potansiyelini inceleyen derleme; antimikrobiyal, anti-inflamatuar ve doku koruyucu mekanizmalara odaklanmaktadır.",
@@ -1590,8 +2060,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10375990/#sec5-antioxidants-12-01452"
       },
       {
-        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types",
-        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular",
+        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types (2026)",
+        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular (2026)",
         date: "2026-09-11",
         summaryEn: "Study investigating honey as a bioindicator of environmental microplastic pollution, analyzing industrial and specialty honey types for microplastic content and distribution patterns, with implications for food safety and environmental monitoring.",
         summaryTr: "Balın çevresel mikroplastik kirliliğinin biyogöstergesi olarak kullanılmasını araştıran çalışma; endüstriyel ve özel bal türlerinde mikroplastik içeriği ile dağılım örüntülerini analiz ederek gıda güvenliği ve çevre izleme açısından sonuçlarını ortaya koymaktadır.",
@@ -1599,8 +2069,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12916803/"
       },
       {
-        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology",
-        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü",
+        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology (2024)",
+        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü (2024)",
         date: "2026-09-04",
         summaryEn: "Review examining the essential role of free amino acids and proteins in determining bee pollen quality, focusing on how the amino acid profile influences honey bee nutritional requirements, larval development, immune function, and overall colony health.",
         summaryTr: "Serbest amino asitler ve proteinlerin arı poleni kalitesini belirlemedeki temel rolünü inceleyen derleme; amino asit profilinin bal arılarının beslenme gereksinimlerini, larva gelişimini, bağışıklık işlevini ve koloni sağlığını nasıl etkilediğine odaklanmaktadır.",
@@ -1626,8 +2096,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1549913/full"
       },
       {
-        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses",
-        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler",
+        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses (2023)",
+        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler (2023)",
         date: "2026-08-14",
         summaryEn: "Study demonstrating that extracellular vesicles derived from royal jelly promote wound healing by modulating key cellular responses including cell migration, proliferation, and anti-inflammatory signaling.",
         summaryTr: "Arı sütünden elde edilen ekstraselüler vesiküllerin hücre göçü, çoğalması ve anti-inflamatuar sinyal iletimi gibi temel hücresel yanıtları modüle ederek yara iyileşmesini desteklediğini gösteren çalışma.",
@@ -1967,6 +2437,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
     }
 
+    // Titles end with the publication year, e.g. "... (2024)". Wrap it so it
+    // can be styled in extra-bold next to the title.
+    function formatTitle(title) {
+      return title.replace(/\s*\((\d{4})\)\s*$/, ' <span class="science-card-year">($1)</span>');
+    }
+
     function renderArticles() {
       var filtered = getFilteredArticles();
       var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
@@ -1988,7 +2464,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         html += '<div class="science-card">' +
-          '<h3 class="science-card-title">' + title + '</h3>' +
+          '<h3 class="science-card-title">' + formatTitle(title) + '</h3>' +
           '<span class="science-card-date">' + formatDate(article.date) + '</span>' +
           '<p class="science-card-summary">' + summary + '</p>' +
           '<div class="science-card-tags">' + tags + '</div>' +
@@ -2012,15 +2488,15 @@ document.addEventListener("DOMContentLoaded", function () {
       var prevText = currentLang === "tr" ? "Önceki" : "Prev";
       var nextText = currentLang === "tr" ? "Sonraki" : "Next";
 
-      var html = '<button class="pagination-btn' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev">' +
+      var html = '<button class="pagination-btn pagination-arrow' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev" aria-label="' + prevText + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>' +
         '</button>';
 
       for (var i = 1; i <= totalPages; i++) {
-        html += '<button class="pagination-btn' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        html += '<button class="pagination-btn pagination-num' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
       }
 
-      html += '<button class="pagination-btn' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next">' +
+      html += '<button class="pagination-btn pagination-arrow' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next" aria-label="' + nextText + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
         '</button>';
 
