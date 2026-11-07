@@ -3858,3 +3858,54 @@ button {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* "Detaylar için dokunun" pill on each product card */
+.product-tap-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  animation: tap-hint-glow 2.8s ease-in-out infinite;
+  transition: var(--transition-smooth);
+}
+
+.product-tap-hint::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: tap-hint-dot 2.8s ease-in-out infinite;
+}
+
+.product-card:hover .product-tap-hint {
+  background: var(--accent-gold);
+  color: var(--bg-primary);
+  animation: none;
+}
+
+@keyframes tap-hint-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.12); }
+}
+
+@keyframes tap-hint-dot {
+  0%, 100% { transform: scale(0.7); opacity: 0.6; }
+  50%      { transform: scale(1.1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-tap-hint,
+  .product-tap-hint::before {
+    animation: none;
+  }
+}
