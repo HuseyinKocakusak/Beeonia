@@ -7,15 +7,53 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================
   // Language Switching
   // ========================================
-  let currentLang = "en";
+  // The Turkish site lives at "/" and the English one at "/en/". The page
+  // language comes from the URL; the visitor's explicit choice is stored so
+  // later visits to "/" open the English page (see the inline script in the
+  // <head> of index.html).
+  const LANG_STORAGE_KEY = "beeonia-lang";
+  const pageLang = /^\/en(\/|$)/.test(window.location.pathname) ? "en" : "tr";
+  let currentLang = pageLang;
   const langBtns = document.querySelectorAll(".lang-btn");
+
+  // Replace an element's text with the translation while keeping child
+  // elements such as icons (<svg>), <strong> or <em> in place. Each child's
+  // text is located inside the translated string; if that fails the element
+  // falls back to plain text.
+  function setLocalizedText(el, text, lang) {
+    const kids = Array.from(el.children);
+    if (!kids.length) {
+      el.textContent = text;
+      return;
+    }
+    const nodes = [];
+    let rest = text;
+    for (const kid of kids) {
+      if (kid.tagName.toLowerCase() === "svg") {
+        nodes.push(kid);
+        continue;
+      }
+      const kidText = kid.getAttribute(`data-${lang}`) || kid.textContent;
+      const idx = rest.indexOf(kidText);
+      if (!kidText || idx < 0) {
+        el.textContent = text;
+        return;
+      }
+      if (idx > 0) nodes.push(document.createTextNode(rest.slice(0, idx)));
+      if (kid.hasAttribute(`data-${lang}`)) kid.textContent = kidText;
+      nodes.push(kid);
+      rest = rest.slice(idx + kidText.length);
+    }
+    if (rest) nodes.push(document.createTextNode(rest));
+    el.replaceChildren(...nodes);
+  }
 
   function updateLanguage(lang) {
     currentLang = lang;
 
     // Update all elements with data-tr and data-en attributes
     document.querySelectorAll("[data-tr][data-en]").forEach((el) => {
-      el.textContent = el.getAttribute(`data-${lang}`);
+      setLocalizedText(el, el.getAttribute(`data-${lang}`), lang);
     });
 
     // Update active button
@@ -32,8 +70,22 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
+  function rememberLanguage(lang) {
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch (e) {
+      /* storage blocked: the choice simply is not remembered */
+    }
+  }
+
   langBtns.forEach((btn) => {
-    btn.addEventListener("click", () => updateLanguage(btn.dataset.lang));
+    btn.addEventListener("click", () => {
+      const lang = btn.dataset.lang;
+      rememberLanguage(lang);
+      if (lang === pageLang) return;
+      // Switch to the other language's address, keeping the section anchor.
+      window.location.href = (lang === "en" ? "/en/" : "/") + window.location.hash;
+    });
   });
 
   // ========================================
@@ -472,8 +524,60 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Size and quantity chosen in the open modal for "Sepete ekle".
+  let _modalVariants = [];
+  let _selectedVariant = 0;
+  let _modalQty = 1;
+
+  function getCardVariants(card) {
+    let variants = [];
+    if (card.dataset.variants) {
+      try {
+        variants = JSON.parse(card.dataset.variants);
+      } catch (e) {
+        variants = [];
+      }
+    }
+    if (!variants.length) {
+      variants = [{ weight: card.dataset.weight, price: card.dataset.price }];
+    }
+    return variants.filter((v) => v.weight || v.price);
+  }
+
+  function renderModalVariants() {
+    const selectable = _modalVariants.length > 1;
+    modalDetails.innerHTML = _modalVariants
+      .map((v, i) => {
+        const weight = v.weight
+          ? `<span class="modal-weight">${v.weight}</span>`
+          : "";
+        const price = v.price
+          ? `<span class="modal-price">${v.price}</span>`
+          : "";
+        if (!selectable) {
+          return `<div class="modal-variant">${weight}${price}</div>`;
+        }
+        const on = i === _selectedVariant;
+        return `<button type="button" class="modal-variant selectable${on ? " selected" : ""}" data-index="${i}" aria-pressed="${on}"><span class="variant-radio" aria-hidden="true"></span>${weight}${price}</button>`;
+      })
+      .join("");
+    modalDetails.querySelectorAll(".modal-variant.selectable").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        _selectedVariant = parseInt(btn.dataset.index, 10) || 0;
+        renderModalVariants();
+      });
+    });
+  }
+
   function openModal(card) {
+    const reopening = currentModalCard === card && modal.classList.contains("active");
     currentModalCard = card;
+    if (!reopening) {
+      _selectedVariant = 0;
+      _modalQty = 1;
+      hideOrderFeedback();
+    }
     const img = card.querySelector(".product-image img");
 
     // Build image list from data-images (JSON array) or fall back to card thumbnail
@@ -492,6 +596,14 @@ document.addEventListener("DOMContentLoaded", function () {
       currentLang === "en" && titleParts.length > 1
         ? titleParts[titleParts.length - 1]
         : titleParts[0];
+    // Optional series label (e.g. "Koleksiyon Serisi") for limited products.
+    const modalSeries = document.getElementById("modalSeries");
+    if (modalSeries) {
+      const series =
+        currentLang === "tr" ? card.dataset.seriesTr : card.dataset.seriesEn;
+      modalSeries.textContent = series || "";
+      modalSeries.hidden = !series;
+    }
     modalOrigin.textContent =
       currentLang === "tr"
         ? card.dataset.originTr || card.dataset.origin
@@ -502,30 +614,12 @@ document.addEventListener("DOMContentLoaded", function () {
         : card.dataset.descriptionEn;
     // Build weight/price rows. Products with multiple grammages use
     // data-variants (JSON array of {weight, price}); others fall back to a
-    // single data-weight/data-price. Price is omitted when empty.
-    let variants = [];
-    if (card.dataset.variants) {
-      try {
-        variants = JSON.parse(card.dataset.variants);
-      } catch (e) {
-        variants = [];
-      }
-    }
-    if (!variants.length) {
-      variants = [{ weight: card.dataset.weight, price: card.dataset.price }];
-    }
-    modalDetails.innerHTML = variants
-      .filter((v) => v.weight || v.price)
-      .map((v) => {
-        const weight = v.weight
-          ? `<span class="modal-weight">${v.weight}</span>`
-          : "";
-        const price = v.price
-          ? `<span class="modal-price">${v.price}</span>`
-          : "";
-        return `<div class="modal-variant">${weight}${price}</div>`;
-      })
-      .join("");
+    // single data-weight/data-price. With several sizes the rows double as
+    // the size picker for the basket.
+    _modalVariants = getCardVariants(card);
+    if (_selectedVariant >= _modalVariants.length) _selectedVariant = 0;
+    renderModalVariants();
+    updateModalQty();
 
     modalHarvest.textContent =
       currentLang === "tr" ? card.dataset.harvestTr : card.dataset.harvestEn;
@@ -567,8 +661,51 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function closeModal() {
     modal.classList.remove("active");
-    document.body.classList.remove("modal-open");
+    if (!document.getElementById("cartDrawer").classList.contains("active")) {
+      document.body.classList.remove("modal-open");
+    }
   }
+
+  // ----- Quantity + "Sepete ekle" inside the modal -----
+  const modalQtyEl = document.getElementById("modalQty");
+  const modalOrderFeedback = document.getElementById("modalOrderFeedback");
+  const modalOrderFeedbackText = document.getElementById("modalOrderFeedbackText");
+
+  function updateModalQty() {
+    if (modalQtyEl) modalQtyEl.textContent = String(_modalQty);
+  }
+
+  function hideOrderFeedback() {
+    if (modalOrderFeedback) modalOrderFeedback.hidden = true;
+  }
+
+  document.getElementById("modalQtyMinus").addEventListener("click", (e) => {
+    e.stopPropagation();
+    _modalQty = Math.max(1, _modalQty - 1);
+    updateModalQty();
+  });
+  document.getElementById("modalQtyPlus").addEventListener("click", (e) => {
+    e.stopPropagation();
+    _modalQty = Math.min(99, _modalQty + 1);
+    updateModalQty();
+  });
+  document.getElementById("modalAddToCart").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!currentModalCard || !_modalVariants.length) return;
+    const variant = _modalVariants[_selectedVariant] || _modalVariants[0];
+    window.beeoniaCart.add(currentModalCard, variant, _modalQty);
+    const name = window.beeoniaCart.productName(currentModalCard);
+    modalOrderFeedbackText.textContent =
+      currentLang === "tr"
+        ? `${name} (${variant.weight}) × ${_modalQty} sepete eklendi.`
+        : `${name} (${variant.weight}) × ${_modalQty} added to your basket.`;
+    modalOrderFeedback.hidden = false;
+  });
+  document.getElementById("modalGoToCart").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeModal();
+    window.beeoniaCart.open();
+  });
 
   // Product card click handlers
   document.querySelectorAll(".product-card").forEach((card) => {
@@ -597,6 +734,386 @@ document.addEventListener("DOMContentLoaded", function () {
       closeModal();
     }
   });
+
+  // ========================================
+  // Basket + WhatsApp Order
+  // ========================================
+  // The basket lives in localStorage so it survives page reloads and the
+  // TR/EN page switch. Nothing is sent anywhere: the final step only opens
+  // WhatsApp with a ready-made message the customer still has to send.
+  (function initCart() {
+    const WHATSAPP_NUMBER = "905444601822";
+    const STORAGE_KEY = "beeonia-cart-v1";
+
+    const drawer = document.getElementById("cartDrawer");
+    const cartBtn = document.getElementById("cartBtn");
+    const cartCount = document.getElementById("cartCount");
+    const itemsEl = document.getElementById("cartItems");
+    const emptyEl = document.getElementById("cartEmpty");
+    const subtotalRow = document.getElementById("cartSubtotalRow");
+    const subtotalEl = document.getElementById("cartSubtotal");
+    const previewEl = document.getElementById("cartPreview");
+    const hintEl = document.getElementById("cartHint");
+    const waBtn = document.getElementById("cartWhatsApp");
+    const fields = {
+      name: document.getElementById("cartName"),
+      phone: document.getElementById("cartPhone"),
+      city: document.getElementById("cartCity"),
+      note: document.getElementById("cartNote"),
+    };
+    if (!drawer || !cartBtn) return;
+
+    const T = {
+      tr: {
+        greeting: "Merhaba BEEONIA, sipariş vermek istiyorum.",
+        order: "Sipariş:",
+        subtotal: "Ara toplam",
+        name: "Ad Soyad",
+        phone: "Telefon",
+        city: "Şehir",
+        note: "Not",
+        remove: "Kaldır",
+        decrease: "Azalt",
+        increase: "Artır",
+        basket: "Sepet",
+        close: "Kapat",
+        placeholders: {
+          name: "Adınız ve soyadınız",
+          phone: "05xx xxx xx xx",
+          city: "Örn. İzmir",
+          note: "Adres, teslimat zamanı veya petek bal gramajı gibi notlar",
+        },
+        missing: "WhatsApp'a göndermek için doldurun: ",
+        emptyHint: "Sepetinize en az bir ürün ekleyin.",
+        ready: "Buton WhatsApp'ı mesajınız hazır şekilde açar; göndermek için WhatsApp'ta Gönder'e basmanız yeterli.",
+        phoneInvalid: "geçerli bir telefon numarası",
+      },
+      en: {
+        greeting: "Hello BEEONIA, I would like to place an order.",
+        order: "Order:",
+        subtotal: "Subtotal",
+        name: "Full name",
+        phone: "Phone",
+        city: "City",
+        note: "Note",
+        remove: "Remove",
+        decrease: "Decrease",
+        increase: "Increase",
+        basket: "Basket",
+        close: "Close",
+        placeholders: {
+          name: "Your full name",
+          phone: "+90 5xx xxx xx xx",
+          city: "e.g. Izmir",
+          note: "Address, delivery time, comb honey weight, etc.",
+        },
+        missing: "To send via WhatsApp, please fill in: ",
+        emptyHint: "Add at least one product to your basket.",
+        ready: "The button opens WhatsApp with your message ready; just press Send in WhatsApp.",
+        phoneInvalid: "a valid phone number",
+      },
+    };
+
+    function lang() {
+      return document.documentElement.lang === "en" ? "en" : "tr";
+    }
+
+    // ----- State -----
+    let state = { items: [], customer: { name: "", phone: "", city: "", note: "" } };
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (saved && Array.isArray(saved.items)) {
+        state.items = saved.items.filter((it) => it && it.id && it.qty > 0);
+        state.customer = Object.assign(state.customer, saved.customer || {});
+      }
+    } catch (e) {
+      /* storage unavailable or corrupt: start empty */
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        /* private mode etc. The basket still works for this visit. */
+      }
+    }
+
+    // ----- Product helpers -----
+    function findCard(id) {
+      return document.querySelector(`.product-card[data-product-id="${id}"]`);
+    }
+
+    function productName(card, l) {
+      const h = card.querySelector(".product-info h3");
+      const key = l || lang();
+      return (h && h.getAttribute(`data-${key}`)) || card.dataset.title || "";
+    }
+
+    // "1100₺" -> 1100, "2.000₺" -> 2000
+    function parsePrice(str) {
+      const digits = String(str || "").replace(/[^\d]/g, "");
+      return digits ? parseInt(digits, 10) : 0;
+    }
+
+    function formatPrice(n) {
+      return n.toLocaleString("tr-TR") + "₺";
+    }
+
+    // Refresh names/prices from the page so a stored basket never shows
+    // outdated prices; drop items whose product or size no longer exists.
+    function syncWithPage() {
+      state.items = state.items.filter((it) => {
+        const card = findCard(it.id);
+        if (!card) return false;
+        const variants = getCardVariants(card);
+        const v = variants.find((x) => x.weight === it.weight);
+        if (!v) return false;
+        it.price = v.price;
+        it.nameTr = productName(card, "tr");
+        it.nameEn = productName(card, "en");
+        return true;
+      });
+    }
+
+    function itemName(it) {
+      return lang() === "en" ? it.nameEn || it.nameTr : it.nameTr || it.nameEn;
+    }
+
+    function add(card, variant, qty) {
+      const id = card.dataset.productId;
+      if (!id) return;
+      const existing = state.items.find((it) => it.id === id && it.weight === variant.weight);
+      if (existing) {
+        existing.qty = Math.min(99, existing.qty + qty);
+      } else {
+        state.items.push({
+          id: id,
+          weight: variant.weight,
+          price: variant.price,
+          qty: qty,
+          nameTr: productName(card, "tr"),
+          nameEn: productName(card, "en"),
+        });
+      }
+      save();
+      render();
+      cartBtn.classList.remove("bump");
+      void cartBtn.offsetWidth; // restart the animation
+      cartBtn.classList.add("bump");
+    }
+
+    // ----- Message -----
+    function buildMessage() {
+      const t = T[lang()];
+      const c = state.customer;
+      const lines = [t.greeting, "", t.order];
+      let total = 0;
+      state.items.forEach((it, i) => {
+        const unit = parsePrice(it.price);
+        const line = unit * it.qty;
+        total += line;
+        lines.push(
+          `${i + 1}. ${itemName(it)} (${it.weight}) × ${it.qty}` +
+            (unit ? ` = ${formatPrice(line)}` : ""),
+        );
+      });
+      if (total) lines.push(`${t.subtotal}: ${formatPrice(total)}`);
+      const info = [];
+      if (c.name.trim()) info.push(`${t.name}: ${c.name.trim()}`);
+      if (c.phone.trim()) info.push(`${t.phone}: ${c.phone.trim()}`);
+      if (c.city.trim()) info.push(`${t.city}: ${c.city.trim()}`);
+      if (c.note.trim()) info.push(`${t.note}: ${c.note.trim()}`);
+      if (info.length) lines.push("", ...info);
+      return { text: lines.join("\n"), total: total };
+    }
+
+    function missingFields() {
+      const t = T[lang()];
+      const c = state.customer;
+      const missing = [];
+      if (!c.name.trim()) missing.push(t.name);
+      const digits = c.phone.replace(/\D/g, "");
+      if (!c.phone.trim()) missing.push(t.phone);
+      else if (digits.length < 10) missing.push(t.phoneInvalid);
+      if (!c.city.trim()) missing.push(t.city);
+      return missing;
+    }
+
+    // Only the parts that change while typing; keeps input focus intact.
+    function updateMessage() {
+      const t = T[lang()];
+      const msg = buildMessage();
+      previewEl.textContent = msg.text;
+      const missing = missingFields();
+      let ready = false;
+      if (!state.items.length) {
+        hintEl.textContent = t.emptyHint;
+      } else if (missing.length) {
+        hintEl.textContent = t.missing + missing.join(", ");
+      } else {
+        hintEl.textContent = t.ready;
+        ready = true;
+      }
+      hintEl.classList.toggle("ready", ready);
+      waBtn.setAttribute("aria-disabled", String(!ready));
+      waBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg.text)}`;
+    }
+
+    function render() {
+      const t = T[lang()];
+      const count = state.items.reduce((n, it) => n + it.qty, 0);
+      cartCount.textContent = String(count);
+      cartCount.hidden = count === 0;
+      cartBtn.setAttribute("aria-label", `${t.basket} (${count})`);
+
+      emptyEl.hidden = state.items.length > 0;
+      itemsEl.innerHTML = "";
+      state.items.forEach((it, idx) => {
+        const li = document.createElement("li");
+        li.className = "cart-item";
+        const unit = parsePrice(it.price);
+
+        const info = document.createElement("div");
+        info.className = "cart-item-info";
+        const name = document.createElement("span");
+        name.className = "cart-item-name";
+        name.textContent = itemName(it);
+        const meta = document.createElement("span");
+        meta.className = "cart-item-meta";
+        meta.textContent = `${it.weight}${it.price ? " · " + it.price : ""}`;
+        info.append(name, meta);
+
+        const controls = document.createElement("div");
+        controls.className = "cart-item-controls";
+        const stepper = document.createElement("div");
+        stepper.className = "qty-stepper qty-stepper--small";
+        const minus = document.createElement("button");
+        minus.type = "button";
+        minus.className = "qty-btn";
+        minus.textContent = "−";
+        minus.setAttribute("aria-label", t.decrease);
+        const val = document.createElement("span");
+        val.className = "qty-value";
+        val.textContent = String(it.qty);
+        const plus = document.createElement("button");
+        plus.type = "button";
+        plus.className = "qty-btn";
+        plus.textContent = "+";
+        plus.setAttribute("aria-label", t.increase);
+        stepper.append(minus, val, plus);
+
+        const lineTotal = document.createElement("span");
+        lineTotal.className = "cart-item-total";
+        lineTotal.textContent = unit ? formatPrice(unit * it.qty) : "";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "cart-item-remove";
+        remove.textContent = "×";
+        remove.setAttribute("aria-label", t.remove);
+
+        minus.addEventListener("click", () => {
+          if (it.qty > 1) it.qty -= 1;
+          else state.items.splice(idx, 1);
+          save();
+          render();
+        });
+        plus.addEventListener("click", () => {
+          it.qty = Math.min(99, it.qty + 1);
+          save();
+          render();
+        });
+        remove.addEventListener("click", () => {
+          state.items.splice(idx, 1);
+          save();
+          render();
+        });
+
+        controls.append(stepper, lineTotal, remove);
+        li.append(info, controls);
+        itemsEl.appendChild(li);
+      });
+
+      const msg = buildMessage();
+      subtotalRow.hidden = !msg.total;
+      subtotalEl.textContent = msg.total ? formatPrice(msg.total) : "";
+
+      Object.keys(fields).forEach((k) => {
+        if (fields[k]) fields[k].placeholder = t.placeholders[k];
+      });
+      document.getElementById("cartClose").setAttribute("aria-label", t.close);
+      updateMessage();
+    }
+
+    // ----- Form -----
+    Object.keys(fields).forEach((k) => {
+      const el = fields[k];
+      if (!el) return;
+      el.value = state.customer[k] || "";
+      el.addEventListener("input", () => {
+        state.customer[k] = el.value;
+        save();
+        updateMessage();
+      });
+    });
+
+    waBtn.addEventListener("click", (e) => {
+      if (waBtn.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        const firstEmpty = ["name", "phone", "city"].find(
+          (k) => !state.customer[k].trim() ||
+            (k === "phone" && state.customer.phone.replace(/\D/g, "").length < 10),
+        );
+        if (state.items.length && firstEmpty) fields[firstEmpty].focus();
+        hintEl.classList.remove("shake");
+        void hintEl.offsetWidth;
+        hintEl.classList.add("shake");
+        return;
+      }
+      if (typeof gtag === "function") {
+        gtag("event", "whatsapp_order", { value: buildMessage().total, currency: "TRY" });
+      }
+    });
+
+    document.getElementById("cartClear").addEventListener("click", () => {
+      state.items = [];
+      save();
+      render();
+    });
+
+    // ----- Open / close -----
+    function open() {
+      drawer.classList.add("active");
+      drawer.setAttribute("aria-hidden", "false");
+      document.body.classList.add("modal-open");
+      render();
+      setTimeout(() => document.getElementById("cartClose").focus(), 50);
+    }
+
+    function close() {
+      drawer.classList.remove("active");
+      drawer.setAttribute("aria-hidden", "true");
+      if (!document.getElementById("productModal").classList.contains("active")) {
+        document.body.classList.remove("modal-open");
+      }
+      cartBtn.focus();
+    }
+
+    cartBtn.addEventListener("click", open);
+    document.getElementById("cartClose").addEventListener("click", close);
+    document.getElementById("cartBackdrop").addEventListener("click", close);
+    document.getElementById("cartBrowse").addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer.classList.contains("active")) close();
+    });
+    document.addEventListener("languageChanged", render);
+
+    window.beeoniaCart = { add: add, open: open, productName: productName };
+
+    syncWithPage();
+    save();
+    render();
+  })();
 
   // ========================================
   // Back to Top
@@ -640,7 +1157,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
+    ".gallery-section, .products-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
   );
 
   const revealObserver = new IntersectionObserver(
@@ -695,14 +1212,14 @@ document.addEventListener("DOMContentLoaded", function () {
   (function initReviews() {
     const reviews = [
       {
-        name: "Erim Kılınç",
+        name: "Erim K.",
         commentTr: "Çok iyi kalite",
         commentEn: "Very good quality",
         date: "10 September, 2026",
         url: "https://www.instagram.com/p/DdHK38hqLD0/c/17863075578676039/",
       },
       {
-        name: "Batın Güleç",
+        name: "Batın G.",
         commentTr:
           "Çok titizlikle çalışılıyor, ellerinize sağlık. Petek bal ve arı ekmeğinizin elime ulaşmasını dört gözle bekliyorum 😍😍😍",
         commentEn:
@@ -711,7 +1228,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DbDvcNNqnMx/c/18128737780711661/",
       },
       {
-        name: "Şule Koç",
+        name: "Şule K.",
         commentTr:
           "Arı sağlığına verdiğiniz önem, balınızın kalitesine de yansıyor. Emeğinize sağlık, başarılarınız daim olsun🐝🍯",
         commentEn:
@@ -720,7 +1237,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/Daf9fFNqno8/c/18318666838275771/",
       },
       {
-        name: "Batın Güleç",
+        name: "Batın G.",
         commentTr: "Ballar müthiş lezzetli ve diğer hiçbir bala benzemiyor.",
         commentEn:
           "The honeys are incredibly delicious and unlike any other honey.",
@@ -728,7 +1245,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18377601637160808/",
       },
       {
-        name: "Ayşe Çetinkaya",
+        name: "Ayşe Ç.",
         commentTr:
           "alınn en iyisi olması için ilmik ilmik emek ve çaba, tebrikler 👏 👏 ve sonuç harika bir lezzetli bal 😍 emeğinize sağlık, ben yedim denedim siz de deneyin 👏👍🫶",
         commentEn:
@@ -737,7 +1254,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZVCDUnKp6z/c/18087942740434121/",
       },
       {
-        name: "Nedret Şengonca Tort",
+        name: "Nedret Ş. T.",
         commentTr: "Bilinçli üretici ve tabiiki sonuç mutlaka harika 👏👏👏",
         commentEn:
           "Conscious producer and of course the result is definitely great 👏👏👏",
@@ -745,7 +1262,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DZCXO0hIk0Z/c/17976957774013745/",
       },
       {
-        name: "Hakan Adıyaman",
+        name: "Hakan A.",
         commentTr:
           "Gerçekten harika bir bal, emeğinize sağlık 🍯✨ Doğallığı ilk kaşıkta hissediliyor, teşekkürler! Gerçek bal arayanlara gönül rahatlığıyla öneririm. Muhteşem bir ürün!",
         commentEn:
@@ -754,7 +1271,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DQcT4f_jJzN/c/17902895868316341/?img_index=1",
       },
       {
-        name: "Zafer Hinislioğlu",
+        name: "Zafer H.",
         commentTr:
           "Siparişimiz hızlı bir şekilde ulaştı. Gerçek anlamda Doğal-Bio bal tadabildiğimiz için şanslıyız, tavsiye ediyoruz. Guvenilirliği ve tazeliği için emeğinize sağlık. Alın ve aldırın, Afiyet olsun...",
         commentEn:
@@ -763,7 +1280,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DQcT4f_jJzN/c/18050346845447293/",
       },
       {
-        name: "İmam Karadağ",
+        name: "İmam K.",
         commentTr:
           "Arkadaşlar burdaki ürünler bir harika herkese tavsiye ederim",
         commentEn:
@@ -772,7 +1289,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DTavyE8jD3V/c/17953422657063196/",
       },
       {
-        name: "Hakan Demirtel",
+        name: "Hakan D.",
         commentTr:
           "Muhteşem. Tam özlediğimiz tat. Bu lezzet bizi çocukluğumuzda yediğimiz o lezzetli, kıvamlı, katkısız, katıksız mis kokulu bal tadıyla yeniden buluşturdu. Ellerinize, emeğinize sağlık.",
         commentEn:
@@ -781,7 +1298,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOv6qyXDDC8/c/17977905290794155/",
       },
       {
-        name: "Yusuf Güdücü",
+        name: "Yusuf G.",
         commentTr:
           "Gerçek bir bilimcinin verdiği güven ve eşsiz lezzetiyle kahvaltıların Seda Sayan'ı. Emeğinize sağlık Ege Arıcılık 🐝",
         commentEn:
@@ -790,7 +1307,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DSfwhDWjF3u/c/18543127087017166/",
       },
       {
-        name: "Rasim Rabia Gören",
+        name: "Rasim Rabia G.",
         commentTr:
           "Orjinal bal buna denir çocuklarımıza güvenle yediriyoruz ve yiyiyoruz. Şiddetle tavsiye ederim, herkes bir şans verip almalı. Emeklerinize sağlık 👏👏",
         commentEn:
@@ -806,14 +1323,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18083034712902055/",
       },
       {
-        name: "Kadir Gören",
+        name: "Kadir G.",
         commentTr: "Dünyanın en güzel balıdır bu, ellerinize sağlık.",
         commentEn: "This is the most beautiful honey in the world, thank you.",
         date: "13 September, 2025",
         url: "https://www.instagram.com/p/DOi8IwbDLyE/c/18088731997839464/",
       },
       {
-        name: "Kiraz Naide",
+        name: "Kiraz N.",
         commentTr:
           "Emeklerinize sağlık balı sizden almakla doğru tercih yapmışız",
         commentEn:
@@ -822,7 +1339,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOOwb0GDAR7/c/18287629336261593/",
       },
       {
-        name: "Aslı Kılınç",
+        name: "Aslı K.",
         commentTr:
           "Doğal ve özlediğimiz gerçek bal lezzeti 👍 Gönül rahatlığıyla tavsiye ederim💯",
         commentEn:
@@ -831,7 +1348,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18317756617208716/",
       },
       {
-        name: "Av. Demet Kozacıoğlu",
+        name: "Av. Demet K.",
         commentTr:
           "Güvenilir ellerden doğal bal almak isteyen herkese tavsiye ederim , teşekkürler 🙏🏻",
         commentEn:
@@ -840,14 +1357,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18143009455416285/",
       },
       {
-        name: "Nilay Bilgin",
+        name: "Nilay B.",
         commentTr: "Lezzetli, doğal, güvenli.",
         commentEn: "Delicious, natural, safe.",
         date: "3 September, 2025",
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18519352420027476/",
       },
       {
-        name: "Semra Çangiri",
+        name: "Semra Ç.",
         commentTr:
           "Lezzeti ve aroması çok güzel. Emeklerinize sağlık. Doğal bal yemek isteyenler kaçırmasın.",
         commentEn:
@@ -856,7 +1373,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DOG6YD5jJ0L/c/18484451644077387/",
       },
       {
-        name: "Prof. Dr. Zafer Kozacıoğlu",
+        name: "Prof. Dr. Zafer K.",
         commentTr:
           "Ege arıcılık tan son mahsül balımızı aldık. Bebeğimiz ve biz güvenle ve lezzetle yiyoruz. Bu devirde güvenle önemli.. Osman bey e teşekkürlerimi sunuyorum..",
         commentEn:
@@ -865,7 +1382,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18167154961318978/",
       },
       {
-        name: "Nevin Çiftlikçi",
+        name: "Nevin Ç.",
         commentTr: "Gözü kapalı güvenebileceğimiz tek adres.Çok teşekkürler 🙏",
         commentEn:
           "The only address we can trust blindly. Thank you very much 🙏",
@@ -873,7 +1390,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090888745707762/",
       },
       {
-        name: "Kaan Kılınç",
+        name: "Kaan K.",
         commentTr:
           "Kavanoz bal ve petek baldan aldık çok memnun kaldık gerçekten çok doğal",
         commentEn:
@@ -882,7 +1399,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18404546206112811/",
       },
       {
-        name: "Ayşe Aydın",
+        name: "Ayşe A.",
         commentTr: "Emeğinize sağlık 👏 doğallığı ve tadı mükemmel 🌻",
         commentEn:
           "Thank you for your effort 👏 its naturalness and taste are perfect 🌻",
@@ -890,7 +1407,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/17860922025466897/",
       },
       {
-        name: "Hakan Bilgin",
+        name: "Hakan B.",
         commentTr:
           "Hayıt balını kullandık. Aroması nadir, lezzeti mükemmeldi. Üreten arkadaşların emeklerine sağlık",
         commentEn:
@@ -899,7 +1416,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/17876862222284743/",
       },
       {
-        name: "Erim Kılınç",
+        name: "Erim K.",
         commentTr:
           "Hem petek balı hemde kavanoz balından aldım, birinci sınıf Rahmetli dedemin kovanları olduğu için çocukluğumun lezzetine tekrar kavuşmuş oldum",
         commentEn:
@@ -908,21 +1425,21 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18038453081437367/",
       },
       {
-        name: "Faruk Kurt",
+        name: "Faruk K.",
         commentTr: "Çok beğendim. Çok güvenilir emeklerinize sağlık 👏",
         commentEn: "I loved it. Very reliable, thank you for your effort 👏",
         date: "29 August, 2025",
         url: "https://www.instagram.com/p/DNBuvY_My2e/c/18090214426746958/",
       },
       {
-        name: "Ferhat Karaca",
+        name: "Ferhat K.",
         commentTr: "Harika olmuş emeklerinize sağlık 👏",
         commentEn: "It turned out great, thank you for your effort 👏",
         date: "29 August, 2025",
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18174250735353086/",
       },
       {
-        name: "Özlem Duraydın",
+        name: "Özlem D.",
         commentTr: "Çok lezzetli mükemmel bir bal.Emeğinize sağlık👏",
         commentEn:
           "A very delicious, perfect honey. Thank you for your effort👏",
@@ -930,14 +1447,14 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18522901870028596/",
       },
       {
-        name: "İpek Aydın",
+        name: "İpek A.",
         commentTr: "Ellerinize sağlık çok kaliteli ve lezzetliydi 👏🏻",
         commentEn: "Thank you, it was very high quality and delicious 👏🏻",
         date: "10 August, 2025",
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/18075902464809215/",
       },
       {
-        name: "Diş Hekimi Soner Çoruk",
+        name: "Diş Hekimi Soner Ç.",
         commentTr: "Gerçek bal için teşekkürler",
         commentEn: "Thank you for real honey",
         date: "15 August, 2025",
@@ -953,7 +1470,7 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.instagram.com/p/DMdmrOOM2s7/c/17860051446397889/",
       },
       {
-        name: "İbrahim Zaralıoğlu",
+        name: "İbrahim Z.",
         commentTr:
           "Göndermiş olduğunuz bal elime ulaştı. Tadı kokusu harika elinize emeğinize sağlık",
         commentEn:
@@ -975,12 +1492,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let reviewInterval = null;
 
     // Get initials from name
+    // Titles such as "Prof. Dr." or "Av." are skipped so the avatar shows
+    // the person's own initials (e.g. "Prof. Dr. Zafer K." -> "ZK").
+    const NAME_TITLES = ["prof.", "dr.", "av.", "diş", "hekimi", "dt."];
     function getInitials(name) {
-      const parts = name.split(" ");
+      const parts = name
+        .split(" ")
+        .filter((p) => p && NAME_TITLES.indexOf(p.toLocaleLowerCase("tr")) === -1);
       if (parts.length >= 2) {
-        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toLocaleUpperCase("tr");
       }
-      return name.substring(0, 2).toUpperCase();
+      return name.substring(0, 2).toLocaleUpperCase("tr");
     }
 
     // Get color class based on index
@@ -1467,8 +1989,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "The Honey Bee \"Hive\" Microbiota: Meta-Analysis Reveals a Native and Aerobic Microbiota Prevalent Throughout the Social Resource Niche (2024)",
         titleTr: "Bal Arısı \"Kovan\" Mikrobiyotası: Meta-Analiz, Sosyal Kaynak Nişinde Yaygın, Yerli ve Aerobik Bir Mikrobiyotayı Ortaya Koyuyor (2024)",
         date: "2026-12-18",
-        summaryEn: "Meta-analysis of more than 3,800 public 16S rRNA sequence libraries showing that the oxygen-rich foregut and midgut of queens and workers share much of their bacterial community with the hive's larval rearing and food storage niches, defining a native \"social resource\" microbiota that appears to function mainly in disease prevention at both the individual and colony level.",
-        summaryTr: "3.800'den fazla açık erişimli 16S rRNA dizi kütüphanesini birleştiren meta-analiz; kraliçe ve işçi arıların oksijence zengin ön ve orta bağırsaklarının, kovandaki larva büyütme ve besin depolama alanlarıyla bakteri topluluğunun önemli bir kısmını paylaştığını göstermektedir. Bu ortak \"sosyal kaynak\" mikrobiyotasının hem bireysel hem de koloni düzeyinde ağırlıklı olarak hastalıkları önlemeye hizmet ettiği bildirilmektedir.",
+        summaryEn: "Meta-analysis of more than 3,800 public 16S rRNA sequence libraries from 35 projects, covering nine oxygen-rich niches of the colony: queen and worker mouthparts and foregut, midgut, social glands, larvae, and stored and secreted food. The mouthparts, crop and midgut of queens and workers share a large part of their bacteria with larval food and stored nutrition, dominated by Bombella, Apilactobacillus and several Lactobacillus species. The authors call this the \"social resource\" microbiota and propose, partly as hypothesis, that it mainly suppresses pathogens at the individual and colony level and may support gut resilience.",
+        summaryTr: "35 projeden 3.800'ü aşkın açık 16S rRNA dizi kütüphanesini birleştiren meta-analiz; kraliçe ve işçi arıların ağız parçaları ve ön bağırsağı, orta bağırsak, sosyal bezler, larvalar ile depolanan ve salgılanan besinler dahil kovandaki dokuz oksijenli nişi kapsamaktadır. Kraliçe ve işçilerin ağız parçaları, bal midesi ve orta bağırsağı, bakterilerinin büyük kısmını larva besini ve depolanan besinle paylaşmakta; bu toplulukta Bombella, Apilactobacillus ve çeşitli Lactobacillus türleri baskındır. Yazarlar bu topluluğu \"sosyal kaynak\" mikrobiyotası olarak tanımlamakta ve kısmen hipotez düzeyinde, başlıca işlevinin birey ve koloni düzeyinde patojenleri baskılamak olduğunu öne sürmektedir.",
         categories: ["bee-welfare"],
         url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2024.1410331/full"
       },
@@ -1478,6 +2000,7 @@ document.addEventListener("DOMContentLoaded", function () {
         date: "2026-12-11",
         summaryEn: "Study defining the honey bee welfare practices that beekeepers should adopt within modern sustainable apiculture and classifying them according to the Five Domains Model used for other animal species, which covers nutrition, physical environment, health, behaviour, and mental state.",
         summaryTr: "Modern ve sürdürülebilir arıcılıkta arıcıların benimsemesi gereken bal arısı refahı uygulamalarını tanımlayan ve bunları diğer hayvan türlerinde kullanılan Beş Alan Modeli'ne (beslenme, fiziksel çevre, sağlık, davranış ve zihinsel durum) göre sınıflandıran çalışma.",
+        summaryBasis: "unverified", // MDPI page blocks automated access; summary not yet checked against the paper
         categories: ["bee-welfare"],
         url: "https://www.mdpi.com/2076-3417/14/24/11902"
       },
@@ -1485,8 +2008,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Enhancing Honey Bee Health: Evaluating Pollen Substitute Diets in Field and Cage Experiments (2024)",
         titleTr: "Bal Arısı Sağlığını Güçlendirmek: Polen İkame Diyetlerinin Saha ve Kafes Deneylerinde Değerlendirilmesi (2024)",
         date: "2026-12-04",
-        summaryEn: "Field and cage study comparing four pollen substitute diets across 11 parameters and 21 amino acids; one formulation clearly outperformed the others in bee numbers, brood area, consumption, colony weight, and honey production, pointing toward more effective supplementary feeding for colony health.",
-        summaryTr: "Dört farklı polen ikame diyetini 11 parametre ve 21 amino asit üzerinden karşılaştıran saha ve kafes çalışması; diyetlerden biri arı sayısı, yavru alanı, tüketim, koloni ağırlığı ve bal üretiminde diğerlerinden belirgin biçimde üstün bulunmuş, bu da koloni sağlığı için daha etkili ek besleme formülasyonlarına işaret etmektedir.",
+        summaryEn: "Field trial with 15 colonies in South Korea (February to May 2023) plus a cage experiment, comparing three new pollen substitute diets with a commercial control across 11 parameters and 21 amino acids. Diet 1, containing apple juice, soy peptide and Chlorella, gave the largest total bee population (about 62,500 vs 27,900 bees with the control), larger brood area, higher consumption and honey production, and higher vitellogenin expression. Histidine, isoleucine and arginine content tracked colony performance most closely, so the authors argue amino acid balance should guide substitute formulation.",
+        summaryTr: "Güney Kore'de 15 koloniyle yürütülen saha denemesi (Şubat-Mayıs 2023) ve kafes deneyi; üç yeni polen ikame diyeti ticari bir kontrol diyetiyle 11 parametre ve 21 amino asit üzerinden karşılaştırılmıştır. Elma suyu, soya peptidi ve Chlorella içeren Diyet 1, en yüksek toplam arı popülasyonunu (kontrolde yaklaşık 27.900'e karşı 62.500 arı), daha geniş yavru alanını, daha yüksek tüketim ve bal üretimini ve daha yüksek vitellogenin ifadesini sağlamıştır. Koloni performansıyla en yakın ilişkiyi histidin, izolösin ve arjinin içeriği gösterdiğinden yazarlar, ikame diyetlerin amino asit dengesine göre formüle edilmesini önermektedir.",
         categories: ["bee-welfare"],
         url: "https://www.mdpi.com/2075-4450/15/5/361"
       },
@@ -1494,8 +2017,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Effects of Nutritional Supplementation on Honey Bee Apis mellifera L. Brood Development, Colony Population Growth, and Honey Yield in Central Ethiopia (2026)",
         titleTr: "Besin Takviyesinin Bal Arısı Apis mellifera L.'de Yavru Gelişimi, Koloni Popülasyon Artışı ve Bal Verimi Üzerindeki Etkileri: Orta Etiyopya (2026)",
         date: "2026-11-27",
-        summaryEn: "Field study from central Ethiopia evaluating how nutritional supplementation of honey bee colonies affects brood development, colony population growth, and honey yield, offering practical insights for colony management during periods of limited natural forage.",
-        summaryTr: "Orta Etiyopya'da yürütülen saha çalışması; bal arısı kolonilerine verilen besin takviyesinin yavru gelişimi, koloni popülasyon artışı ve bal verimi üzerindeki etkilerini değerlendirmekte ve doğal kaynakların kısıtlı olduğu dönemlerde koloni yönetimine yönelik pratik bulgular sunmaktadır.",
+        summaryEn: "Single-season field trial in the Ethiopian highlands with five colonies per group, comparing three locally made pollen substitutes (soybean cake, niger seed cake, mung bean flour; 250 g per week) with sugar syrup alone. Soybean cake had the most protein (46%), was eaten most, and gave the highest honey yield (14.75 kg per colony vs 11.2 kg with syrup and 8.1 kg with mung bean) and the best economic return. The authors recommend it for smallholders but caution that the small sample, single season and missing amino acid analysis limit how far the results can be generalised.",
+        summaryTr: "Etiyopya yaylalarında, grup başına beş koloniyle tek sezon yürütülen saha denemesi; yerel olarak üretilen üç polen ikamesi (soya küspesi, nijer tohumu küspesi, maş fasulyesi unu; haftada 250 g) yalnızca şeker şurubuyla karşılaştırılmıştır. En yüksek protein oranına (%46) sahip soya küspesi en çok tüketilen diyet olmuş, en yüksek bal verimini (koloni başına 14,75 kg; şurupta 11,2 kg, maş fasulyesinde 8,1 kg) ve en iyi ekonomik getiriyi sağlamıştır. Yazarlar bu diyeti küçük ölçekli arıcılara önermekle birlikte, küçük örneklemin, tek sezonun ve amino asit analizinin yapılmamış olmasının genellenebilirliği sınırladığını belirtmektedir.",
         categories: ["bee-welfare", "honey"],
         url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1813470/full"
       },
@@ -1503,8 +2026,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "A Laboratory Amitraz Resistance Assay for Varroa destructor May Not Be a Reliable Predictor of Field-Level Amitraz Efficacy (2026)",
         titleTr: "Varroa destructor için Laboratuvar Amitraz Direnç Testi, Amitrazın Sahadaki Etkinliğini Güvenilir Biçimde Öngöremeyebilir (2026)",
         date: "2026-11-20",
-        summaryEn: "Brief research report comparing a laboratory amitraz bioassay with mite genotype and with colony-level outcomes after a standard Apivar treatment: the assay identified the resistant genotype in about 95% of mites, yet colonies in both the high- and low-expected-efficacy groups showed large mite declines, indicating that the assay is a good marker of the resistance genotype but not of field-level treatment success.",
-        summaryTr: "Laboratuvar amitraz biyotestini akarların genotipiyle ve standart Apivar uygulaması sonrası koloni düzeyindeki sonuçlarla karşılaştıran kısa araştırma raporu; test, dirençli genotipi akarların yaklaşık %95'inde doğru belirlemiş, ancak hem yüksek hem de düşük etkinlik beklenen kolonilerde akar sayısı belirgin biçimde azalmıştır. Bulgular, testin direnç genotipi için iyi bir belirteç olduğunu, ancak tedavinin sahadaki başarısını öngörmediğini göstermektedir.",
+        summaryEn: "Two-year brief research report testing whether a 3-hour laboratory bioassay can predict amitraz resistance in Varroa destructor. The bioassay correctly flagged mites carrying the Y215H resistance mutation 94.6% of the time but identified susceptible mites in only 66.8%. In the field, a 42-day Apivar (amitraz) treatment reduced mites by about 98% in 32 treated colonies regardless of the bioassay's prediction, while 12 untreated colonies showed no significant change. The authors conclude the assay detects the resistance genotype but does not predict how well amitraz will work in a colony.",
+        summaryTr: "Varroa destructor'da amitraz direncinin 3 saatlik bir laboratuvar testiyle öngörülüp öngörülemeyeceğini iki yıl boyunca inceleyen kısa araştırma raporu. Test, Y215H direnç mutasyonu taşıyan akarları %94,6 oranında doğru belirlemiş, ancak duyarlı akarları yalnızca %66,8 oranında tanıyabilmiştir. Sahada 42 günlük Apivar (amitraz) uygulaması, testin öngörüsünden bağımsız olarak tedavi edilen 32 kolonide akar yükünü yaklaşık %98 azaltmış, tedavi edilmeyen 12 kolonide ise anlamlı değişim görülmemiştir. Yazarlar testin direnç genotipini saptadığını, ancak amitrazın kolonide ne kadar etkili olacağını öngörmediğini belirtmektedir.",
         categories: ["bee-welfare"],
         url: "https://www.frontiersin.org/journals/bee-science/articles/10.3389/frbee.2026.1886628/full"
       },
@@ -1512,8 +2035,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Propolis as a Natural Remedy in Reducing Dental Plaque and Gingival Inflammation: A Systematic Review and Meta-Analysis (2025)",
         titleTr: "Diş Plağı ve Diş Eti İltihabını Azaltmada Doğal Bir Seçenek Olarak Propolis: Sistematik Derleme ve Meta-Analiz (2025)",
         date: "2026-11-13",
-        summaryEn: "Systematic review and meta-analysis of seven randomized controlled trials showing that alcohol-free propolis mouthwashes significantly reduced plaque index and gingival index scores compared with baseline, with low heterogeneity between studies, supporting propolis-based oral care products as a preventive option in dental hygiene.",
-        summaryTr: "Yedi randomize kontrollü çalışmayı kapsayan sistematik derleme ve meta-analiz; alkolsüz propolisli ağız gargaralarının plak indeksi ve diş eti indeksi skorlarını başlangıca göre anlamlı biçimde düşürdüğünü ve çalışmalar arası heterojenliğin düşük olduğunu göstermekte, propolis içeren ağız bakım ürünlerini diş hijyeninde koruyucu bir seçenek olarak desteklemektedir.",
+        summaryEn: "Systematic review of 20 clinical studies plus a meta-analysis of the randomized trials on alcohol-free propolis mouthwash. Compared with baseline, the mouthwash produced large reductions in plaque index (SMD 1.74; 5 RCTs, 121 participants) and gingival index (SMD 2.19; 5 RCTs, 129 participants), and several trials found it about as effective as chlorhexidine without staining the teeth. The authors note that several trials carried some or high risk of bias, follow-up was short, and propolis formulations were not standardized.",
+        summaryTr: "20 klinik çalışmayı kapsayan sistematik derleme ve alkolsüz propolis gargarasıyla yapılan randomize çalışmaların meta-analizi. Gargara, başlangıca kıyasla plak indeksinde (SMD 1,74; 5 RKÇ, 121 katılımcı) ve diş eti indeksinde (SMD 2,19; 5 RKÇ, 129 katılımcı) büyük düşüş sağlamış; birkaç çalışmada dişleri lekelemeden klorheksidine yakın etkinlik göstermiştir. Yazarlar bazı çalışmalarda yanlılık riskinin orta veya yüksek olduğunu, takip sürelerinin kısa kaldığını ve propolis formülasyonlarının standart olmadığını vurgulamaktadır.",
         categories: ["propolis", "immunity"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12470411/"
       },
@@ -1521,8 +2044,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "A Multifunctional Dendrobium officinale Polysaccharide Hydrogel Loaded with Propolis Extract to Promote Oral Mucosal Repair (2026)",
         titleTr: "Ağız Mukozası Onarımını Destekleyen, Propolis Ekstresi Yüklü Çok İşlevli Dendrobium officinale Polisakkarit Hidrojeli (2026)",
         date: "2026-11-06",
-        summaryEn: "Study developing a propolis extract-loaded hydrogel built on Dendrobium officinale polysaccharide and hyaluronic acid, showing antioxidant, immunomodulatory, and pro-angiogenic properties; in rat oral ulcer and full-thickness skin wound models, the hydrogel supported repair across the different phases of healing.",
-        summaryTr: "Dendrobium officinale polisakkariti ve hyaluronik asit bazlı, propolis ekstresi yüklü bir hidrojel geliştiren çalışma; hidrojelin antioksidan, immünomodülatör ve damar oluşumunu destekleyici özellikler gösterdiği, sıçan ağız ülseri ve tam kat deri yarası modellerinde iyileşmenin farklı evrelerinde onarımı desteklediği bildirilmiştir.",
+        summaryEn: "Laboratory and rat study developing a hydrogel loaded with propolis extract, built from Dendrobium officinale polysaccharide and modified hyaluronic acid, for oral ulcers. The gel showed antioxidant, immunomodulatory and pro-angiogenic properties, supported repair at different stages of healing in rat oral ulcer models, and also helped close full-thickness skin wounds. The authors present it as a natural material that combines infection control, inflammation regulation and tissue regeneration; it has not yet been tested in people.",
+        summaryTr: "Dendrobium officinale polisakkariti ve modifiye hyaluronik asitten oluşan, propolis ekstresi yüklü bir hidrojelin ağız ülserleri için geliştirildiği laboratuvar ve sıçan çalışması. Jel antioksidan, bağışıklık düzenleyici ve damar oluşumunu destekleyici özellikler göstermiş, sıçan ağız ülseri modellerinde iyileşmenin farklı evrelerinde onarımı desteklemiş ve tam kat deri yaralarının kapanmasına da yardımcı olmuştur. Yazarlar jeli enfeksiyon kontrolü, inflamasyon düzenlemesi ve doku yenilenmesini birleştiren doğal bir malzeme olarak sunmaktadır; insanlarda henüz test edilmemiştir.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["propolis", "wound-healing"],
         url: "https://doi.org/10.1016/j.phymed.2026.158869"
       },
@@ -1530,8 +2054,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Propolis Add-On Therapy Alleviates Depressive Symptoms: A Randomized Placebo-Controlled Clinical Trial (2022)",
         titleTr: "Eklenti Tedavi Olarak Propolis Depresif Semptomları Hafifletiyor: Randomize Plasebo Kontrollü Klinik Çalışma (2022)",
         date: "2026-10-30",
-        summaryEn: "Randomized placebo-controlled clinical trial demonstrating that propolis supplementation as add-on therapy significantly alleviates depressive symptoms, with findings suggesting propolis bioactive compounds may modulate neuroinflammatory and oxidative stress pathways involved in depression.",
-        summaryTr: "Eklenti tedavi olarak propolis takviyesinin depresif semptomları anlamlı biçimde hafiflettiğini gösteren randomize plasebo kontrollü klinik çalışma; bulgular propolisin biyoaktif bileşenlerinin depresyonda rol oynayan nöroinflamatuar ve oksidatif stres yolaklarını modüle edebileceğine işaret etmektedir.",
+        summaryEn: "Double-blind, randomized, placebo-controlled trial in 54 adults with moderate to severe major depression who took Azerbaijani propolis or placebo for 6 weeks alongside their SSRI antidepressant. With propolis, the Hamilton depression score fell from about 21 to 10 and the Beck Depression Inventory from about 29 to 14, a significantly larger drop than with placebo, and the add-on was reported as safe. The authors attribute the effect to the propolis's phenolic acids and flavonoids; the trial was small and short.",
+        summaryTr: "Orta-ağır majör depresyonu olan 54 yetişkinin SSRI antidepresanlarına ek olarak 6 hafta boyunca Azerbaycan propolisi veya plasebo aldığı çift kör, randomize, plasebo kontrollü çalışma. Propolis grubunda Hamilton depresyon skoru yaklaşık 21'den 10'a, Beck Depresyon Envanteri skoru yaklaşık 29'dan 14'e düşmüş; bu düşüş plasebodan anlamlı ölçüde büyük olmuş ve ek tedavi güvenli bulunmuştur. Yazarlar etkiyi propolisin fenolik asit ve flavonoid içeriğine bağlamaktadır; çalışma küçük ölçekli ve kısa sürelidir.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["propolis", "brain"],
         url: "https://pubmed.ncbi.nlm.nih.gov/35072307/"
       },
@@ -1539,8 +2064,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Effects of Propolis on Inflammation Markers in Patients Undergoing Hemodialysis: A Randomized, Double-Blind Controlled Clinical Trial (2023)",
         titleTr: "Hemodiyaliz Hastalarında Propolisin İnflamasyon Belirteçleri Üzerindeki Etkileri: Randomize, Çift Kör Kontrollü Klinik Çalışma (2023)",
         date: "2026-10-23",
-        summaryEn: "Randomized double-blind controlled clinical trial investigating the effects of propolis supplementation on inflammation markers (CRP, IL-6, TNF-α) in patients undergoing hemodialysis, demonstrating propolis's potential to attenuate chronic inflammation associated with end-stage renal disease.",
-        summaryTr: "Hemodiyaliz hastalarında propolis takviyesinin inflamasyon belirteçleri (CRP, IL-6, TNF-α) üzerindeki etkilerini araştıran randomize çift kör kontrollü klinik çalışma; propolisin son dönem böbrek hastalığıyla ilişkili kronik inflamasyonu azaltma potansiyelini ortaya koymaktadır.",
+        summaryEn: "Double-blind, randomized, placebo-controlled trial in patients with chronic kidney disease on haemodialysis, 41 of whom completed two months of 400 mg/day standardised Brazilian green propolis extract (EPP-AF) or placebo. Propolis significantly lowered plasma TNF-α and tended to lower MIP-1β, while the placebo group showed no changes. The authors conclude that short-term propolis may ease the chronic inflammation typical of haemodialysis patients; the sample was small and the follow-up short.",
+        summaryTr: "Hemodiyalize giren kronik böbrek hastalarında yürütülen ve 41 hastanın iki ay boyunca günde 400 mg standardize Brezilya yeşil propolis ekstresi (EPP-AF) veya plasebo almayı tamamladığı çift kör, randomize, plasebo kontrollü çalışma. Propolis plazma TNF-α düzeyini anlamlı biçimde düşürmüş, MIP-1β'yı düşürme eğilimi göstermiş; plasebo grubunda değişim görülmemiştir. Yazarlar kısa süreli propolis kullanımının hemodiyaliz hastalarındaki kronik inflamasyonu hafifletebileceği sonucuna varmaktadır; örneklem küçük ve takip kısadır.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["propolis", "immunity"],
         url: "https://www.sciencedirect.com/science/article/pii/S1744388123000130"
       },
@@ -1548,8 +2074,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Royal Jelly for Management of Postmenopausal Symptoms: A Systematic Review and Meta-Analysis (2025)",
         titleTr: "Menopoz Sonrası Semptomların Yönetiminde Arı Sütü: Sistematik Derleme ve Meta-Analiz (2025)",
         date: "2026-10-16",
-        summaryEn: "Systematic review and meta-analysis evaluating the efficacy of royal jelly supplementation in managing postmenopausal symptoms, synthesizing evidence from randomized controlled trials on outcomes including hot flashes, bone density, lipid profiles, and quality of life.",
-        summaryTr: "Arı sütü takviyesinin menopoz sonrası semptomların yönetimindeki etkinliğini değerlendiren sistematik derleme ve meta-analiz; ateş basması, kemik yoğunluğu, lipit profili ve yaşam kalitesi gibi sonuçlar üzerine randomize kontrollü çalışmaların kanıtlarını sentezlemektedir.",
+        summaryEn: "Systematic review and meta-analysis of 6 controlled studies (471 postmenopausal women, published 2011 to 2021) comparing royal jelly supplements with placebo. Royal jelly improved overall menopausal symptoms compared with placebo (standardised mean difference 0.73), and the included studies also reported benefits for genitourinary symptoms, quality of life and bone health. The authors see royal jelly as a possible non-hormonal option for women who cannot or prefer not to use hormone therapy, based on a small number of trials.",
+        summaryTr: "Arı sütü takviyesini plaseboyla karşılaştıran 6 kontrollü çalışmanın (2011-2021 arası yayımlanmış, 471 postmenopozal kadın) sistematik derlemesi ve meta-analizi. Arı sütü genel menopoz semptomlarını plaseboya göre iyileştirmiş (standart ortalama fark 0,73); dahil edilen çalışmalar genitoüriner semptomlar, yaşam kalitesi ve kemik sağlığı açısından da yarar bildirmiştir. Yazarlar az sayıda çalışmaya dayanarak arı sütünü hormon tedavisi kullanamayan veya kullanmak istemeyen kadınlar için olası hormon dışı bir seçenek olarak değerlendirmektedir.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["royal-jelly", "immunity"],
         url: "https://pubmed.ncbi.nlm.nih.gov/41401249/"
       },
@@ -1557,8 +2084,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Bee Pollen Increases Hippocampal Brain-Derived Neurotrophic Factor and Suppresses Neuroinflammation in Adult Rats with Chronic Immobilization Stress (2021)",
         titleTr: "Arı Poleni Kronik İmmobilizasyon Stresi Uygulanan Yetişkin Sıçanlarda Hipokampal Beyin Kaynaklı Nörotrofik Faktörü Artırır ve Neuroinflamasyonu Baskılar (2021)",
         date: "2026-10-09",
-        summaryEn: "Study demonstrating that bee pollen supplementation increases hippocampal BDNF levels and suppresses neuroinflammatory markers in adult rats subjected to chronic immobilization stress, suggesting a neuroprotective and stress-attenuating role for bee pollen bioactive compounds.",
-        summaryTr: "Arı poleni takviyesinin kronik immobilizasyon stresi uygulanan yetişkin sıçanlarda hipokampal BDNF düzeylerini artırdığını ve neuroinflamatuar belirteçleri baskıladığını gösteren çalışma; arı poleni biyoaktif bileşenlerinin nöroprotektif ve stres azaltıcı rolüne işaret etmektedir.",
+        summaryEn: "Rat study in which 24 male Sprague-Dawley rats were split into control, immobilisation stress, and stress plus Anatolian bee pollen (200 mg/kg/day for 10 days) groups. Bee pollen reduced anxiety-like behaviour in the open field test but did not change depression-like behaviour in the forced swim test. In the hippocampus it raised BDNF, lowered IL-1β and TNF-α, and reduced oxidative damage (lower malondialdehyde, higher glutathione), suggesting protection against stress-related neuroinflammation in rats.",
+        summaryTr: "24 erkek Sprague-Dawley sıçanın kontrol, hareketsizlik stresi ve stres artı Anadolu arı poleni (10 gün boyunca günde 200 mg/kg) gruplarına ayrıldığı hayvan çalışması. Arı poleni açık alan testinde kaygı benzeri davranışı azaltmış, ancak zorunlu yüzme testindeki depresyon benzeri davranışı değiştirmemiştir. Hipokampusta BDNF'yi artırmış, IL-1β ve TNF-α'yı düşürmüş ve oksidatif hasarı azaltmış (daha düşük malondialdehit, daha yüksek glutatyon); bu da sıçanlarda strese bağlı nöroinflamasyona karşı koruyucu bir etkiye işaret etmektedir.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["pollen", "brain"],
         url: "https://www.sciencedirect.com/science/article/pii/S0304394021007217"
       },
@@ -1566,44 +2094,44 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "From Toxin to Therapy: Biomedical Applications of Bee Venom in Cancer, Diabetes, and Neurodegenerative Disorders (2026)",
         titleTr: "Toksin'den Terapiye: Arı Zehrinin Kanser, Diyabet ve Nörodejeneratif Bozukluklardaki Biyomedikal Uygulamaları (2026)",
         date: "2026-10-02",
-        summaryEn: "Review examining the biomedical applications of bee venom and its key components (melittin, apamin, phospholipase A2) across cancer treatment, diabetes management, and neurodegenerative disorders, highlighting mechanisms of action and therapeutic potential.",
-        summaryTr: "Arı zehri ve temel bileşenlerinin (melittin, apamin, fosfolipaz A2) kanser tedavisi, diyabet yönetimi ve nörodejeneratif bozukluklardaki biyomedikal uygulamalarını; etki mekanizmalarını ve terapötik potansiyelini ele alan derleme.",
+        summaryEn: "Narrative review of bee venom (apitoxin) and its main components, melittin, apamin, adolapin and phospholipase A2, in diabetes, cancer and neurodegenerative disease, drawing on cell, animal and a smaller number of clinical studies. These compounds act on inflammation, oxidative stress, apoptosis and immune signalling, and clinical use so far is mainly for pain and inflammation. The authors stress that melittin and phospholipase A2 damage cell membranes and give whole venom a narrow therapeutic window with allergy and anaphylaxis risk, so they see purified compounds and targeted delivery as the way forward.",
+        summaryTr: "Arı zehiri (apitoksin) ve başlıca bileşenleri olan melittin, apamin, adolapin ve fosfolipaz A2'nin diyabet, kanser ve nörodejeneratif hastalıklardaki rolünü, hücre, hayvan ve daha az sayıdaki klinik çalışmaya dayanarak ele alan anlatısal derleme. Bu bileşenler inflamasyon, oksidatif stres, apoptoz ve bağışıklık sinyal yolaklarını etkilemekte; klinik kullanım şimdiye kadar ağırlıklı olarak ağrı ve inflamasyon için olmuştur. Yazarlar, melittin ve fosfolipaz A2'nin hücre zarlarına zarar vermesi nedeniyle bütün zehrin tedavi aralığının dar olduğunu, alerji ve anafilaksi riski taşıdığını vurgulamakta ve saflaştırılmış bileşenleri ve hedefe yönelik taşıma sistemlerini çözüm olarak görmektedir.",
         categories: ["immunity", "brain"],
         url: "https://www.mdpi.com/1422-0067/27/11/4661"
       },
       {
-        titleEn: "Bee Products in Dermatology and Skin Care",
-        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri",
+        titleEn: "Bee Products in Dermatology and Skin Care (2020)",
+        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri (2020)",
         date: "2026-09-25",
-        summaryEn: "Comprehensive review of the therapeutic applications of bee products — honey, propolis, royal jelly, bee venom, and beeswax — in dermatology and skin care, covering wound healing, anti-aging, antimicrobial, and anti-inflammatory properties backed by clinical and in vitro evidence.",
-        summaryTr: "Bal, propolis, arı sütü, arı zehiri ve balmumu gibi arı ürünlerinin dermatoloji ve cilt bakımındaki terapötik uygulamalarını ele alan kapsamlı derleme; klinik ve in vitro kanıtlarla desteklenen yara iyileştirme, yaşlanma karşıtı, antimikrobiyal ve anti-inflamatuar özellikleri kapsamaktadır.",
+        summaryEn: "Review of honey, propolis, bee pollen, bee bread, royal jelly, beeswax and bee venom as ingredients in dermatology and cosmetics, organised around their active compounds (flavonoids such as chrysin, galangin and pinocembrin, and royal jelly's 10-HDA). It covers burn and wound healing, where propolis performed comparably to sulfathiazole and silver sulfadiazine in reported studies, antimicrobial and UV-protective effects, and bee venom use in acne, atopic dermatitis and photodamage. A separate section reviews allergic reactions to bee products, which the authors note must be considered before topical use.",
+        summaryTr: "Bal, propolis, arı poleni, arı ekmeği, arı sütü, balmumu ve arı zehirini dermatoloji ve kozmetikte kullanılan hammaddeler olarak, içerdikleri etken maddeler (krisin, galangin, pinosembrin gibi flavonoidler ve arı sütündeki 10-HDA) üzerinden inceleyen derleme. Yanık ve yara iyileşmesi (bildirilen çalışmalarda propolisin sülfatiyazol ve gümüş sülfadiazinle benzer etki gösterdiği), antimikrobiyal ve UV koruyucu etkiler ile arı zehirinin akne, atopik dermatit ve güneş hasarındaki kullanımı ele alınmaktadır. Ayrı bir bölüm arı ürünlerine karşı alerjik reaksiyonları incelemekte ve yazarlar topikal kullanımdan önce bu riskin göz önünde bulundurulması gerektiğini belirtmektedir.",
         categories: ["honey", "propolis", "royal-jelly"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7036894/"
       },
       {
-        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health",
-        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli",
+        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health (2023)",
+        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli (2023)",
         date: "2026-09-18",
-        summaryEn: "Review exploring the antioxidant potential of bee-derived products — honey, propolis, royal jelly, and bee venom — in maintaining oral hygiene and dental health, with emphasis on antimicrobial, anti-inflammatory, and tissue-protective mechanisms.",
-        summaryTr: "Bal, propolis, arı sütü ve arı zehiri gibi arı kaynaklı ürünlerin ağız hijyeni ve diş sağlığının korunmasındaki antioksidan potansiyelini inceleyen derleme; antimikrobiyal, anti-inflamatuar ve doku koruyucu mekanizmalara odaklanmaktadır.",
+        summaryEn: "Review of honey, propolis and royal jelly for oral health, focusing on their phenolic acids, flavonoids such as pinocembrin, CAPE and galangin, and terpenoids. In vitro, animal and clinical studies show activity against oral pathogens such as Streptococcus mutans and Porphyromonas gingivalis and benefits in periodontitis, caries, oral mucositis and dentine hypersensitivity, and the review describes bee-based chewing gums, toothpastes and mouthwashes. The authors note that findings are inconsistent across studies, bioaccessibility of the active compounds is unclear, and allergies, though uncommon, mean safety must be considered.",
+        summaryTr: "Bal, propolis ve arı sütünü ağız sağlığı açısından; fenolik asitleri, pinosembrin, CAPE ve galangin gibi flavonoidleri ve terpenoidleri üzerinden ele alan derleme. In vitro, hayvan ve klinik çalışmalar, Streptococcus mutans ve Porphyromonas gingivalis gibi ağız patojenlerine karşı etkinlik ile periodontit, diş çürüğü, oral mukozit ve dentin hassasiyetinde yarar göstermekte; derleme arı ürünü içeren sakız, diş macunu ve gargaraları da tanıtmaktadır. Yazarlar çalışma sonuçlarının tutarsız olduğunu, etken maddelerin biyoerişilebilirliğinin belirsiz kaldığını ve seyrek de olsa alerji riskinin güvenlik açısından dikkate alınması gerektiğini belirtmektedir.",
         categories: ["honey", "propolis"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10375990/#sec5-antioxidants-12-01452"
       },
       {
-        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types",
-        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular",
+        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types (2026)",
+        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular (2026)",
         date: "2026-09-11",
-        summaryEn: "Study investigating honey as a bioindicator of environmental microplastic pollution, analyzing industrial and specialty honey types for microplastic content and distribution patterns, with implications for food safety and environmental monitoring.",
-        summaryTr: "Balın çevresel mikroplastik kirliliğinin biyogöstergesi olarak kullanılmasını araştıran çalışma; endüstriyel ve özel bal türlerinde mikroplastik içeriği ile dağılım örüntülerini analiz ederek gıda güvenliği ve çevre izleme açısından sonuçlarını ortaya koymaktadır.",
+        summaryEn: "Laboratory study of 15 honeys sold in Türkiye, 8 industrial and 7 special (artisanal), analysed by stereomicroscopy and FTIR spectroscopy against blank controls. Microplastics were found in 93% of samples, with more in special honeys (11.4 vs 4.9 particles per sample); most were fragments, mainly ethylene-vinyl acetate, PET and polyethylene, sized 85 to 1,200 µm. Estimated intake from honey was only 0.16 to 0.38 particles per day, so the authors see honey less as a major exposure source and more as an indicator of environmental microplastic pollution and of contamination during harvesting and processing.",
+        summaryTr: "Türkiye'de satılan 8'i endüstriyel, 7'si özel (zanaat) olmak üzere 15 balın, boş kontrollerle birlikte stereomikroskopi ve FTIR spektroskopisiyle incelendiği laboratuvar çalışması. Örneklerin %93'ünde mikroplastik bulunmuş, özel ballarda miktar daha yüksek çıkmıştır (örnek başına 11,4'e karşı 4,9 partikül); partiküllerin çoğu 85-1.200 µm boyutunda, başta etilen-vinil asetat, PET ve polietilen olmak üzere parça formundadır. Baldan tahmini alım günde yalnızca 0,16-0,38 partikül olduğundan yazarlar balı başlıca bir maruziyet kaynağından çok, çevresel mikroplastik kirliliğinin ve hasat ile işleme sırasındaki kontaminasyonun bir göstergesi olarak değerlendirmektedir.",
         categories: ["honey"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12916803/"
       },
       {
-        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology",
-        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü",
+        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology (2024)",
+        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü (2024)",
         date: "2026-09-04",
-        summaryEn: "Review examining the essential role of free amino acids and proteins in determining bee pollen quality, focusing on how the amino acid profile influences honey bee nutritional requirements, larval development, immune function, and overall colony health.",
-        summaryTr: "Serbest amino asitler ve proteinlerin arı poleni kalitesini belirlemedeki temel rolünü inceleyen derleme; amino asit profilinin bal arılarının beslenme gereksinimlerini, larva gelişimini, bağışıklık işlevini ve koloni sağlığını nasıl etkilediğine odaklanmaktadır.",
+        summaryEn: "Review of how pollen protein and amino acid content shapes honey bee physiology, from how workers judge pollen quality to protein digestion and the use of amino acids for energy, brood rearing, royal jelly production and immunity. Protein content varies widely between plants, for example about 51% in aloe, 27% in rapeseed and phacelia and 11% in buckwheat, and colonies confined to monocultures or invasive goldenrod face a protein-poor single-source diet. Artificial diets based on soy, milk powder or egg yolk produce weaker colonies than natural pollen, and the authors call for studies linking pollen composition to hemolymph amino acids, overwintering and honey yield.",
+        summaryTr: "Polenin protein ve amino asit içeriğinin bal arısı fizyolojisini nasıl şekillendirdiğini; işçi arıların polen kalitesini nasıl ayırt ettiğinden protein sindirimine ve amino asitlerin enerji, yavru yetiştirme, arı sütü üretimi ve bağışıklıktaki kullanımına kadar ele alan derleme. Protein oranı bitkiler arasında büyük farklılık göstermekte (örneğin aloede yaklaşık %51, kolza ve faselyada %27, karabuğdayda %11); monokültürlere veya istilacı altın başağa bağımlı kalan koloniler proteince fakir, tek kaynaklı bir beslenmeyle karşı karşıya kalmaktadır. Soya, süt tozu veya yumurta sarısına dayalı yapay diyetler doğal polene göre daha zayıf koloniler oluşturmakta; yazarlar polen bileşimini hemolenf amino asitleri, kışlama ve bal verimiyle ilişkilendiren çalışmalara ihtiyaç olduğunu vurgulamaktadır.",
         categories: ["pollen"],
         url: "https://www.mdpi.com/1420-3049/29/11/2605"
       },
@@ -1611,8 +2139,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
         titleTr: "Balın Nöroprotektif Ajan Olarak Rolü: Alzheimer Hastalığındaki Moleküler Perspektifler (2025)",
         date: "2026-08-28",
-        summaryEn: "Review examining the molecular mechanisms by which honey and its bioactive compounds (flavonoids, phenolic acids, methylglyoxal) exert neuroprotective effects in Alzheimer's disease, including modulation of amyloid-β aggregation, tau phosphorylation, neuroinflammation, and oxidative stress pathways.",
-        summaryTr: "Bal ve biyoaktif bileşenlerinin (flavonoidler, fenolik asitler, metilglioksal) Alzheimer hastalığında amiloid-β agregasyonu, tau fosforilasyonu, nöroinflamasyon ve oksidatif stres yolakları üzerindeki nöroprotektif etki mekanizmalarını inceleyen derleme.",
+        summaryEn: "Review of the molecular mechanisms through which honey may protect against Alzheimer's disease, covering oxidative stress, mitochondrial dysfunction, inflammation, apoptosis, amyloid-β accumulation, tau hyperphosphorylation and acetylcholinesterase activity. Studies on avocado, manuka, acacia, kelulut, chestnut, coffee and tualang honeys show that effects depend on botanical origin. The evidence is almost entirely from cell cultures, C. elegans and rodents, often at high doses of up to 1 g/kg per day, and the authors found no completed or registered randomized human trial, so they describe the evidence as preliminary.",
+        summaryTr: "Balın Alzheimer hastalığına karşı koruyucu olabileceği moleküler mekanizmaları; oksidatif stres, mitokondriyal işlev bozukluğu, inflamasyon, apoptoz, amiloid-β birikimi, tau hiperfosforilasyonu ve asetilkolinesteraz aktivitesi üzerinden inceleyen derleme. Avokado, manuka, akasya, kelulut, kestane, kahve ve tualang ballarıyla yapılan çalışmalar etkinin balın bitkisel kaynağına bağlı olduğunu göstermektedir. Kanıtların neredeyse tamamı hücre kültürleri, C. elegans ve kemirgenlerden, çoğu zaman günde 1 g/kg'a varan yüksek dozlarla elde edilmiştir; yazarlar tamamlanmış veya kayıtlı randomize bir insan çalışması bulamadıklarından kanıtları ön düzeyde olarak nitelendirmektedir.",
         categories: ["honey", "brain"],
         url: "https://www.mdpi.com/2072-6643/17/16/2577"
       },
@@ -1620,17 +2148,17 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Ethanol Extract of Propolis Relieves Exercise-Induced Fatigue via Modulating Metabolites and Gut Microbiota in Mice (2025)",
         titleTr: "Propolis Etanol Ekstresinin Metabolitler ve Bağırsak Mikrobiyotası Üzerindeki Modülatör Etkisiyle Egzersize Bağlı Yorgunluğu Azaltması (2025)",
         date: "2026-08-21",
-        summaryEn: "Mouse study showing that ethanol extract of propolis significantly reduces exercise-induced fatigue by modulating serum metabolite profiles and gut microbiota composition, with notable effects on energy metabolism pathways and anti-fatigue biomarkers.",
-        summaryTr: "Propolis etanol ekstresinin serum metabolit profilleri ve bağırsak mikrobiyota bileşimini düzenleyerek egzersize bağlı yorgunluğu anlamlı biçimde azalttığını; enerji metabolizması yolakları ve yorgunluk karşıtı biyobelirteçler üzerinde belirgin etkiler gösterdiğini ortaya koyan fare çalışması.",
+        summaryEn: "Mouse study in which male C57BL/6 mice did 3 weeks of swim training with or without an ethanol propolis extract (400 mg/kg body weight; 10 mice per group), then swam to exhaustion. Propolis extended swimming time by 27.6%, limited the exercise-induced loss of liver and muscle glycogen, lowered blood lactate, urea nitrogen and inflammatory cytokines, and raised antioxidant enzymes, without changing body weight or food intake. Metabolomics and gut microbiota sequencing showed restored GABA, isoleucine and L-carnitine levels and more butyrate-producing bacteria; the active compounds and mechanisms in humans remain to be confirmed.",
+        summaryTr: "Erkek C57BL/6 farelerin propolisin etanol ekstresiyle (400 mg/kg vücut ağırlığı; grup başına 10 fare) veya ekstre olmadan 3 hafta yüzme antrenmanı yaptığı ve ardından tükenene kadar yüzdürüldüğü hayvan çalışması. Propolis yüzme süresini %27,6 uzatmış, egzersize bağlı karaciğer ve kas glikojeni kaybını sınırlamış, kan laktatı, üre azotu ve inflamatuar sitokinleri düşürmüş ve antioksidan enzimleri artırmış; vücut ağırlığı ve yem tüketimini değiştirmemiştir. Metabolomik ve bağırsak mikrobiyotası analizleri GABA, izolösin ve L-karnitin düzeylerinin düzeldiğini ve bütirat üreten bakterilerin arttığını göstermiştir; etken bileşenlerin ve mekanizmaların insanlarda doğrulanması gerekmektedir.",
         categories: ["propolis", "exercise"],
         url: "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1549913/full"
       },
       {
-        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses",
-        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler",
+        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses (2023)",
+        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler (2023)",
         date: "2026-08-14",
-        summaryEn: "Study demonstrating that extracellular vesicles derived from royal jelly promote wound healing by modulating key cellular responses including cell migration, proliferation, and anti-inflammatory signaling.",
-        summaryTr: "Arı sütünden elde edilen ekstraselüler vesiküllerin hücre göçü, çoğalması ve anti-inflamatuar sinyal iletimi gibi temel hücresel yanıtları modüle ederek yara iyileşmesini desteklediğini gösteren çalışma.",
+        summaryEn: "Laboratory and mouse study showing that royal jelly contains extracellular vesicles (about 130 nm, carrying exosome markers CD63 and syntenin and the cargo proteins MRJP1, defensin-1 and jellein-3) that cells take up. The vesicles changed mesenchymal stem cell differentiation and secretions, reduced inflammation in LPS-stimulated macrophages by blocking the MAPK pathway, showed antibacterial activity, and sped up wound closure in a splinted mouse wound model. The authors propose these vesicles explain part of royal jelly's known effects and, being easier to standardise than raw royal jelly, could move it closer to clinical use.",
+        summaryTr: "Arı sütünün, hücrelerce alınan hücre dışı veziküller (yaklaşık 130 nm; CD63 ve sintenin ekzozom belirteçleri ile MRJP1, defensin-1 ve jellein-3 yük proteinlerini taşıyan) içerdiğini gösteren laboratuvar ve fare çalışması. Veziküller mezenkimal kök hücrelerin farklılaşmasını ve salgılarını değiştirmiş, LPS ile uyarılmış makrofajlarda MAPK yolağını baskılayarak inflamasyonu azaltmış, antibakteriyel etki göstermiş ve atelli fare yara modelinde yara kapanmasını hızlandırmıştır. Yazarlar bu veziküllerin arı sütünün bilinen etkilerinin bir kısmını açıkladığını ve ham arı sütüne göre daha kolay standardize edilebildikleri için klinik kullanıma daha yakın olduklarını öne sürmektedir.",
         categories: ["royal-jelly", "wound-healing"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9989319/"
       },
@@ -1638,8 +2166,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "The Immunomodulatory Effects of Honey and Associated Flavonoids in Cancer (2021)",
         titleTr: "Balın ve İlişkili Flavonoidlerin Kanserde İmmünomodülatör Etkileri (2021)",
         date: "2026-08-07",
-        summaryEn: "Review examining how honey and its key flavonoids (quercetin, kaempferol, luteolin, apigenin) modulate immune responses in cancer, including effects on T-cell activation, NK cell activity, macrophage polarization, and tumor microenvironment regulation.",
-        summaryTr: "Bal ve temel flavonoidlerinin (kuersetin, kaempferol, luteolin, apigenin) kanserde bağışıklık yanıtlarını nasıl modüle ettiğini inceleyen derleme; T hücre aktivasyonu, NK hücre aktivitesi, makrofaj polarizasyonu ve tümör mikro-ortamı düzenlenmesi üzerine etkileri değerlendirilmiştir.",
+        summaryEn: "Review of in vitro and animal studies on how honey and its flavonoids, such as chrysin, quercetin, kaempferol and apigenin, influence the immune response to cancer. Honey can both trigger pro-inflammatory cytokine release from immune cells and suppress inflammation, and in tumour models it reduced angiogenesis and shifted immune cells toward an anti-tumour state; some flavonoids block IL-6 receptor signalling. No clinical trials are included, and the authors state that mechanisms must be clarified in suitable preclinical models before honey or its flavonoids can be tested as adjuncts to cancer immunotherapy.",
+        summaryTr: "Bal ve krisin, kuersetin, kaempferol ve apigenin gibi flavonoidlerinin kansere karşı bağışıklık yanıtını nasıl etkilediğini in vitro ve hayvan çalışmaları üzerinden inceleyen derleme. Bal, bağışıklık hücrelerinden hem inflamasyon artırıcı sitokin salınımını tetikleyebilmekte hem de inflamasyonu baskılayabilmekte; tümör modellerinde damar oluşumunu azaltmış ve bağışıklık hücrelerini tümör karşıtı yönde değiştirmiştir; bazı flavonoidler IL-6 reseptör sinyalini engellemektedir. Derlemede klinik çalışma yer almamakta; yazarlar bal veya flavonoidlerinin kanser immünoterapisine destek olarak denenmesinden önce mekanizmaların uygun preklinik modellerde netleştirilmesi gerektiğini belirtmektedir.",
         categories: ["honey", "immunity"],
         url: "https://doi.org/10.3390/nu13041269"
       },
@@ -1647,8 +2175,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Detection of Serotonin, Melatonin, and Their Metabolites in Honey (2022)",
         titleTr: "Balda Serotonin, Melatonin ve Metabolitlerinin Tespiti (2022)",
         date: "2026-07-31",
-        summaryEn: "Study identifying and quantifying serotonin, melatonin, and their key metabolites in honey samples using validated analytical methods, supporting the hypothesis that honey's neuroactive compounds may contribute to its traditionally reported calming and sleep-supporting effects.",
-        summaryTr: "Doğrulanmış analitik yöntemler kullanılarak bal örneklerinde serotonin, melatonin ve temel metabolitlerinin tespit edilip ölçüldüğü çalışma; balın nöroaktif bileşenlerinin geleneksel olarak rapor edilen sakinleştirici ve uyku destekleyici etkilerine katkıda bulunabileceği hipotezini desteklemektedir.",
+        summaryEn: "Analytical chemistry study using LC-MS on five honeys: a natural Australian honey, two US commercial brands, and a natural and a commercial Polish honey. It reports for the first time serotonin, N-acetylserotonin, melatonin and 2-hydroxymelatonin in honey, along with their precursor tryptophan; melatonin reached 0.91 ng/g in the Australian honey, while serotonin ranged from 20.6 to 88.2 ng/g. Levels varied widely by source, and the authors note it is unclear whether amounts from moderate honey intake are enough to affect human health; they suggest the compounds may matter for bee development and colony function.",
+        summaryTr: "Doğal bir Avustralya balı, iki ABD ticari markası ile doğal ve ticari birer Polonya balı olmak üzere beş balın LC-MS ile incelendiği analitik kimya çalışması. Balda ilk kez serotonin, N-asetilserotonin, melatonin ve 2-hidroksimelatonin ile öncülleri triptofan saptanmıştır; melatonin Avustralya balında 0,91 ng/g düzeyine ulaşırken serotonin 20,6-88,2 ng/g arasında bulunmuştur. Düzeyler kaynağa göre büyük farklılık göstermiş; yazarlar ölçülü bal tüketimiyle alınan miktarların insan sağlığını etkileyip etkilemediğinin belirsiz olduğunu belirtmekte, bu bileşiklerin arı gelişimi ve koloni işlevleri için önemli olabileceğini öne sürmektedir.",
         categories: ["honey", "brain"],
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC9017714/"
       },
@@ -1656,8 +2184,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Bee Bread Attenuates Atherosclerosis by Activating Nrf2/Keap1 and Modulating TNF-α/NF-κβ-Associated Mast Cell Migration in an Obese Rat Model (2022)",
         titleTr: "Arı Ekmeğinin Obez Sıçan Modelinde Nrf2/Keap1 Aktivasyonu ve TNF-α/NF-κβ ile İlişkili Mast Hücre Migrasyonu Modülasyonu Yoluyla Aterosklerozla Mücadelesi (2022)",
         date: "2026-07-24",
-        summaryEn: "In vivo study in obese rats showing that daily bee bread supplementation attenuates atherosclerosis progression by activating the Nrf2/Keap1 antioxidant pathway, suppressing NF-κβ-driven inflammation, reducing mast cell migration, and promoting mitochondrial-dependent apoptosis in vascular tissue.",
-        summaryTr: "Obez sıçanlarda yapılan in vivo çalışma; günlük arı ekmeği takviyesinin Nrf2/Keap1 antioksidan yolağını aktive ederek, NF-κβ kaynaklı inflamasyonu baskılayarak, mast hücre migrasyonunu azaltarak ve damar dokusunda mitokondriyal apoptozu destekleyerek ateroskleroz ilerlemesini yavaşlattığını göstermiştir.",
+        summaryEn: "Rat study in which 40 male Sprague-Dawley rats were made obese with a high-fat diet for 6 weeks and then received water, bee bread (0.5 g/kg/day) or the drug orlistat for another 6 weeks while continuing the diet. Bee bread reduced atherosclerotic changes in the aortic wall, strengthened the antioxidant Nrf2/Keap1 pathway, suppressed NF-κB-driven inflammation, raised the anti-apoptotic protein Bcl-2, and improved mast cell and collagen changes. The authors link part of the effect to bee bread's vitamins A, C and E; human data are not available.",
+        summaryTr: "40 erkek Sprague-Dawley sıçanın 6 hafta yüksek yağlı diyetle obez hale getirildiği, ardından diyete devam ederken 6 hafta daha su, arı ekmeği (günde 0,5 g/kg) veya orlistat ilacı aldığı hayvan çalışması. Arı ekmeği aort duvarındaki aterosklerotik değişiklikleri azaltmış, antioksidan Nrf2/Keap1 yolağını güçlendirmiş, NF-κB kaynaklı inflamasyonu baskılamış, apoptozu önleyen Bcl-2 proteinini artırmış ve mast hücresi ile kolajen değişikliklerini iyileştirmiştir. Yazarlar etkinin bir kısmını arı ekmeğindeki A, C ve E vitaminlerine bağlamaktadır; insan verisi bulunmamaktadır.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["pollen", "immunity"],
         url: "https://doi.org/10.1039/D2FO00949H"
       },
@@ -1665,8 +2194,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Royal Jelly Supplementation Improves Endurance and Mitochondrial Biogenesis in Athletes: A Crossover Trial (2025)",
         titleTr: "Arı Sütü Takviyesinin Sporcularda Dayanıklılık ve Mitokondriyal Biyogenezi İyileştirmesi: Çapraz Geçişli Çalışma (2025)",
         date: "2026-07-17",
-        summaryEn: "Randomized double-blind crossover trial in 18 endurance-trained male athletes showing that 1000 mg/day royal jelly for 2 weeks significantly increases time to exhaustion and PGC-1α gene expression relative to placebo.",
-        summaryTr: "18 dayanıklılık sporcusunda 2 haftalık 1000 mg/gün arı sütü takviyesinin yorgunluk anına kadar geçen süreyi ve PGC-1α gen ekspresyonunu plaseboya kıyasla anlamlı biçimde artırdığını gösteren randomize çapraz geçişli çalışma.",
+        summaryEn: "Double-blind, randomized, placebo-controlled crossover trial in 18 endurance-trained male athletes who took 1,000 mg/day of lyophilised royal jelly or placebo for 2 weeks each, separated by a 2-week washout. Compared with placebo, royal jelly lengthened time to exhaustion in a running test by 4.6 minutes and increased expression of PGC-1α, a regulator of mitochondrial biogenesis, but did not change Nrf2 expression, most oxidative stress markers, perceived exertion or heart rate. The authors note the small sample, the single athlete population and the lack of muscle biopsies to confirm the proposed mitochondrial mechanism.",
+        summaryTr: "Dayanıklılık antrenmanı yapan 18 erkek sporcunun 2'şer hafta boyunca günde 1.000 mg liyofilize arı sütü veya plasebo aldığı, aralarında 2 haftalık arınma dönemi bulunan çift kör, randomize, plasebo kontrollü çapraz çalışma. Arı sütü, plaseboya kıyasla koşu testinde tükenme süresini 4,6 dakika uzatmış ve mitokondri biyogenezini düzenleyen PGC-1α ifadesini artırmış; ancak Nrf2 ifadesini, oksidatif stres belirteçlerinin çoğunu, algılanan zorluk düzeyini ve kalp hızını değiştirmemiştir. Yazarlar küçük örneklemi, tek bir sporcu grubunun incelenmesini ve öne sürülen mitokondriyal mekanizmayı doğrulayacak kas biyopsisinin yapılmamasını sınırlılık olarak belirtmektedir.",
         categories: ["royal-jelly", "exercise"],
         url: "https://doi.org/10.1002/fsn3.70497"
       },
@@ -1674,8 +2203,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Artepillin C-Rich Propolis Extract Supplementation Promotes Muscle Recovery Following Exercise-Induced Muscle Damage in Resistance-Trained Young Females: A Randomized, Placebo-Controlled Trial (2025)",
         titleTr: "Artepillin C Açısından Zengin Propolis Ekstresi Takviyesinin Direnç Antrenmanı Yapan Genç Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Toparlanma Üzerine Etkisi: Randomize, Plasebo Kontrollü Çalışma (2025)",
         date: "2026-07-10",
-        summaryEn: "Randomized placebo-controlled trial in 22 resistance-trained females showing that 7 days of Artepillin C-rich Brazilian propolis extract supplementation attenuates markers of exercise-induced muscle damage and supports recovery.",
-        summaryTr: "22 kuvvet antrenmanlı genç kadında 7 günlük Artepillin C açısından zengin Brezilya propolisi takviyesinin egzersize bağlı kas hasarı belirteçlerini baskıladığını ve toparlanmayı desteklediğini gösteren randomize çalışma.",
+        summaryEn: "Randomized, placebo-controlled trial in 22 resistance-trained young women who took a standardised Brazilian green propolis extract (about 54 mg artepillin C per day) or placebo for 7 days, with an eccentric knee-extensor exercise bout on day 4 to cause muscle damage. Compared with placebo, propolis reduced delayed-onset muscle soreness, limited muscle swelling and ultrasound echo-intensity changes, and sped up recovery of maximal strength over 72 hours, with no side effects reported. Blood markers of inflammation and oxidative stress were not measured, which the authors list as a limitation.",
+        summaryTr: "Direnç antrenmanı yapan 22 genç kadının 7 gün boyunca standardize Brezilya yeşil propolis ekstresi (günde yaklaşık 54 mg artepilin C) veya plasebo aldığı ve 4. günde kas hasarı oluşturmak için eksantrik diz ekstansiyonu egzersizi yaptığı randomize, plasebo kontrollü çalışma. Propolis, plaseboya kıyasla gecikmiş kas ağrısını azaltmış, kas şişmesini ve ultrason eko yoğunluğundaki değişimi sınırlamış ve 72 saat içinde maksimal kuvvetin toparlanmasını hızlandırmış; yan etki bildirilmemiştir. Kandaki inflamasyon ve oksidatif stres belirteçleri ölçülmemiş olup yazarlar bunu bir sınırlılık olarak belirtmektedir.",
         categories: ["propolis", "exercise"],
         url: "https://doi.org/10.1080/15502783.2025.2569908"
       },
@@ -1683,8 +2212,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Anti-Inflammatory Potential of Royal Jelly in Multiple Sclerosis Disease: A Double Randomized Clinical Trial (2025)",
         titleTr: "Multipl Sklerozda Arı Sütünün Anti-İnflamatuar Potansiyeli: Çift Kör Randomize Klinik Çalışma (2025)",
         date: "2026-07-03",
-        summaryEn: "Double-blind randomized clinical trial in 35 MS patients showing that 500 mg/day royal jelly supplementation for 8 weeks reduces inflammatory and oxidative stress markers while improving quality of life scores.",
-        summaryTr: "35 multipl skleroz hastasında 8 haftalık 500 mg/gün arı sütü takviyesinin inflamatuar ve oksidatif stres belirteçlerini azalttığını ve yaşam kalitesini iyileştirdiğini gösteren çift kör randomize çalışma.",
+        summaryEn: "Randomized, placebo-controlled trial in 35 people with multiple sclerosis (19 given 500 mg royal jelly daily, 16 given placebo) for 2 months. In the royal jelly group, disability scores (EDSS) fell slightly, from 3.13 to 2.92, and IL-1β, IL-6, TNF, interferon, nitric oxide and malondialdehyde decreased while catalase increased; in the placebo group malondialdehyde rose. Most comparisons were made within each group before and after treatment rather than between groups, the sample was small and the follow-up short, so the results are best read as preliminary.",
+        summaryTr: "Multipl sklerozlu 35 hastanın 2 ay boyunca günde 500 mg arı sütü (19 kişi) veya plasebo (16 kişi) aldığı randomize, plasebo kontrollü çalışma. Arı sütü grubunda engellilik skoru (EDSS) 3,13'ten 2,92'ye hafifçe düşmüş; IL-1β, IL-6, TNF, interferon, nitrik oksit ve malondialdehit azalırken katalaz artmış, plasebo grubunda ise malondialdehit yükselmiştir. Karşılaştırmaların çoğu gruplar arasında değil her grubun kendi içinde tedavi öncesi ve sonrası yapılmış, örneklem küçük ve takip kısa tutulmuştur; bu nedenle sonuçlar ön bulgular olarak değerlendirilmelidir.",
         categories: ["royal-jelly", "immunity"],
         url: "https://doi.org/10.1097/MS9.0000000000002967"
       },
@@ -1692,8 +2221,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Antimicrobial Activity of Bee Pollen: Influence of Botanical Origin and Processing (2026)",
         titleTr: "Arı Poleninin Antimikrobiyal Aktivitesi: Botanik Köken ve İşlemenin Etkisi (2026)",
         date: "2026-06-26",
-        summaryEn: "Review examining how botanical origin, seasonal variation, and processing methods shape the antimicrobial activity of bee pollen, with a focus on bioavailability optimization and immunostimulatory potential.",
-        summaryTr: "Botanik köken, mevsimsel değişkenlik ve işleme yöntemlerinin arı poleninin antimikrobiyal aktivitesini nasıl şekillendirdiğini; biyoyararlanım optimizasyonu ve immün destekleyici potansiyeli açısından değerlendiren derleme.",
+        summaryEn: "Review of laboratory studies on the antimicrobial activity of monofloral bee pollen, most often from sunflower, oilseed rape, clover and chestnut. Gram-positive bacteria, especially Staphylococcus aureus, were consistently more sensitive than Gram-negative ones, and results depended strongly on botanical and geographical origin, season, extraction solvent and test method. The tough outer pollen wall (exine) limits release of active compounds; processing such as freeze-drying gave stronger activity than conventional drying but is costly for industry. The authors call for species-specific quality standards and comparable test methods.",
+        summaryTr: "Çoğunlukla ayçiçeği, kolza, yonca ve kestaneden elde edilen tek çiçekli (monofloral) arı poleninin antimikrobiyal etkisini inceleyen laboratuvar çalışmalarının derlemesi. Gram-pozitif bakteriler, özellikle Staphylococcus aureus, Gram-negatiflere göre tutarlı biçimde daha duyarlı bulunmuş; sonuçlar bitkisel ve coğrafi köken, mevsim, ekstraksiyon çözücüsü ve test yöntemine güçlü biçimde bağlı kalmıştır. Polenin dayanıklı dış duvarı (ekzin) etken maddelerin salınımını sınırlamakta; dondurarak kurutma gibi işlemler geleneksel kurutmaya göre daha güçlü etki sağlamış, ancak endüstri için maliyetlidir. Yazarlar türe özgü kalite standartları ve karşılaştırılabilir test yöntemleri geliştirilmesi çağrısında bulunmaktadır.",
         categories: ["pollen", "immunity"],
         url: "https://doi.org/10.17113/ftb.64.01.26.9421"
       },
@@ -1701,8 +2230,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Anti-Inflammatory and Wound Healing Properties of Different Honey Varieties from Romania and Correlations to Their Composition (2024)",
         titleTr: "Romanya Bal Çeşitlerinin Anti-İnflamatuar ve Yara İyileştirici Özellikleri ile Kimyasal Bileşimleriyle İlişkileri (2024)",
         date: "2026-06-19",
-        summaryEn: "In vitro study on seven Romanian honey varieties showing dose-dependent anti-inflammatory and pro-proliferative effects in macrophage, fibroblast, and keratinocyte cell models, with phenolic content strongly correlated to wound healing activity.",
-        summaryTr: "Yedi Romanya balı çeşidinin makrofaj, fibroblast ve keratinosit hücre modellerinde doza bağımlı anti-inflamatuar ve hücre çoğalması destekleyici etkiler gösterdiğini; fenolik içerik ile yara iyileşme aktivitesi arasında güçlü bir ilişki bulunduğunu ortaya koyan in vitro çalışma.",
+        summaryEn: "In vitro study of seven Romanian honeys (including honeydew, linden, sunflower and multifloral) tested on human macrophage-like cells, fibroblasts and keratinocytes. Effects differed by variety: honeydew honey lowered TNF-α by about 12% and IL-8 by about 11% in inflamed macrophages, while some multifloral honeys slightly raised TNF-α; several honeys boosted fibroblast growth, collagen synthesis and keratinocyte migration in a dose-dependent way. Activity correlated strongly with total phenolic content and only weakly with sugars, and the authors propose phenolic content as a quality marker for honey-based wound dressings, pending animal and clinical testing.",
+        summaryTr: "Aralarında salgı balı, ıhlamur, ayçiçeği ve çok çiçekli ballar bulunan yedi Romanya balının insan makrofaj benzeri hücreleri, fibroblastlar ve keratinositler üzerinde test edildiği in vitro çalışma. Etkiler bal türüne göre farklılık göstermiştir: salgı balı inflamasyonlu makrofajlarda TNF-α'yı yaklaşık %12, IL-8'i yaklaşık %11 azaltırken bazı çok çiçekli ballar TNF-α'yı hafifçe artırmış; birçok bal fibroblast çoğalmasını, kolajen sentezini ve keratinosit göçünü doza bağlı olarak artırmıştır. Etkinlik toplam fenolik içerikle güçlü, şekerlerle zayıf ilişki göstermiş; yazarlar hayvan ve klinik çalışmalarla doğrulanmak üzere fenolik içeriği bal bazlı yara örtüleri için bir kalite ölçütü olarak önermektedir.",
         categories: ["honey", "wound-healing"],
         url: "https://doi.org/10.3390/life14091187"
       },
@@ -1710,8 +2239,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Bee Pollen as a Source of Biopharmaceuticals for Neurodegeneration and Cancer Research: A Scoping Review and Translational Prospects (2024)",
         titleTr: "Nörodejenerasyon ve Kanser Araştırmaları için Biyofarmasötik Kaynağı Olarak Arı Poleni: Bir Kapsam Taraması ve Çeviri Perspektifleri (2024)",
         date: "2026-06-12",
-        summaryEn: "Scoping review examining bee pollen's biopharmaceutical potential in neurodegenerative diseases (Alzheimer's, Parkinson's) and cancer, addressing multi-target mechanisms of pollen compounds in neuroprotection and apoptosis modulation.",
-        summaryTr: "Arı poleninin nörodejeneratif hastalıklardaki (Alzheimer, Parkinson) ve kanserdeki biyofarmasötik potansiyelini inceleyen kapsam taraması; pollen bileşiklerinin nöroproteksiyon ve apoptoz modülasyonundaki çoklu hedef mekanizmalarını ele alır.",
+        summaryEn: "Scoping review of 421 publications on bee pollen compounds and the biological processes shared by neurodegeneration and cancer, such as oxidative stress, inflammation, mitochondrial dysfunction and abnormal cell death. Many individual pollen constituents, mainly flavonoids, phenolic acids and other phytochemicals, act on these processes in cell and animal studies, but only a small number of floral pollen sources have been studied as whole products. The authors list low bioavailability, lack of chemical standardisation and scattered, uncoordinated experimental designs as the main obstacles, and note that clinical evidence is still missing.",
+        summaryTr: "Arı poleni bileşenleri ile nörodejenerasyon ve kanserde ortak olan oksidatif stres, inflamasyon, mitokondriyal işlev bozukluğu ve anormal hücre ölümü gibi biyolojik süreçlere ilişkin 421 yayını kapsayan kapsam derlemesi. Başta flavonoidler ve fenolik asitler olmak üzere polenin pek çok bileşeni hücre ve hayvan çalışmalarında bu süreçleri etkilemekte, ancak bütün bir ürün olarak yalnızca az sayıda çiçek kaynaklı polen incelenmiş bulunmaktadır. Yazarlar düşük biyoyararlanımı, kimyasal standardizasyon eksikliğini ve dağınık, eşgüdümsüz deney tasarımlarını başlıca engeller olarak sıralamakta ve klinik kanıtın henüz bulunmadığını belirtmektedir.",
         categories: ["pollen", "brain"],
         url: "https://doi.org/10.3390/molecules29245893"
       },
@@ -1719,8 +2248,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Effect of a Honey-Sweetened Beverage on Muscle Soreness and Recovery After Exercise-Induced Muscle Damage in Strength-Trained Females (2024)",
         titleTr: "Bal ile Tatlandırılmış İçeceğin Kuvvet Antrenmanlı Kadınlarda Egzersize Bağlı Kas Hasarı Sonrası Kas Ağrısı ve Toparlanma Üzerine Etkisi (2024)",
         date: "2026-06-05",
-        summaryEn: "Randomized crossover trial showing a honey-sweetened beverage reduces muscle soreness and supports recovery after exercise-induced muscle damage.",
-        summaryTr: "Randomize çapraz geçişli çalışma, bal ile tatlandırılmış içeceğin egzersize bağlı kas hasarı sonrası kas ağrısını azalttığını ve toparlanmayı desteklediğini göstermektedir.",
+        summaryEn: "Double-blind, randomized, placebo-controlled crossover study in 16 strength-trained women who drank 70 g of honey in 250 mL of water, or an artificially sweetened placebo, 90 minutes before 200 weighted vertical jumps designed to cause muscle damage. Compared with placebo, the honey drink reduced muscle soreness at every time point up to 48 hours, improved wall-sit endurance and leg-press 1RM, and lowered perceived exertion, but did not change jump height, flexibility or pain threshold. The placebo contained no carbohydrate, and the authors note that no blood markers of muscle damage were measured.",
+        summaryTr: "Kuvvet antrenmanı yapan 16 kadının, kas hasarı oluşturmak için yapılan 200 ağırlıklı dikey sıçramadan 90 dakika önce 250 mL suda 70 g bal ya da yapay tatlandırıcılı plasebo içtiği çift kör, randomize, plasebo kontrollü çapraz çalışma. Ballı içecek plaseboya kıyasla 48 saate kadar tüm ölçümlerde kas ağrısını azaltmış, duvarda oturma dayanıklılığını ve bacak presi 1TM değerini artırmış, algılanan zorluğu düşürmüş; ancak sıçrama yüksekliği, esneklik ve ağrı eşiğini değiştirmemiştir. Plasebo karbonhidrat içermediği ve kas hasarına ilişkin kan belirteçleri ölçülmediği için sonuçlar dikkatle yorumlanmalıdır.",
         categories: ["honey", "exercise"],
         url: "https://doi.org/10.3389/fphys.2024.1426872"
       },
@@ -1728,8 +2257,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Effect of Honey Supplementation on Skeletal Muscle Inflammatory Markers Among Military Graduates After Overtraining (2025)",
         titleTr: "Bal Takviyesinin Aşırı Antrenman Sonrası Askeri Mezunlarda İskelet Kası İnflamatuar Belirteçleri Üzerine Etkisi (2025)",
         date: "2026-05-28",
-        summaryEn: "Double-blind clinical trial demonstrating that honey supplementation lowers skeletal muscle inflammatory markers following overtraining.",
-        summaryTr: "Çift kör klinik çalışma, bal takviyesinin aşırı antrenman sonrası iskelet kası inflamatuar belirteçlerini düşürdüğünü göstermektedir.",
+        summaryEn: "Randomized, double-blind, placebo-controlled trial in 42 overtrained male military graduates (mean age about 21) who took 5 mL of a 12% milk-vetch (Astragalus) honey solution twice daily or placebo for 6 weeks. Inflammatory and muscle-damage markers rose in both groups during training, but the increases in CRP, TNF-α, aldolase A and creatine kinase were significantly smaller with honey; the TNF-α rise in the placebo group was about twice that of the honey group. The authors note the small, single-sex sample, the 6-week duration and the lack of performance, body composition and blood sugar measurements.",
+        summaryTr: "Aşırı antrenman yapmış 42 erkek askeri mezunun (ortalama yaş yaklaşık 21) 6 hafta boyunca günde iki kez 5 mL %12'lik geven (Astragalus) balı çözeltisi veya plasebo aldığı randomize, çift kör, plasebo kontrollü çalışma. İnflamasyon ve kas hasarı belirteçleri her iki grupta da antrenman boyunca yükselmiş, ancak CRP, TNF-α, aldolaz A ve kreatin kinazdaki artış bal grubunda anlamlı ölçüde daha küçük kalmıştır; plasebo grubundaki TNF-α artışı bal grubunun yaklaşık iki katıdır. Yazarlar küçük ve tek cinsiyetten oluşan örneklemi, 6 haftalık süreyi ve performans, vücut kompozisyonu ile kan şekerinin ölçülmemesini sınırlılık olarak belirtmektedir.",
         categories: ["honey", "exercise"],
         url: "https://doi.org/10.1002/hsr2.70428"
       },
@@ -1737,8 +2266,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Could It Bee? Honey Ingestion Induces Comparable Metabolic Responses to Traditional Carbohydrates During Steady-State Cycling (2025)",
         titleTr: "Bal Olabilir mi? Bal Tüketimi Dengeli Bisiklet Sürüşü Sırasında Geleneksel Karbonhidratlara Benzer Metabolik Yanıtlar Oluşturur (2025)",
         date: "2026-05-20",
-        summaryEn: "Randomized crossover trial finding that honey produces metabolic responses comparable to traditional carbohydrates during three hours of steady-state cycling.",
-        summaryTr: "Randomize çapraz geçişli çalışma, balın üç saatlik dengeli bisiklet sürüşü sırasında geleneksel karbonhidratlara benzer metabolik yanıtlar oluşturduğunu bulmuştur.",
+        summaryEn: "Randomized crossover trial in 12 trained men who cycled for 180 minutes at a steady pace while taking 90 g of carbohydrate per hour either as honey or as a conventional sports carbohydrate product, followed by a time-to-fatigue test. Carbohydrate and fat oxidation, endurance capacity, breath hydrogen and gastrointestinal symptoms did not differ between honey and the sports product, and severe gut symptoms were rare. The authors conclude honey can be an alternative fuelling option during long exercise; the study was small and included only men.",
+        summaryTr: "12 antrenmanlı erkeğin 180 dakika sabit tempoda bisiklet sürerken saatte 90 g karbonhidratı bal veya geleneksel bir spor karbonhidrat ürünü olarak aldığı, ardından yorgunluğa kadar süre testine girdiği randomize çapraz çalışma. Karbonhidrat ve yağ oksidasyonu, dayanıklılık kapasitesi, nefeste hidrojen ve sindirim semptomları bal ile spor ürünü arasında farklılık göstermemiş, ciddi sindirim şikâyetleri nadir görülmüştür. Yazarlar balın uzun egzersizde alternatif bir enerji kaynağı olabileceği sonucuna varmaktadır; çalışma küçük ölçekli ve yalnızca erkeklerle yapılmıştır.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["honey", "exercise"],
         url: "https://doi.org/10.1123/ijsnem.2024-0244"
       },
@@ -1746,8 +2276,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Carbohydrates and Endurance Exercise: A Narrative Review of a Food First Approach (2023)",
         titleTr: "Karbonhidratlar ve Dayanıklılık Egzersizi: Önce Gıda Yaklaşımının Anlatısal Bir Derlemesi (2023)",
         date: "2026-05-12",
-        summaryEn: "Narrative review supporting a food-first approach to carbohydrate intake for endurance exercise, including natural sources such as honey.",
-        summaryTr: "Bal gibi doğal kaynaklar dahil, dayanıklılık egzersizi için karbonhidrat alımında önce gıda yaklaşımını destekleyen anlatısal derleme.",
+        summaryEn: "Narrative review of a \"food first\" approach to carbohydrate intake for endurance athletes, comparing whole foods with commercial gels, bars and drinks before, during and after exercise. Lentils, oats, honey, raisins, rice and potatoes all worked as pre-exercise carbohydrate sources, while honey, raisins and bananas were the most practical during exercise because they are easy to carry; high-glycaemic foods suit rapid glycogen recovery afterwards. Bulky foods can cause gastrointestinal discomfort, and the authors stress that evidence is limited by small samples, water-only controls, mostly recreational athletes and mainly cycling protocols.",
+        summaryTr: "Dayanıklılık sporcularında karbonhidrat alımında \"önce gıda\" yaklaşımını inceleyen ve tam gıdaları egzersiz öncesi, sırası ve sonrasında ticari jel, bar ve içeceklerle karşılaştıran anlatısal derleme. Mercimek, yulaf, bal, kuru üzüm, pirinç ve patates egzersiz öncesi karbonhidrat kaynağı olarak etkili bulunmuş; egzersiz sırasında taşınması kolay olan bal, kuru üzüm ve muz en pratik seçenekler olarak öne çıkmış, yüksek glisemik indeksli gıdalar ise egzersiz sonrası hızlı glikojen yenilenmesine uygun görülmüştür. Hacimli gıdalar sindirim rahatsızlığına yol açabilmekte; yazarlar kanıtların küçük örneklemler, yalnızca su içilen kontrol koşulları, ağırlıklı olarak amatör sporcular ve bisiklet protokolleriyle sınırlı olduğunu vurgulamaktadır.",
         categories: ["honey", "exercise"],
         url: "https://doi.org/10.3390/nu15061367"
       },
@@ -1755,8 +2285,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Honey on Brain Health: A Promising Brain Booster (2023)",
         titleTr: "Beyin Sağlığında Bal: Umut Verici Bir Beyin Güçlendirici (2023)",
         date: "2026-05-04",
-        summaryEn: "Review highlighting honey's polyphenols as supportive of cognitive function, memory, and overall brain health.",
-        summaryTr: "Balın polifenollerinin bilişsel işlevi, hafızayı ve genel beyin sağlığını desteklediğini vurgulayan derleme.",
+        summaryEn: "Review of 34 original human and animal studies on honey and brain health, grouped into four areas: memory, neuroprotection, stress reduction and pain relief. Most evidence comes from rodent models, for example prenatally stressed rats in which honey lowered oxidative stress markers and preserved hippocampal neurons, and the review attributes the effects to phenolic acids and flavonoids such as luteolin, kaempferol and apigenin acting through antioxidant, anti-inflammatory, cholinergic and BDNF pathways. The authors note that human studies are scarce, so the proposed mechanisms remain largely preclinical.",
+        summaryTr: "Bal ve beyin sağlığı üzerine 34 özgün insan ve hayvan çalışmasını bellek, nöroproteksiyon, stres azaltma ve ağrı giderme olmak üzere dört başlıkta toplayan derleme. Kanıtların çoğu kemirgen modellerinden gelmekte (örneğin doğum öncesi strese maruz kalan sıçanlarda bal oksidatif stres belirteçlerini düşürmüş ve hipokampus nöronlarını korumuştur); derleme etkileri luteolin, kaempferol ve apigenin gibi flavonoidler ile fenolik asitlerin antioksidan, anti-inflamatuar, kolinerjik ve BDNF yolakları üzerinden etkisine bağlamaktadır. Yazarlar insan çalışmalarının az olduğunu, dolayısıyla önerilen mekanizmaların büyük ölçüde preklinik düzeyde kaldığını belirtmektedir.",
         categories: ["honey", "brain"],
         url: "https://doi.org/10.3389/fnagi.2022.1092596"
       },
@@ -1764,8 +2294,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "The Potential Use of Honey as a Neuroprotective Agent for the Management of Neurodegenerative Diseases (2023)",
         titleTr: "Nörodejeneratif Hastalıkların Yönetiminde Nöroprotektif Ajan Olarak Balın Potansiyel Kullanımı (2023)",
         date: "2026-04-26",
-        summaryEn: "Review examining honey's neuroprotective potential against neurodegenerative diseases through its antioxidant and anti-inflammatory actions.",
-        summaryTr: "Balın antioksidan ve anti-inflamatuar etkileri aracılığıyla nörodejeneratif hastalıklara karşı nöroprotektif potansiyelini inceleyen derleme.",
+        summaryEn: "Review of 16 studies from 2012 to 2022 on honey in neurodegenerative disease: six in vitro, eight animal, one combined and a single human intervention, which tested honey with cinnamon in Parkinson's disease. Tualang and thyme honeys showed the strongest antioxidant, anti-inflammatory and anticholinesterase activity, mainly in Alzheimer's models, and the effects were linked to polyphenols, especially quercetin and gallic acid. Because only one intervention study exists, the authors conclude the evidence is not yet sufficient to show that honey slows neurodegeneration in people.",
+        summaryTr: "Balın nörodejeneratif hastalıklardaki rolüne ilişkin 2012-2022 arasındaki 16 çalışmayı inceleyen derleme: altı in vitro, sekiz hayvan, bir birleşik çalışma ve Parkinson hastalığında bal ile tarçını test eden tek bir insan müdahale çalışması. En güçlü antioksidan, anti-inflamatuar ve antikolinesteraz etkiyi ağırlıklı olarak Alzheimer modellerinde Tualang ve kekik balları göstermiş; etkiler başta kuersetin ve gallik asit olmak üzere polifenollere bağlanmıştır. Yalnızca bir müdahale çalışması bulunduğundan yazarlar, balın insanlarda nörodejenerasyonu yavaşlattığını göstermek için kanıtların henüz yeterli olmadığı sonucuna varmaktadır.",
         categories: ["honey", "brain"],
         url: "https://doi.org/10.3390/nu15071558"
       },
@@ -1773,8 +2303,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Honey as a Neuroprotective Agent: Molecular Perspectives on Its Role in Alzheimer's Disease (2025)",
         titleTr: "Nöroprotektif Ajan Olarak Bal: Alzheimer Hastalığındaki Rolüne Moleküler Bakış (2025)",
         date: "2026-04-18",
-        summaryEn: "Review exploring the molecular mechanisms by which honey may protect against Alzheimer's disease.",
-        summaryTr: "Balın Alzheimer hastalığına karşı koruma sağlayabileceği moleküler mekanizmaları araştıran derleme.",
+        summaryEn: "Review of the molecular mechanisms through which honey may protect against Alzheimer's disease, covering oxidative stress, mitochondrial dysfunction, inflammation, apoptosis, amyloid-β accumulation, tau hyperphosphorylation and acetylcholinesterase activity. Studies on avocado, manuka, acacia, kelulut, chestnut, coffee and tualang honeys show that effects depend on botanical origin. The evidence is almost entirely from cell cultures, C. elegans and rodents, often at high doses of up to 1 g/kg per day, and the authors found no completed or registered randomized human trial, so they describe the evidence as preliminary.",
+        summaryTr: "Balın Alzheimer hastalığına karşı koruyucu olabileceği moleküler mekanizmaları; oksidatif stres, mitokondriyal işlev bozukluğu, inflamasyon, apoptoz, amiloid-β birikimi, tau hiperfosforilasyonu ve asetilkolinesteraz aktivitesi üzerinden inceleyen derleme. Avokado, manuka, akasya, kelulut, kestane, kahve ve tualang ballarıyla yapılan çalışmalar etkinin balın bitkisel kaynağına bağlı olduğunu göstermektedir. Kanıtların neredeyse tamamı hücre kültürleri, C. elegans ve kemirgenlerden, çoğu zaman günde 1 g/kg'a varan yüksek dozlarla elde edilmiştir; yazarlar tamamlanmış veya kayıtlı randomize bir insan çalışması bulamadıklarından kanıtları ön düzeyde olarak nitelendirmektedir.",
         categories: ["honey", "brain"],
         url: "https://doi.org/10.3390/nu17162577"
       },
@@ -1782,8 +2312,9 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Comparative Neuroprotective Effects of Royal Jelly and 10-Hydroxy-2-Decenoic Acid on Ischemia-Induced Inflammatory, Apoptotic, Epigenetic and Genotoxic Changes in a Rat Model of Ischemic Stroke (2024)",
         titleTr: "Arı Sütü ve 10-Hidroksi-2-Dekenoik Asidin İskemik İnme Sıçan Modelinde İskemiye Bağlı İnflamatuar, Apoptotik, Epigenetik ve Genotoksik Değişiklikler Üzerindeki Karşılaştırmalı Nöroprotektif Etkileri (2024)",
         date: "2026-04-10",
-        summaryEn: "Research article comparing the neuroprotective effects of royal jelly and its unique compound 10-hydroxy-2-decenoic acid (10-HDA) in a rat model of ischemic stroke, evaluating their impact on ischemia-induced inflammatory, apoptotic, epigenetic, and genotoxic changes.",
-        summaryTr: "Arı sütü ve kendine özgü bileşeni 10-hidroksi-2-dekenoik asidin (10-HDA) iskemik inme sıçan modelinde nöroprotektif etkilerini karşılaştıran araştırma makalesi; iskemiye bağlı inflamatuar, apoptotik, epigenetik ve genotoksik değişiklikler üzerindeki etkileri değerlendirmektedir.",
+        summaryEn: "Rat study comparing royal jelly with its main fatty acid, 10-HDA, after experimentally induced ischaemic stroke (middle cerebral artery occlusion), each given daily for 7 days from the day of surgery. Both reduced brain infarct size and weight loss, lowered the cell-death markers caspase-3 and PARP-1, increased histone acetylation, and reduced DNA damage in brain tissue and blood lymphocytes; royal jelly raised acetyl-histone H3 more strongly than 10-HDA alone. The authors conclude that royal jelly's protective effect in experimental stroke comes largely from 10-HDA.",
+        summaryTr: "Deneysel olarak oluşturulan iskemik inmede (orta serebral arter tıkanması) arı sütünü ana yağ asidi 10-HDA ile karşılaştıran ve her ikisinin ameliyat gününden itibaren 7 gün boyunca günlük verildiği sıçan çalışması. Her ikisi de beyin enfarktüs alanını ve kilo kaybını azaltmış, hücre ölümü belirteçleri kaspaz-3 ve PARP-1'i düşürmüş, histon asetilasyonunu artırmış ve beyin dokusu ile kan lenfositlerindeki DNA hasarını azaltmıştır; arı sütü asetil-histon H3'ü 10-HDA'dan daha güçlü artırmıştır. Yazarlar arı sütünün deneysel inmedeki koruyucu etkisinin büyük ölçüde 10-HDA'dan kaynaklandığı sonucuna varmaktadır.",
+        summaryBasis: "abstract", // paywalled: summary based on the abstract only
         categories: ["royal-jelly", "brain"],
         url: "https://www.tandfonline.com/doi/abs/10.1080/1028415X.2024.2344141"
       },
@@ -1791,8 +2322,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Pro-Cognitive Effect of Royal Jelly Is Linked with Increased Burst Activity of Mesocorticolimbic Dopaminergic Neurons (2025)",
         titleTr: "Arı Sütünün Bilişsel Etkisi, Mezokortikolimbik Dopaminerjik Nöronların Artan Aktivitesiyle İlişkilidir (2025)",
         date: "2026-04-02",
-        summaryEn: "Research showing royal jelly's pro-cognitive effects are linked to increased burst activity of mesocorticolimbic dopaminergic neurons.",
-        summaryTr: "Arı sütünün bilişsel etkilerinin mezokortikolimbik dopaminerjik nöronların artan aktivitesiyle ilişkili olduğunu gösteren araştırma.",
+        summaryEn: "Rat study in which adult male Wistar rats received royal jelly for two weeks before a novel object recognition test and in vivo recordings of brain monoamine neurons. Treated rats had higher recognition and discrimination indices than controls, with no weight loss or change in food intake, and dopaminergic neurons of the ventral tegmental area fired more often in bursts, while serotonin and noradrenaline neurons were unchanged. The authors link royal jelly's pro-cognitive effect to the mesolimbic dopamine system but could not identify which component is responsible; tyrosine, a dopamine precursor, is one candidate.",
+        summaryTr: "Yetişkin erkek Wistar sıçanlarına iki hafta boyunca arı sütü verildikten sonra yeni nesne tanıma testi ve beyindeki monoamin nöronlarının canlı kayıtlarının yapıldığı hayvan çalışması. Arı sütü alan sıçanlarda tanıma ve ayırt etme indeksleri kontrollere göre daha yüksek bulunmuş, kilo kaybı veya yem tüketiminde değişim görülmemiş; ventral tegmental alandaki dopaminerjik nöronlar daha sık patlama tarzı ateşleme yaparken serotonin ve noradrenalin nöronları değişmemiştir. Yazarlar arı sütünün bilişsel etkisini mezolimbik dopamin sistemine bağlamakla birlikte sorumlu bileşeni belirleyememiştir; dopaminin öncülü olan tirozin olası adaylardan biridir.",
         categories: ["royal-jelly", "brain"],
         url: "https://doi.org/10.3390/nu17223593"
       },
@@ -1802,6 +2333,7 @@ document.addEventListener("DOMContentLoaded", function () {
         date: "2026-03-25",
         summaryEn: "In vivo study demonstrating that royal jelly reduces cognitive decline and anxiety in a female mouse model of Alzheimer's disease.",
         summaryTr: "Arı sütünün Alzheimer hastalığının dişi fare modelinde bilişsel gerilemeyi ve anksiyeteyi azalttığını gösteren in vivo çalışma.",
+        summaryBasis: "unverified", // MDPI page blocks automated access; summary not yet checked against the paper
         categories: ["royal-jelly", "brain"],
         url: "https://doi.org/10.3390/compounds6010008"
       },
@@ -1811,6 +2343,7 @@ document.addEventListener("DOMContentLoaded", function () {
         date: "2026-03-17",
         summaryEn: "Review of the immunomodulatory and anti-inflammatory properties shared across honey, propolis, royal jelly, and bee pollen.",
         summaryTr: "Bal, propolis, arı sütü ve arı poleninin ortak immünomodülatör ve anti-inflamatuar özelliklerini inceleyen derleme.",
+        summaryBasis: "unverified", // MDPI page blocks automated access; summary not yet checked against the paper
         categories: ["honey", "propolis", "royal-jelly", "pollen", "immunity"],
         url: "https://www.mdpi.com/2673-5601/5/2/19"
       },
@@ -1818,8 +2351,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Propolis Supplementation on Inflammatory and Oxidative Stress Biomarkers: A Systematic Review and Meta-Analysis of RCTs (2025)",
         titleTr: "İnflamatuar ve Oksidatif Stres Biyobelirteçleri Üzerine Propolis Takviyesi: RCT'lerin Sistematik Derlemesi ve Meta-Analizi (2025)",
         date: "2026-03-09",
-        summaryEn: "Systematic review and meta-analysis of randomized trials showing propolis supplementation improves inflammatory and oxidative stress biomarkers.",
-        summaryTr: "Propolis takviyesinin inflamatuar ve oksidatif stres biyobelirteçlerini iyileştirdiğini gösteren randomize çalışmaların sistematik derlemesi ve meta-analizi.",
+        summaryEn: "Systematic review and meta-analysis of 27 randomized controlled trials (29 treatment arms, 1,539 adults, 2003 to 2023), mostly in people with conditions such as type 2 diabetes, fatty liver disease, kidney disease or rheumatoid arthritis. Propolis lowered CRP (by 1.23 mg/L), IL-6, TNF-α and MCP-1 and raised total antioxidant capacity, glutathione and glutathione peroxidase, but had no significant effect on IL-2, IL-8, IL-10, malondialdehyde or superoxide dismutase. The authors flag differences in dose, form, duration and participants as sources of heterogeneity and call for trials to establish the best dose and duration.",
+        summaryTr: "Çoğu tip 2 diyabet, yağlı karaciğer, böbrek hastalığı veya romatoid artrit gibi rahatsızlıkları olan yetişkinlerde yürütülmüş 27 randomize kontrollü çalışmanın (29 tedavi kolu, 1.539 kişi, 2003-2023) sistematik derlemesi ve meta-analizi. Propolis CRP'yi (1,23 mg/L), IL-6, TNF-α ve MCP-1'i düşürmüş; toplam antioksidan kapasite, glutatyon ve glutatyon peroksidazı artırmış, ancak IL-2, IL-8, IL-10, malondialdehit ve süperoksit dismutaz üzerinde anlamlı etki göstermemiştir. Yazarlar doz, form, süre ve katılımcı farklılıklarını heterojenlik kaynağı olarak belirtmekte ve en uygun doz ile sürenin belirlenmesi için yeni çalışmalar önermektedir.",
         categories: ["propolis", "immunity"],
         url: "https://doi.org/10.3389/fnut.2025.1542184"
       },
@@ -1827,8 +2360,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Antimicrobial Potential of Bee-Derived Products: Honey, Propolis and Bee Venom (2025)",
         titleTr: "Arı Kaynaklı Ürünlerin Antimikrobiyal Potansiyeli: Bal, Propolis ve Arı Zehri (2025)",
         date: "2026-03-01",
-        summaryEn: "Review of the antimicrobial potential of bee-derived products including honey and propolis against pathogenic microorganisms.",
-        summaryTr: "Bal ve propolis dahil arı kaynaklı ürünlerin patojen mikroorganizmalara karşı antimikrobiyal potansiyelini inceleyen derleme.",
+        summaryEn: "Review of the antibacterial, antiviral and antifungal activity of honey, propolis and bee venom, describing their chemical composition and mechanisms such as hydrogen peroxide, methylglyoxal, osmotic effects, flavonoids and the membrane-disrupting peptide melittin. The review covers activity against multidrug-resistant microbes, synergy with conventional antibiotics and the established use of honey in wound care. It also discusses obstacles to medical use, including variable composition, lack of standardisation, regulatory barriers and allergy risk, and concludes that standardised products and clinical trials are needed.",
+        summaryTr: "Bal, propolis ve arı zehirinin antibakteriyel, antiviral ve antifungal etkilerini; kimyasal bileşimleri ile hidrojen peroksit, metilglioksal, ozmotik etki, flavonoidler ve hücre zarını bozan melittin peptidi gibi etki mekanizmaları üzerinden inceleyen derleme. Derleme çoklu ilaca dirençli mikroorganizmalara karşı etkinliği, geleneksel antibiyotiklerle sinerjiyi ve balın yara bakımındaki yerleşik kullanımını ele almaktadır. Ayrıca değişken bileşim, standardizasyon eksikliği, mevzuat engelleri ve alerji riski gibi tıbbi kullanımın önündeki engelleri tartışmakta; standardize ürünlere ve klinik çalışmalara ihtiyaç olduğu sonucuna varmaktadır.",
         categories: ["honey", "propolis", "immunity"],
         url: "https://doi.org/10.3390/pathogens14080780"
       },
@@ -1836,8 +2369,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Royal Jelly: A Promising Therapeutic Intervention and Functional Food Supplement (2024)",
         titleTr: "Arı Sütü: Umut Verici Bir Terapötik Müdahale ve Fonksiyonel Gıda Takviyesi (2024)",
         date: "2026-02-21",
-        summaryEn: "Systematic review of royal jelly's therapeutic potential as a functional food, including immune support and wound healing.",
-        summaryTr: "Arı sütünün bağışıklık desteği ve yara iyileşmesi dahil fonksiyonel gıda olarak terapötik potansiyelini inceleyen sistematik derleme.",
+        summaryEn: "Systematic review of studies published from 2000 to April 2024 on royal jelly's composition, health effects and mechanisms. Its proteins (MRJPs), peptides, fatty acids such as 10-HDA and flavonoids are linked to anti-inflammatory, antioxidant, antimicrobial and anti-ageing effects, with reported benefits for wound healing, immune function, diabetes and cardiovascular risk acting through NF-κB, MAPK and AMPK signalling. The authors note that much of the evidence is preclinical, large controlled human trials are few, composition varies with bee and diet, and standard doses and long-term safety data are still lacking.",
+        summaryTr: "2000'den Nisan 2024'e kadar yayımlanan, arı sütünün bileşimi, sağlık etkileri ve mekanizmalarına ilişkin çalışmaları inceleyen sistematik derleme. Proteinleri (MRJP'ler), peptitleri, 10-HDA gibi yağ asitleri ve flavonoidleri anti-inflamatuar, antioksidan, antimikrobiyal ve yaşlanma karşıtı etkilerle ilişkilendirilmekte; yara iyileşmesi, bağışıklık, diyabet ve kardiyovasküler risk üzerindeki bildirilen yararların NF-κB, MAPK ve AMPK sinyal yolakları aracılığıyla gerçekleştiği belirtilmektedir. Yazarlar kanıtların önemli kısmının preklinik olduğunu, büyük kontrollü insan çalışmalarının az sayıda kaldığını, bileşimin arı ve beslenmeye göre değiştiğini ve standart doz ile uzun dönem güvenlik verilerinin hâlâ eksik olduğunu belirtmektedir.",
         categories: ["royal-jelly", "immunity", "wound-healing"],
         url: "https://doi.org/10.1016/j.heliyon.2024.e37138"
       },
@@ -1845,8 +2378,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Unlocking the Healing Potential: Medical-Grade Honey in Wound Management and Tissue Regeneration (2025)",
         titleTr: "İyileştirici Potansiyeli Açığa Çıkarmak: Yara Yönetimi ve Doku Rejenerasyonunda Tıbbi Sınıf Bal (2025)",
         date: "2026-02-13",
-        summaryEn: "Narrative review of medical-grade honey's role in wound management and tissue regeneration.",
-        summaryTr: "Tıbbi sınıf balın yara yönetimi ve doku rejenerasyonundaki rolünü inceleyen anlatısal derleme.",
+        summaryEn: "Narrative review drawing on 167 selected publications about medical-grade honey in wound care, including how botanical origin shapes its antibacterial, anti-inflammatory and regenerative properties. Honey-based products performed well in chronic and burn wounds in several studies, lowering infection rates and shortening hospital stays, but other trials found no significant difference from conventional dressings. The authors describe the clinical evidence as mixed, attribute much of the inconsistency to variable honey composition and potency, and call for standardised products and further clinical studies.",
+        summaryTr: "Seçilen 167 yayına dayanarak tıbbi sınıf balın yara bakımındaki kullanımını ve bitkisel kökenin antibakteriyel, anti-inflamatuar ve doku yenileyici özellikleri nasıl etkilediğini inceleyen anlatısal derleme. Bal bazlı ürünler birçok çalışmada kronik ve yanık yaralarında iyi sonuç vermiş, enfeksiyon oranlarını ve hastanede kalış süresini azaltmış; ancak diğer bazı çalışmalarda geleneksel pansumanlardan anlamlı bir fark bulunmamıştır. Yazarlar klinik kanıtları karışık olarak nitelendirmekte, tutarsızlığın büyük kısmını balın değişken bileşimine ve etkinliğine bağlamakta ve standardize ürünler ile ek klinik çalışmalar önermektedir.",
         categories: ["honey", "wound-healing"],
         url: "https://doi.org/10.1002/hsr2.70240"
       },
@@ -1854,8 +2387,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "The Use of Honey for Cicatrization and Pain Control of Obstetric Wounds (2024)",
         titleTr: "Obstetrik Yaraların İyileşmesi ve Ağrı Kontrolünde Balın Kullanımı (2024)",
         date: "2026-02-05",
-        summaryEn: "Systematic review and meta-analysis evaluating honey for wound cicatrization and pain control in obstetric wounds.",
-        summaryTr: "Obstetrik yaralarda yara iyileşmesi ve ağrı kontrolü için balı değerlendiren sistematik derleme ve meta-analiz.",
+        summaryEn: "Systematic review and meta-analysis of 5 double-blind randomized trials in 353 women with caesarean or episiotomy wounds, comparing topical honey with placebo. Final wound healing at days 10 to 14 did not differ between groups, but honey reduced pain midway through treatment, lowered the need for pain medication and complications, and increased patient satisfaction, with good tolerability. The authors point to high heterogeneity, mixed wound and honey types and small samples, and call for larger trials with standardised time points and scales.",
+        summaryTr: "Sezaryen veya epizyotomi yarası olan 353 kadında topikal bal ile plaseboyu karşılaştıran 5 çift kör randomize çalışmanın sistematik derlemesi ve meta-analizi. 10-14. günlerdeki nihai yara iyileşmesi gruplar arasında farklılık göstermemiş; ancak bal, tedavinin ortasında ağrıyı azaltmış, ağrı kesici ihtiyacını ve komplikasyonları düşürmüş, hasta memnuniyetini artırmış ve iyi tolere edilmiştir. Yazarlar yüksek heterojenliğe, farklı yara ve bal türlerine ve küçük örneklemlere dikkat çekmekte, standart zaman noktaları ve ölçeklerle daha büyük çalışmalar yapılmasını önermektedir.",
         categories: ["honey", "wound-healing"],
         url: "https://doi.org/10.3390/nu16020185"
       },
@@ -1865,6 +2398,7 @@ document.addEventListener("DOMContentLoaded", function () {
         date: "2026-01-28",
         summaryEn: "Systematic review of propolis-functionalized biomaterials and their application in wound healing.",
         summaryTr: "Propolis ile fonksiyonelleştirilmiş biyomalzemeleri ve yara iyileşmesindeki uygulamalarını inceleyen sistematik derleme.",
+        summaryBasis: "unverified", // MDPI page blocks automated access; summary not yet checked against the paper
         categories: ["propolis", "wound-healing"],
         url: "https://www.mdpi.com/2673-4176/6/3/74"
       },
@@ -1872,8 +2406,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Bee Products and Traditional Plant Therapies for Wound Care (2025)",
         titleTr: "Yara Bakımı için Arı Ürünleri ve Geleneksel Bitki Terapileri (2025)",
         date: "2026-01-20",
-        summaryEn: "Review of bee products — honey, propolis, royal jelly, and pollen — alongside traditional plant therapies for wound care.",
-        summaryTr: "Yara bakımı için bal, propolis, arı sütü ve polen gibi arı ürünlerini geleneksel bitki terapileriyle birlikte inceleyen derleme.",
+        summaryEn: "Narrative review of bee products, mainly honey and propolis, and traditional medicinal plants in wound care, covering their composition and their antimicrobial, anti-inflammatory, antioxidant and tissue-regenerating mechanisms. Experimental and clinical studies, including in diabetic foot ulcers, support their use in chronic wounds, and combinations such as honey with propolis showed good infection control and wound closure. The authors present these products as low-cost options that could complement standard wound care but stress that standardisation and further clinical research are still needed.",
+        summaryTr: "Başta bal ve propolis olmak üzere arı ürünlerinin ve geleneksel tıbbi bitkilerin yara bakımındaki kullanımını; bileşimleri ile antimikrobiyal, anti-inflamatuar, antioksidan ve doku yenileyici mekanizmaları üzerinden inceleyen anlatısal derleme. Diyabetik ayak ülserleri dahil deneysel ve klinik çalışmalar bu ürünlerin kronik yaralarda kullanımını desteklemekte; bal ile propolis gibi kombinasyonlar enfeksiyon kontrolü ve yara kapanmasında iyi sonuç vermiştir. Yazarlar bu ürünleri standart yara bakımını tamamlayabilecek düşük maliyetli seçenekler olarak sunmakla birlikte standardizasyon ve ek klinik araştırma gerektiğini vurgulamaktadır.",
         categories: ["honey", "propolis", "royal-jelly", "pollen", "wound-healing"],
         url: "https://doi.org/10.3831/KPI.2025.28.4.255"
       },
@@ -1881,8 +2415,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Antioxidant and Anti-Inflammatory Properties of Bee Pollen from Acorn and Darae (2024)",
         titleTr: "Meşe ve Darae Arı Poleninin Antioksidan ve Anti-İnflamatuar Özellikleri (2024)",
         date: "2026-01-12",
-        summaryEn: "Research demonstrating strong antioxidant and anti-inflammatory activity of bee pollen sourced from acorn and darae.",
-        summaryTr: "Meşe ve darae kaynaklı arı poleninin güçlü antioksidan ve anti-inflamatuar aktivitesini gösteren araştırma.",
+        summaryEn: "Cell-culture study of ethanol extracts of Korean bee pollen from acorn (Quercus acutissima) and hardy kiwi, or darae (Actinidia arguta), in LPS-stimulated mouse macrophages, at non-toxic doses up to 400 µg/mL. Acorn and darae pollen cut nitric oxide by 69% and 78%, PGE2 by 44% and 66% and reactive oxygen species by 47% and 60%, lowered TNF-α, IL-6 and IL-1β, blocked NF-κB entry into the nucleus by about 90% and activated the antioxidant regulator Nrf2. The two pollens did not differ significantly, and the findings are limited to a single mouse cell line.",
+        summaryTr: "Kore'de meşe (Quercus acutissima) ve darae (Actinidia arguta, kivi akrabası) bitkilerinden toplanan arı poleninin etanol ekstrelerinin, toksik olmayan 400 µg/mL'ye kadar dozlarda LPS ile uyarılmış fare makrofajlarında incelendiği hücre kültürü çalışması. Meşe ve darae poleni nitrik oksidi sırasıyla %69 ve %78, PGE2'yi %44 ve %66, reaktif oksijen türlerini %47 ve %60 azaltmış; TNF-α, IL-6 ve IL-1β'yı düşürmüş, NF-κB'nin çekirdeğe geçişini yaklaşık %90 engellemiş ve antioksidan düzenleyici Nrf2'yi etkinleştirmiştir. İki polen arasında anlamlı fark bulunmamış olup bulgular tek bir fare hücre hattıyla sınırlıdır.",
         categories: ["pollen", "immunity"],
         url: "https://doi.org/10.3390/antiox13080981"
       },
@@ -1890,8 +2424,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Chemical Properties and Biological Activity of Bee Pollen (2023)",
         titleTr: "Arı Poleninin Kimyasal Özellikleri ve Biyolojik Aktivitesi (2023)",
         date: "2026-01-04",
-        summaryEn: "Review of the chemical composition of bee pollen and its diverse biological activities.",
-        summaryTr: "Arı poleninin kimyasal bileşimini ve çeşitli biyolojik aktivitelerini inceleyen derleme.",
+        summaryEn: "Review of bee pollen's chemical composition (proteins, carbohydrates, lipids, vitamins, minerals, phenolic compounds and flavonoids) and its antioxidant, anti-inflammatory, antimicrobial, anticancer and possible antiviral activity, with a separate summary of clinical trials, supplement uses, allergy and food-safety risks. Reported mechanisms include suppression of inflammatory genes through NF-κB and MAPK and radical scavenging by polyphenols, and some human studies show effects such as lower cholesterol. The authors stress that composition varies with plant species, region, soil and collection method, which limits generalisation and calls for standardisation.",
+        summaryTr: "Arı poleninin kimyasal bileşimini (protein, karbonhidrat, lipit, vitamin, mineral, fenolik bileşikler ve flavonoidler) ve antioksidan, anti-inflamatuar, antimikrobiyal, antikanser ve olası antiviral etkilerini inceleyen; klinik çalışmaları, takviye kullanımını, alerji ve gıda güvenliği risklerini ayrıca özetleyen derleme. Bildirilen mekanizmalar arasında NF-κB ve MAPK üzerinden inflamatuar genlerin baskılanması ve polifenollerin serbest radikal temizleme etkisi bulunmakta; bazı insan çalışmalarında kolesterol düşüşü gibi etkiler görülmektedir. Yazarlar bileşimin bitki türü, bölge, toprak ve toplama yöntemine göre değiştiğini, bunun genellemeyi sınırladığını ve standardizasyon gerektirdiğini vurgulamaktadır.",
         categories: ["pollen"],
         url: "https://doi.org/10.3390/molecules28237768"
       },
@@ -1899,8 +2433,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Antioxidant-Rich Polyfloral Bee Pollen Exerts Antimicrobial and Anti-Inflammatory Effects in Lung Epithelial Cells (2025)",
         titleTr: "Antioksidan Açısından Zengin Çok Çiçekli Arı Poleni Akciğer Epitel Hücrelerinde Antimikrobiyal ve Anti-İnflamatuar Etki Gösterir (2025)",
         date: "2025-12-27",
-        summaryEn: "Research showing antioxidant-rich polyfloral bee pollen exerts antimicrobial and anti-inflammatory effects in A549 lung epithelial cells.",
-        summaryTr: "Antioksidan açısından zengin çok çiçekli arı poleninin A549 akciğer epitel hücrelerinde antimikrobiyal ve anti-inflamatuar etki gösterdiğini ortaya koyan araştırma.",
+        summaryEn: "Laboratory study of a polyfloral bee pollen from Tuscany, mainly from bramble, dwarf elder and holm oak, analysed for polyphenols (20.2 mg/g), flavonoids and carotenoids and tested in antioxidant, antimicrobial and cell assays. The extract showed solid antioxidant capacity and inhibited Bacillus subtilis and Pseudomonas stutzeri only at a high concentration (10 mg/mL). In TNF-α-inflamed human lung epithelial cells (A549), pretreatment with 10 and 50 µg/mL reduced IL-8 and COX-2 expression by dampening NF-κB activation, which the authors suggest may be relevant to chronic airway inflammation such as COPD, pending in vivo studies.",
+        summaryTr: "Başta böğürtlen, yer mürveri ve pırnal meşesinden oluşan, Toskana'da toplanmış çok çiçekli bir arı poleninin polifenol (20,2 mg/g), flavonoid ve karotenoid içeriğinin ölçüldüğü ve antioksidan, antimikrobiyal ve hücre testlerinde incelendiği laboratuvar çalışması. Ekstre iyi bir antioksidan kapasite göstermiş, Bacillus subtilis ve Pseudomonas stutzeri'yi ise ancak yüksek konsantrasyonda (10 mg/mL) baskılamıştır. TNF-α ile inflamasyon oluşturulan insan akciğer epitel hücrelerinde (A549) 10 ve 50 µg/mL ön tedavi, NF-κB aktivasyonunu azaltarak IL-8 ve COX-2 ifadesini düşürmüş; yazarlar bunun KOAH gibi kronik solunum yolu inflamasyonları için önemli olabileceğini, ancak canlı organizma çalışmalarıyla doğrulanması gerektiğini belirtmektedir.",
         categories: ["pollen", "immunity"],
         url: "https://doi.org/10.3390/foods14050802"
       },
@@ -1908,8 +2442,8 @@ document.addEventListener("DOMContentLoaded", function () {
         titleEn: "Chemical Composition of Egyptian Propolis and Antimicrobial Activity in Combination with Honey Against MDR Uropathogens (2025)",
         titleTr: "Mısır Propolisinin Kimyasal Bileşimi ve Bal ile Kombinasyon Halinde Çoklu İlaca Dirençli Üropatojenlere Karşı Antimikrobiyal Aktivitesi (2025)",
         date: "2025-12-19",
-        summaryEn: "Research characterizing Egyptian propolis and demonstrating its antimicrobial activity, combined with honey, against multidrug-resistant uropathogens.",
-        summaryTr: "Mısır propolisini karakterize eden ve bal ile birlikte çoklu ilaca dirençli üropatojenlere karşı antimikrobiyal aktivitesini gösteren araştırma.",
+        summaryEn: "Laboratory study of an ethanol extract of Egyptian propolis, alone and mixed with honey, against five multidrug-resistant urinary tract pathogens (Pseudomonas aeruginosa, E. coli, Klebsiella pneumoniae, Staphylococcus saprophyticus and Candida albicans) that standard antibiotic discs did not inhibit. Propolis inhibited all five, most strongly Candida and S. saprophyticus, honey alone had no effect, and the propolis and honey mixture lowered the minimum inhibitory concentration by about 4 to 8 times. The most active fraction contained 14 phenolic acids and flavonoids, led by naringenin, gallic acid and taxifolin; no animal or human testing was done.",
+        summaryTr: "Mısır propolisinin etanol ekstresinin, tek başına ve balla karıştırılarak, standart antibiyotik disklerinin etkisiz kaldığı beş çoklu ilaca dirençli idrar yolu patojenine (Pseudomonas aeruginosa, E. coli, Klebsiella pneumoniae, Staphylococcus saprophyticus ve Candida albicans) karşı test edildiği laboratuvar çalışması. Propolis beş patojenin tümünü, en güçlü olarak Candida ve S. saprophyticus'u baskılamış, bal tek başına etkisiz kalmış, propolis-bal karışımı ise minimum inhibitör konsantrasyonu yaklaşık 4-8 kat düşürmüştür. En etkili fraksiyonda başta naringenin, gallik asit ve taksifolin olmak üzere 14 fenolik asit ve flavonoid bulunmuş; hayvan veya insan testi yapılmamıştır.",
         categories: ["propolis", "honey", "immunity"],
         url: "https://doi.org/10.1038/s41598-025-00773-1"
       }
@@ -1967,6 +2501,12 @@ document.addEventListener("DOMContentLoaded", function () {
       return months[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
     }
 
+    // Titles end with the publication year, e.g. "... (2024)". Wrap it so it
+    // can be styled in extra-bold next to the title.
+    function formatTitle(title) {
+      return title.replace(/\s*\((\d{4})\)\s*$/, ' <span class="science-card-year">($1)</span>');
+    }
+
     function renderArticles() {
       var filtered = getFilteredArticles();
       var totalPages = Math.ceil(filtered.length / ARTICLES_PER_PAGE);
@@ -1988,7 +2528,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         html += '<div class="science-card">' +
-          '<h3 class="science-card-title">' + title + '</h3>' +
+          '<h3 class="science-card-title">' + formatTitle(title) + '</h3>' +
           '<span class="science-card-date">' + formatDate(article.date) + '</span>' +
           '<p class="science-card-summary">' + summary + '</p>' +
           '<div class="science-card-tags">' + tags + '</div>' +
@@ -2012,15 +2552,15 @@ document.addEventListener("DOMContentLoaded", function () {
       var prevText = currentLang === "tr" ? "Önceki" : "Prev";
       var nextText = currentLang === "tr" ? "Sonraki" : "Next";
 
-      var html = '<button class="pagination-btn' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev">' +
+      var html = '<button class="pagination-btn pagination-arrow' + (currentPage === 1 ? ' disabled' : '') + '" data-page="prev" aria-label="' + prevText + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>' +
         '</button>';
 
       for (var i = 1; i <= totalPages; i++) {
-        html += '<button class="pagination-btn' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+        html += '<button class="pagination-btn pagination-num' + (i === currentPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
       }
 
-      html += '<button class="pagination-btn' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next">' +
+      html += '<button class="pagination-btn pagination-arrow' + (currentPage === totalPages ? ' disabled' : '') + '" data-page="next" aria-label="' + nextText + '">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>' +
         '</button>';
 
@@ -2495,7 +3035,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initial Setup
   // ========================================
   // Trigger initial language setting
-  updateLanguage("tr");
+  updateLanguage(pageLang);
 
   // Show elements that should be visible on load
   setTimeout(() => {
