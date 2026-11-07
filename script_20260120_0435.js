@@ -561,6 +561,22 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // Special series label (e.g. limited edition products)
+    const seriesEl = document.getElementById("modalSeries");
+    if (seriesEl) {
+      const sLabel = currentLang === "en" ? card.dataset.seriesEn : card.dataset.seriesTr;
+      const sNote = currentLang === "en" ? card.dataset.seriesNoteEn : card.dataset.seriesNoteTr;
+      if (sLabel) {
+        document.getElementById("modalSeriesLabel").textContent = sLabel;
+        document.getElementById("modalSeriesNote").textContent = sNote || "";
+        seriesEl.style.display = "";
+      } else {
+        seriesEl.style.display = "none";
+      }
+    }
+
+    setupModalOrder(card, variants);
+
     modal.classList.add("active");
     document.body.classList.add("modal-open");
   }
@@ -581,6 +597,186 @@ document.addEventListener("DOMContentLoaded", function () {
       openModal(currentModalCard);
     }
   });
+
+
+  // ========================================
+  // Basket + WhatsApp order
+  // ========================================
+  const WHATSAPP_NUMBER = "905444601822";
+  const CART_KEY = "beeonia_cart_v1";
+  const cartBtn = document.getElementById("cartBtn");
+  const cartCount = document.getElementById("cartCount");
+  const cartPanel = document.getElementById("cartPanel");
+  const cartItemsEl = document.getElementById("cartItems");
+  const cartTotalEl = document.getElementById("cartTotal");
+  const cartPreview = document.getElementById("cartPreview");
+  const cartWhatsapp = document.getElementById("cartWhatsapp");
+  const cartFields = {
+    name: document.getElementById("cartName"),
+    phone: document.getElementById("cartPhone"),
+    city: document.getElementById("cartCity"),
+    note: document.getElementById("cartNote"),
+  };
+  const orderSize = document.getElementById("orderSize");
+  const orderQty = document.getElementById("orderQty");
+  let cart = [];
+  let orderCard = null;
+  let orderVariants = [];
+
+  try {
+    cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    if (!Array.isArray(cart)) cart = [];
+  } catch (e) { cart = []; }
+
+  function saveCart() {
+    try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
+  }
+
+  function parsePrice(str) {
+    const n = parseInt(String(str || "").replace(/[^\d]/g, ""), 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function fmtTL(n) {
+    return n.toLocaleString("tr-TR") + "₺";
+  }
+
+  function productName(card) {
+    return (card.dataset.title || "").split(" | ")[0];
+  }
+
+  function setupModalOrder(card, variants) {
+    if (!orderSize) return;
+    orderCard = card;
+    orderVariants = variants.filter((v) => v.weight || v.price);
+    const hasOrder = orderVariants.length > 0;
+    document.getElementById("modalOrder").style.display = hasOrder ? "" : "none";
+    orderSize.innerHTML = orderVariants
+      .map((v, i) => `<option value="${i}">${v.weight || ""}${v.price ? " — " + v.price : ""}</option>`)
+      .join("");
+    orderQty.value = 1;
+  }
+
+  function clampQty(v) {
+    v = parseInt(v, 10);
+    if (isNaN(v) || v < 1) return 1;
+    return Math.min(v, 99);
+  }
+
+  document.getElementById("orderQtyMinus")?.addEventListener("click", () => {
+    orderQty.value = clampQty(orderQty.value) - 1 || 1;
+  });
+  document.getElementById("orderQtyPlus")?.addEventListener("click", () => {
+    orderQty.value = clampQty(clampQty(orderQty.value) + 1);
+  });
+  orderQty?.addEventListener("change", () => { orderQty.value = clampQty(orderQty.value); });
+
+  document.getElementById("addToCartBtn")?.addEventListener("click", () => {
+    if (!orderCard || !orderVariants.length) return;
+    const v = orderVariants[parseInt(orderSize.value, 10) || 0];
+    const name = productName(orderCard);
+    const qty = clampQty(orderQty.value);
+    const existing = cart.find((i) => i.name === name && i.weight === (v.weight || ""));
+    if (existing) existing.qty = Math.min(99, existing.qty + qty);
+    else cart.push({ name, weight: v.weight || "", price: parsePrice(v.price), qty });
+    saveCart();
+    renderCart();
+    const btn = document.getElementById("addToCartBtn");
+    const orig = btn.textContent;
+    btn.textContent = currentLang === "en" ? "Added ✓" : "Eklendi ✓";
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1100);
+  });
+
+  // Order message is always written in Turkish (the seller's language).
+  function buildMessage() {
+    const lines = ["Merhaba, BEEONIA'dan sipariş vermek istiyorum:", ""];
+    let total = 0;
+    cart.forEach((i) => {
+      const sub = i.price * i.qty;
+      total += sub;
+      lines.push(`• ${i.name}${i.weight ? " (" + i.weight + ")" : ""} x ${i.qty}` + (sub ? " = " + fmtTL(sub) : ""));
+    });
+    if (!cart.length) lines.push("• …");
+    if (total) lines.push("", "Toplam: " + fmtTL(total));
+    lines.push("");
+    lines.push("Ad Soyad: " + (cartFields.name.value.trim() || "…"));
+    lines.push("Telefon: " + (cartFields.phone.value.trim() || "…"));
+    lines.push("Şehir: " + (cartFields.city.value.trim() || "…"));
+    if (cartFields.note.value.trim()) lines.push("Not: " + cartFields.note.value.trim());
+    return lines.join("\n");
+  }
+
+  function updatePreview() {
+    const msg = buildMessage();
+    cartPreview.textContent = msg;
+    cartWhatsapp.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(msg);
+    cartWhatsapp.classList.toggle("disabled", !cart.length);
+  }
+
+  function renderCart() {
+    const count = cart.reduce((a, i) => a + i.qty, 0);
+    cartCount.textContent = count;
+    cartCount.style.display = count ? "" : "none";
+    const en = currentLang === "en";
+    if (!cart.length) {
+      cartItemsEl.innerHTML = `<p class="cart-empty">${en ? "Your basket is empty." : "Sepetiniz boş."}</p>`;
+    } else {
+      cartItemsEl.innerHTML = cart.map((i, idx) => `
+        <div class="cart-item">
+          <div class="cart-item-name">${i.name}${i.weight ? " <small>" + i.weight + "</small>" : ""}</div>
+          <div class="qty-control">
+            <button type="button" data-act="dec" data-idx="${idx}" aria-label="-">−</button>
+            <span>${i.qty}</span>
+            <button type="button" data-act="inc" data-idx="${idx}" aria-label="+">+</button>
+          </div>
+          <div class="cart-item-sub">${i.price ? fmtTL(i.price * i.qty) : ""}</div>
+          <button type="button" class="cart-item-remove" data-act="del" data-idx="${idx}" aria-label="${en ? "Remove" : "Kaldır"}">&times;</button>
+        </div>`).join("");
+    }
+    const total = cart.reduce((a, i) => a + i.price * i.qty, 0);
+    cartTotalEl.textContent = total ? (en ? "Total: " : "Toplam: ") + fmtTL(total) : "";
+    updatePreview();
+  }
+
+  cartItemsEl?.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-act]");
+    if (!b) return;
+    const idx = parseInt(b.dataset.idx, 10);
+    const item = cart[idx];
+    if (!item) return;
+    if (b.dataset.act === "inc") item.qty = Math.min(99, item.qty + 1);
+    else if (b.dataset.act === "dec") item.qty = Math.max(1, item.qty - 1);
+    else cart.splice(idx, 1);
+    saveCart();
+    renderCart();
+  });
+
+  Object.values(cartFields).forEach((el) => el.addEventListener("input", updatePreview));
+
+  cartWhatsapp?.addEventListener("click", (e) => {
+    if (!cart.length) e.preventDefault();
+  });
+
+  function openCart() {
+    renderCart();
+    cartPanel.classList.add("active");
+    cartPanel.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+  function closeCart() {
+    cartPanel.classList.remove("active");
+    cartPanel.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+  cartBtn?.addEventListener("click", openCart);
+  document.getElementById("cartClose")?.addEventListener("click", closeCart);
+  document.getElementById("cartBackdrop")?.addEventListener("click", closeCart);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && cartPanel.classList.contains("active")) closeCart();
+  });
+  document.addEventListener("languageChanged", renderCart);
+  renderCart();
 
   // Close modal handlers
   if (modalClose) {
@@ -640,7 +836,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Scroll Reveal Animation
   // ========================================
   const revealElements = document.querySelectorAll(
-    ".gallery-section, .products-section, .partners-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
+    ".gallery-section, .products-section, .about-item, .value-card, .team-member, .testimonials-section, .faq-section, .science-section",
   );
 
   const revealObserver = new IntersectionObserver(
@@ -983,6 +1179,14 @@ document.addEventListener("DOMContentLoaded", function () {
       return name.substring(0, 2).toUpperCase();
     }
 
+    // Show first name(s) + surname initial, e.g. "Erim K."
+    function getDisplayName(name) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length < 2) return name;
+      const last = parts.pop();
+      return parts.join(" ") + " " + last[0].toLocaleUpperCase("tr-TR") + ".";
+    }
+
     // Get color class based on index
     function getColorClass(index) {
       return "color-" + ((index % 8) + 1);
@@ -1012,7 +1216,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const nameSpan = document.createElement("span");
         nameSpan.className = "reviewer-name";
-        nameSpan.textContent = review.name;
+        nameSpan.textContent = getDisplayName(review.name);
 
         const starsDiv = document.createElement("div");
         starsDiv.className = "reviewer-stars";
@@ -1572,8 +1776,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.mdpi.com/1422-0067/27/11/4661"
       },
       {
-        titleEn: "Bee Products in Dermatology and Skin Care",
-        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri",
+        titleEn: "Bee Products in Dermatology and Skin Care (2020)",
+        titleTr: "Dermatoloji ve Cilt Bakımında Arı Ürünleri (2020)",
         date: "2026-09-25",
         summaryEn: "Comprehensive review of the therapeutic applications of bee products — honey, propolis, royal jelly, bee venom, and beeswax — in dermatology and skin care, covering wound healing, anti-aging, antimicrobial, and anti-inflammatory properties backed by clinical and in vitro evidence.",
         summaryTr: "Bal, propolis, arı sütü, arı zehiri ve balmumu gibi arı ürünlerinin dermatoloji ve cilt bakımındaki terapötik uygulamalarını ele alan kapsamlı derleme; klinik ve in vitro kanıtlarla desteklenen yara iyileştirme, yaşlanma karşıtı, antimikrobiyal ve anti-inflamatuar özellikleri kapsamaktadır.",
@@ -1581,8 +1785,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7036894/"
       },
       {
-        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health",
-        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli",
+        titleEn: "Exploring the Potential of Bee-Derived Antioxidants for Maintaining Oral Hygiene and Dental Health (2023)",
+        titleTr: "Arı Kaynaklı Antioksidanların Ağız Hijyeni ve Diş Sağlığının Korunmasındaki Potansiyeli (2023)",
         date: "2026-09-18",
         summaryEn: "Review exploring the antioxidant potential of bee-derived products — honey, propolis, royal jelly, and bee venom — in maintaining oral hygiene and dental health, with emphasis on antimicrobial, anti-inflammatory, and tissue-protective mechanisms.",
         summaryTr: "Bal, propolis, arı sütü ve arı zehiri gibi arı kaynaklı ürünlerin ağız hijyeni ve diş sağlığının korunmasındaki antioksidan potansiyelini inceleyen derleme; antimikrobiyal, anti-inflamatuar ve doku koruyucu mekanizmalara odaklanmaktadır.",
@@ -1590,8 +1794,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10375990/#sec5-antioxidants-12-01452"
       },
       {
-        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types",
-        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular",
+        titleEn: "Honey as a Bioindicator of Microplastic Pollution: Insights from Industrial and Special Honey Types (2026)",
+        titleTr: "Mikroplastik Kirliliğinin Biyogöstergesi Olarak Bal: Endüstriyel ve Özel Bal Türlerinden Elde Edilen Bulgular (2026)",
         date: "2026-09-11",
         summaryEn: "Study investigating honey as a bioindicator of environmental microplastic pollution, analyzing industrial and specialty honey types for microplastic content and distribution patterns, with implications for food safety and environmental monitoring.",
         summaryTr: "Balın çevresel mikroplastik kirliliğinin biyogöstergesi olarak kullanılmasını araştıran çalışma; endüstriyel ve özel bal türlerinde mikroplastik içeriği ile dağılım örüntülerini analiz ederek gıda güvenliği ve çevre izleme açısından sonuçlarını ortaya koymaktadır.",
@@ -1599,8 +1803,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12916803/"
       },
       {
-        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology",
-        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü",
+        titleEn: "The Key Role of Amino Acids in Pollen Quality and Honey Bee Physiology (2024)",
+        titleTr: "Amino Asitlerin Polen Kalitesi ve Bal Arısı Fizyolojisindeki Temel Rolü (2024)",
         date: "2026-09-04",
         summaryEn: "Review examining the essential role of free amino acids and proteins in determining bee pollen quality, focusing on how the amino acid profile influences honey bee nutritional requirements, larval development, immune function, and overall colony health.",
         summaryTr: "Serbest amino asitler ve proteinlerin arı poleni kalitesini belirlemedeki temel rolünü inceleyen derleme; amino asit profilinin bal arılarının beslenme gereksinimlerini, larva gelişimini, bağışıklık işlevini ve koloni sağlığını nasıl etkilediğine odaklanmaktadır.",
@@ -1626,8 +1830,8 @@ document.addEventListener("DOMContentLoaded", function () {
         url: "https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1549913/full"
       },
       {
-        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses",
-        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler",
+        titleEn: "Royal Jelly Extracellular Vesicles Promote Wound Healing by Modulating Underlying Cellular Responses (2023)",
+        titleTr: "Arı Sütü Ekstraselüler Vezikülleri Hücresel Yanıtları Modüle Ederek Yara İyileşmesini Destekler (2023)",
         date: "2026-08-14",
         summaryEn: "Study demonstrating that extracellular vesicles derived from royal jelly promote wound healing by modulating key cellular responses including cell migration, proliferation, and anti-inflammatory signaling.",
         summaryTr: "Arı sütünden elde edilen ekstraselüler vesiküllerin hücre göçü, çoğalması ve anti-inflamatuar sinyal iletimi gibi temel hücresel yanıtları modüle ederek yara iyileşmesini desteklediğini gösteren çalışma.",
@@ -1987,8 +2191,11 @@ document.addEventListener("DOMContentLoaded", function () {
           tags += '<span class="science-tag">' + label + '</span>';
         });
 
+        var ym = title.match(/^(.*?)\s*\((\d{4})\)$/);
+        var titleHtml = ym ? ym[1] + ' <span class="science-card-year">(' + ym[2] + ')</span>' : title;
+
         html += '<div class="science-card">' +
-          '<h3 class="science-card-title">' + title + '</h3>' +
+          '<h3 class="science-card-title">' + titleHtml + '</h3>' +
           '<span class="science-card-date">' + formatDate(article.date) + '</span>' +
           '<p class="science-card-summary">' + summary + '</p>' +
           '<div class="science-card-tags">' + tags + '</div>' +

@@ -175,11 +175,56 @@
           <p class="modal-description" id="modalDescription"></p>
           <div class="modal-details" id="modalDetails"></div>
           <p class="modal-harvest" id="modalHarvest"></p>
+          <div class="modal-series" id="modalSeries" style="display:none">
+            <span class="modal-series-label" id="modalSeriesLabel"></span>
+            <p class="modal-series-note" id="modalSeriesNote"></p>
+          </div>
+          <div class="modal-order" id="modalOrder">
+            <label class="modal-order-field">
+              <span data-tr="Boyut" data-en="Size">Boyut</span>
+              <select id="orderSize"></select>
+            </label>
+            <label class="modal-order-field">
+              <span data-tr="Adet" data-en="Quantity">Adet</span>
+              <div class="qty-control">
+                <button type="button" id="orderQtyMinus" aria-label="-">−</button>
+                <input type="number" id="orderQty" min="1" max="99" value="1" inputmode="numeric" />
+                <button type="button" id="orderQtyPlus" aria-label="+">+</button>
+              </div>
+            </label>
+            <button type="button" class="btn-add-cart" id="addToCartBtn" data-tr="Sepete ekle" data-en="Add to basket">Sepete ekle</button>
+          </div>
           <div class="modal-analyses" id="modalAnalyses">
             <h4 class="modal-analyses-title" data-tr="Analizler" data-en="Analyses">Analizler</h4>
             <div class="modal-analyses-links" id="modalAnalysesLinks"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Basket / WhatsApp order -->
+    <div class="cart-panel" id="cartPanel" aria-hidden="true">
+      <div class="cart-backdrop" id="cartBackdrop"></div>
+      <div class="cart-content" role="dialog" aria-modal="true">
+        <button class="modal-close" id="cartClose" aria-label="Close">&times;</button>
+        <h2 id="cartTitle" data-tr="Sepetim" data-en="My Basket">Sepetim</h2>
+        <div id="cartItems" class="cart-items"></div>
+        <p class="cart-total" id="cartTotal"></p>
+        <form id="cartForm" class="cart-form" onsubmit="return false">
+          <label><span data-tr="Ad Soyad" data-en="Full name">Ad Soyad</span>
+            <input type="text" id="cartName" autocomplete="name" /></label>
+          <label><span data-tr="Telefon" data-en="Phone">Telefon</span>
+            <input type="tel" id="cartPhone" autocomplete="tel" inputmode="tel" /></label>
+          <label><span data-tr="Şehir" data-en="City">Şehir</span>
+            <input type="text" id="cartCity" autocomplete="address-level2" /></label>
+          <label><span data-tr="Not" data-en="Note">Not</span>
+            <textarea id="cartNote" rows="2"></textarea></label>
+        </form>
+        <div class="cart-preview-wrap">
+          <span class="cart-preview-title" data-tr="Mesajınız" data-en="Your message">Mesajınız</span>
+          <pre class="cart-preview" id="cartPreview"></pre>
+        </div>
+        <a class="btn-whatsapp" id="cartWhatsapp" href="#" target="_blank" rel="noopener" data-tr="WhatsApp ile gönder" data-en="Send via WhatsApp">WhatsApp ile gönder</a>
       </div>
     </div>
 
@@ -215,6 +260,10 @@
             >Literatür</a
           >
         </nav>
+        <button class="cart-btn" id="cartBtn" aria-label="Sepet / Basket">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2L21 8H6"/></svg>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
         <div class="lang-switch">
           <button class="lang-btn active" data-lang="en">EN</button>
           <span class="lang-divider">/</span>
@@ -324,13 +373,15 @@
                 data-origin="Yamanlar Mountain, Izmir"
                 data-origin-tr="Yamanlar Dağı, İzmir"
                 data-origin-en="Yamanlar Mountain, Izmir"
-                data-description-tr="Çiçek balı hasat ederken kovanlarda bıraktığımız çiçek ballarıyla, 1 ay hayıt ve son olarak çamla buluşan arılarımızın ürettiği eşsiz karışım!"
-                data-description-en="A unique blend made by our bees: the floral honey we left in the hives during the polyfloral harvest, joined by a month of chaste tree (vitex) and finally pine!"
+                data-description-tr="Koleksiyon serisi: sınırlı seri, özel hasat, limited edition. Çiçek balı hasat ederken kovanlarda bıraktığımız çiçek ballarıyla, 1 ay hayıt ve son olarak çamla buluşan arılarımızın ürettiği eşsiz karışım!"
+                data-description-en="Collection series: limited series, special harvest, limited edition. A unique blend made by our bees: the floral honey we left in the hives during the polyfloral harvest, joined by a month of chaste tree (vitex) and finally pine!"
                 data-variants='[{"weight":"750g","price":"1100₺"},{"weight":"500g","price":"750₺"}]'
                 data-harvest-tr="26 Ağustos 2026'da hasat edilmiştir."
                 data-harvest-en="Harvested on August 26, 2026."
-                data-analyses-note-tr="Analiz aşamasında."
-                data-analyses-note-en="Analysis in progress."
+                data-series-tr="Koleksiyon Serisi · Sınırlı Seri · Özel Hasat · Limited Edition"
+                data-series-en="Collection Series · Limited Series · Special Harvest · Limited Edition"
+                data-series-note-tr="Özel ve sınırlı üretim olduğu için laboratuvar analizine gönderilmeyecek."
+                data-series-note-en="As a special, limited production, it will not be sent for laboratory analysis."
               >
                 <div class="product-image">
                   <img src="images/products/Çam-Çiçek Özel.png" alt="Çam-Çiçek Özel" />
@@ -432,11 +483,6 @@
                   <p data-tr="Bağışıklık Kalkanı" data-en="Immune Shield">Bağışıklık Kalkanı</p>
                 </div>
               </div>
-              <!-- hidden — gizli ürünler -->
-              <div style="display:none" class="product-card" data-title="Hayıt Balı | Vitex Honey" data-origin="Aegean Coast" data-origin-tr="Ege Kıyısı" data-origin-en="Aegean Coast" data-description-tr="Ege kıyılarının aromatik hayıt çiçeklerinden elde edilen, yoğun aromalı doğal bal. Ağustos 2026'da hasat edilecektir." data-description-en="Aromatic natural honey gathered from the vitex blossoms of the Aegean coast. To be harvested in August 2026." data-variants='[{"weight":"800g","price":"1300₺"},{"weight":"500g","price":"850₺"}]' data-harvest-tr="Ağustos 2026'da hasat edilecektir." data-harvest-en="To be harvested in August 2026."><div class="product-image"><img src="images/products/vitex honey.png" alt="Hayıt Balı" /><div class="product-status coming-soon" data-tr="Yakında" data-en="Coming Soon">Yakında</div><div class="product-badge">★</div></div><div class="product-info"><h3 data-tr="Hayıt Balı" data-en="Vitex Honey">Hayıt Balı</h3><p data-tr="Aromatik Ege Balı" data-en="Aromatic Aegean Honey">Aromatik Ege Balı</p></div></div>
-              <div style="display:none" class="product-card" data-title="PRJ-M2" data-origin="Homeros Valley, Yamanlar Mountain" data-origin-tr="Homeros Vadisi, Yamanlar Dağı" data-origin-en="Homeros Valley, Yamanlar Mountain" data-description-tr="Bağışıklık formülü olarak geliştirilen PRJ-M2, anti-inflamatuar destek ve doğal antioksidanlar açısından zengindir. Vücudun direncini güçlendirmek için tasarlanmıştır." data-description-en="PRJ-M2, developed as an immune formula, is rich in anti-inflammatory support and natural antioxidants. Designed to strengthen the body's resilience." data-weight="500g" data-price="1000₺" data-harvest-tr="Formülasyon aşamasında" data-harvest-en="In formulation stage"><div class="product-image"><img src="images/products/PRJ_M2.jpg" alt="PRJ-M2" /><div class="product-status coming-soon" data-tr="Yakında" data-en="Coming Soon">Yakında</div><div class="product-badge">★</div></div><div class="product-info"><h3 data-tr="PRJ-M2" data-en="PRJ-M2">PRJ-M2</h3><p data-tr="Bağışıklık Destekleyici" data-en="Immune Support">Bağışıklık Destekleyici</p></div></div>
-              <div style="display:none" class="product-card" data-title="AP-IV" data-origin="Yamanlar Mountain, Izmir" data-origin-tr="Yamanlar Dağı, İzmir" data-origin-en="Yamanlar Mountain, Izmir" data-description-tr="Bal içinde doğal arı poleni. Protein, vitamin ve mineraller açısından zengin, enerji veren polenli bal karışımı." data-description-en="Natural bee pollen in honey. An energizing pollen-honey blend rich in protein, vitamins, and minerals." data-weight="500g" data-price="1000₺" data-harvest-tr="Formülasyon aşamasında" data-harvest-en="In formulation stage"><div class="product-image"><img src="images/products/AP-IV_3.png" alt="AP-IV_3" /><div class="product-status coming-soon" data-tr="Yakında" data-en="Coming Soon">Yakında</div><div class="product-badge">★</div></div><div class="product-info"><h3 data-tr="AP-IV" data-en="AP-IV">AP-IV</h3><p data-tr="Zindelik Karışımı" data-en="Vitality Blend">Zindelik Karışımı</p></div></div>
-              <div style="display:none" class="product-card" data-title="Arı Sütü | Royal Jelly" data-origin="Yamanlar Mountain, Izmir" data-origin-tr="Yamanlar Dağı, İzmir" data-origin-en="Yamanlar Mountain, Izmir" data-description-tr="Kraliçe arının beslenmesinde kullanılan eşsiz arı sütü. Royalactin proteini, B vitaminleri, amino asitler ve 10-HDA bakımından zengindir. Enerji, cilt sağlığı ve genel canlılık için doğal destek sağlar." data-description-en="Exclusive royal jelly used in queen bee nutrition. Rich in royalactin protein, B vitamins, amino acids, and 10-HDA. Provides natural support for energy, skin health, and overall vitality." data-weight="30g" data-price="" data-harvest-tr="" data-harvest-en=""><div class="product-image"><img src="images/products/RoyalJelly.png" alt="Arı Sütü" /><div class="product-status coming-soon" data-tr="Yakında" data-en="Coming Soon">Yakında</div><div class="product-badge">★</div></div><div class="product-info"><h3 data-tr="Arı Sütü" data-en="Royal Jelly">Arı Sütü</h3><p data-tr="Doğal Canlılık Kaynağı" data-en="Natural Vitality Source">Doğal Canlılık Kaynağı</p></div></div>
             </div>
             <button class="carousel-btn next" id="productsNext">
               <svg
@@ -2005,14 +2051,14 @@
                       Çiçek Balı ile Çam Balı Neden Farklı Davranır?
                     </h4>
                     <p
-                      data-tr="Çiçek balları, bitkilerden toplanan nektardan üretilir; şeker yapıları ağırlıklı olarak glukoz ve fruktozdan oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G oranına bağlıdır. Çam balı ise tamamen farklı bir kaynaktan gelir: Basidiomycete mantarı Marchalina hellenica'nın çam ağaçlarından sağladığı bal özü (honeydew) salgısından elde edilir. Bu salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü trisakkaritin yanı sıra yüksek mineral ve enzim konsantrasyonu içerir. Bu oligosakkaritler, glukozun kristal kafesi oluşturmasını fiziksel olarak engeller. Sonuç olarak çam balı, F/G oranı 1.50-2.10 gibi son derece yüksek değerlere ulaşır ve normal depolama koşullarında neredeyse hiç kristallenmez. Bu, kalitesizliğin değil; yapısının bir yansımasıdır."
-                      data-en="Flower honeys are produced from nectar collected from plants; their sugar composition consists mainly of glucose and fructose. Therefore, their crystallization tendency largely depends on the F/G ratio. Pine honey, however, comes from an entirely different source: it is obtained from the honeydew secretion produced by the Basidiomycete fungus Marchalina hellenica on pine trees. This secretion contains high-molecular-weight trisaccharides such as melezitose (5-30%) and erlose, as well as high mineral and enzyme concentrations. These oligosaccharides physically prevent glucose from forming a crystal lattice. As a result, pine honey reaches extremely high F/G ratios of 1.50-2.10 and practically never crystallizes under normal storage conditions. This is not a sign of poor quality, but a reflection of its unique composition."
+                      data-tr="Çiçek balları, bitkilerden toplanan nektardan üretilir; şeker yapıları ağırlıklı olarak glukoz ve fruktozdan oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G oranına bağlıdır. Çam balı ise tamamen farklı bir kaynaktan gelir: basra böceği Marchalina hellenica'nın çam ağaçlarından sağladığı bal özü (honeydew) salgısından elde edilir. Bu salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü trisakkaritin yanı sıra yüksek mineral ve enzim konsantrasyonu içerir. Bu oligosakkaritler, glukozun kristal kafesi oluşturmasını fiziksel olarak engeller. Sonuç olarak çam balı, F/G oranı 1.50-2.10 gibi son derece yüksek değerlere ulaşır ve normal depolama koşullarında neredeyse hiç kristallenmez. Bu, kalitesizliğin değil; yapısının bir yansımasıdır."
+                      data-en="Flower honeys are produced from nectar collected from plants; their sugar composition consists mainly of glucose and fructose. Therefore, their crystallization tendency largely depends on the F/G ratio. Pine honey, however, comes from an entirely different source: it is obtained from the honeydew secretion produced by the scale insect Marchalina hellenica on pine trees. This secretion contains high-molecular-weight trisaccharides such as melezitose (5-30%) and erlose, as well as high mineral and enzyme concentrations. These oligosaccharides physically prevent glucose from forming a crystal lattice. As a result, pine honey reaches extremely high F/G ratios of 1.50-2.10 and practically never crystallizes under normal storage conditions. This is not a sign of poor quality, but a reflection of its unique composition."
                     >
                       Çiçek balları, bitkilerden toplanan nektardan üretilir;
                       şeker yapıları ağırlıklı olarak glukoz ve fruktozdan
                       oluşur. Bu nedenle kristallenme eğilimi büyük ölçüde F/G
                       oranına bağlıdır. Çam balı ise tamamen farklı bir
-                      kaynaktan gelir: Basidiomycete mantarı
+                      kaynaktan gelir: basra böceği
                       <em>Marchalina hellenica</em>'nın çam ağaçlarından
                       sağladığı bal özü (honeydew) salgısından elde edilir. Bu
                       salgı; melezitoz (%5-30) ve erloze gibi yüksek moleküllü
@@ -2267,10 +2313,10 @@
               <div class="faq-answer">
                 <div class="faq-answer-content">
                   <p
-                    data-tr="Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; PMID: 41684680). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir."
-                    data-en="Bee pollen is rich in phenolic compounds, flavonoids, fatty acids, and secondary plant metabolites. These components confer documented antimicrobial, antioxidant, anti-inflammatory, and anti-carcinogenic effects (Thakur &amp; Nanda, 2020; PMID: 41684680). Because the outer coat of raw pollen (sporoderm) is resistant to digestive enzymes, a simple pre-treatment before consumption is recommended to improve absorption of its bioactive components."
+                    data-tr="Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir."
+                    data-en="Bee pollen is rich in phenolic compounds, flavonoids, fatty acids, and secondary plant metabolites. These components confer documented antimicrobial, antioxidant, anti-inflammatory, and anti-carcinogenic effects (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Because the outer coat of raw pollen (sporoderm) is resistant to digestive enzymes, a simple pre-treatment before consumption is recommended to improve absorption of its bioactive components."
                   >
-                    Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; PMID: 41684680). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir.
+                    Arı poleni; fenolik bileşikler, flavonoidler, yağ asitleri ve bitkisel sekonder metabolitler açısından zengindir. Bu bileşenler sayesinde antimikrobiyal, antioksidan, anti-inflamatuar ve antikarsinojenik etkileri belgelenmiştir (Thakur &amp; Nanda, 2020; Lukman &amp; Smole Možina, 2026). Ham polenin dış kabuğu (sporoderm) sindirim enzimlerine karşı dayanıklı olduğundan, biyoaktif bileşenlerin emilimini artırmak için tüketim öncesi basit bir ön işlem önerilir.
                   </p>
                   <p
                     data-tr="Arı ekmeği (perga), polenin kovanda doğal fermentasyonla olgunlaşmış hâlidir. Fermentasyon süreci sporodermi yumuşatarak biyoaktif bileşenlerin emilimini artırır; çalışmalar, arı ekmeğindeki fenolik bileşik biyoyararlanımının ham polene kıyasla belirgin biçimde yüksek olduğunu ortaya koymaktadır (Mărgăoan et al., 2019; Aylanc et al., 2021; Kieliszek et al., 2018)."
@@ -2292,8 +2338,8 @@
                       <strong data-tr="Bal içinde bekletme:" data-en="Soaking in honey:">Bal içinde bekletme:</strong> Polen tanelerini eşit hacimde ham balla karıştırın, oda sıcaklığında en az 12–24 saat bekletin. Bu yöntemde balın asidik ortamı ve enzimleri sporodermi kısmen yumuşatır.
                     </p>
                     <p
-                      data-tr="Yoğurt içinde bekletme: Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Atallah, 2016; Karabagias et al., 2018; Özcan et al., 2020)."
-                      data-en="Soaking in yogurt: Mix one teaspoon of pollen (approx. 5 g) with a small amount of yogurt and leave at room temperature for 15–30 minutes. The acidic pH of yogurt (≈4–4.5) softens the sporoderm quickly; the granules visibly dissolve within this time. The combined use of bee pollen with yogurt has also been investigated by researchers in the context of functional foods, and has been shown to improve the nutritional and antioxidant profile of yogurt (Atallah, 2016; Karabagias et al., 2018; Özcan et al., 2020)."
+                      data-tr="Yoğurt içinde bekletme: Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Karabagias et al., 2018; Özcan et al., 2024)."
+                      data-en="Soaking in yogurt: Mix one teaspoon of pollen (approx. 5 g) with a small amount of yogurt and leave at room temperature for 15–30 minutes. The acidic pH of yogurt (≈4–4.5) softens the sporoderm quickly; the granules visibly dissolve within this time. The combined use of bee pollen with yogurt has also been investigated by researchers in the context of functional foods, and has been shown to improve the nutritional and antioxidant profile of yogurt (Karabagias et al., 2018; Özcan et al., 2024)."
                     >
                       <strong data-tr="Yoğurt içinde bekletme:" data-en="Soaking in yogurt:">Yoğurt içinde bekletme:</strong> Bir tatlı kaşığı poleni (yaklaşık 5 g) az miktarda yoğurtla karıştırın, oda sıcaklığında 15–30 dakika bekletin. Yoğurdun asidik pH'ı (≈4–4,5) sporodermi hızla yumuşatır; granüller bu sürede gözle görülür biçimde çözülür. Arı poleninin yoğurt ile birlikte kullanımı işlevsel gıda açısından araştırmacılar tarafından da incelenmiş, yoğurdun besinsel ve antioksidan profilini iyileştirdiği gösterilmiştir (Karabagias et al., 2018; Özcan et al., 2024).
                     </p>
@@ -2329,7 +2375,7 @@
                       href="https://doi.org/10.17113/ftb.64.01.26.9421"
                       target="_blank"
                       rel="noopener"
-                      >PMID: 41684680 — Sobral F et al. (2026). Food Technology and Biotechnology — Antimicrobial Activity of Bee Pollen: Influence of Botanical Origin and Processing</a
+                      >PMID: 41684680 — Lukman T, Smole Možina S (2026). Food Technology and Biotechnology — Antimicrobial Activity of Bee Pollen: Influence of Botanical Origin and Processing</a
                     >
                     <a
                       href="https://doi.org/10.1016/j.tifs.2020.02.001"
@@ -2368,6 +2414,22 @@
                       >Kieliszek M et al. (2018). Trends in Food Science &amp; Technology — Pollen and Bee Bread as New Health-Oriented Products: A Review</a
                     >
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FAQ Item 7 -->
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">
+                <span class="faq-number">07</span>
+                <span class="faq-title" data-tr="Ürün detaylarına nasıl ulaşırım?" data-en="How do I see product details?">Ürün detaylarına nasıl ulaşırım?</span>
+                <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-content">
+                  <p data-tr="Ürünler bölümünde bir ürüne dokunun (veya tıklayın); ürünün detayları, boyut ve fiyat bilgileri ile analiz PDF'leri bir açılır pencerede (pop-up) görüntülenir. Aynı pencereden boyut ve adet seçip ürünü sepete ekleyebilir, siparişinizi WhatsApp ile iletebilirsiniz." data-en="Tap (or click) a product in the Products section; its details, size and price information, and analysis PDFs open in a pop-up. From the same window you can choose a size and quantity, add the product to your basket and send your order via WhatsApp.">Ürünler bölümünde bir ürüne dokunun (veya tıklayın); ürünün detayları, boyut ve fiyat bilgileri ile analiz PDF'leri bir açılır pencerede (pop-up) görüntülenir. Aynı pencereden boyut ve adet seçip ürünü sepete ekleyebilir, siparişinizi WhatsApp ile iletebilirsiniz.</p>
                 </div>
               </div>
             </div>
