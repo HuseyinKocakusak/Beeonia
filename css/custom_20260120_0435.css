@@ -962,12 +962,17 @@ button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
-  font-size: 1.5rem;
+  /* Solid dark disc with a gold ring so the × stays visible over light
+     product photos (it sits on top of the image on phones). */
+  background: rgba(13, 16, 38, 0.88);
+  border: 1.5px solid var(--accent-gold);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  color: var(--accent-gold-light);
+  font-size: 1.9rem;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3879,5 +3884,19 @@ button {
   .product-tap-hint,
   .product-tap-hint::before {
     animation: none;
+  }
+}
+
+/* Swipe gestures: let the browser keep vertical page scrolling while the
+   gallery and product carousel handle sideways drags themselves. */
+.clothesline-viewport,
+.products-track {
+  touch-action: pan-y;
+}
+
+@media (max-width: 768px) {
+  .modal-close {
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }

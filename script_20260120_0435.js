@@ -167,14 +167,48 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     setupTouchEvents() {
+      // A gesture only counts as a swipe when it moves clearly sideways
+      // (more than SWIPE_MIN px, and more horizontal than vertical). Taps
+      // and vertical page scrolls never move the carousel, and a click
+      // right after a real swipe is swallowed so it does not open a card.
+      const SWIPE_MIN = 50;
       let startX = 0;
-      let currentX = 0;
+      let startY = 0;
+      let lastX = 0;
+      let lastY = 0;
       let isDragging = false;
+      let suppressClick = false;
+
+      const finish = () => {
+        const dx = startX - lastX;
+        const dy = startY - lastY;
+        if (Math.abs(dx) > SWIPE_MIN && Math.abs(dx) > Math.abs(dy) * 1.2) {
+          if (dx > 0) this.next();
+          else this.prev();
+          suppressClick = true;
+          setTimeout(() => {
+            suppressClick = false;
+          }, 350);
+        }
+      };
+
+      this.track.addEventListener(
+        "click",
+        (e) => {
+          if (suppressClick) {
+            e.stopPropagation();
+            e.preventDefault();
+            suppressClick = false;
+          }
+        },
+        true,
+      );
 
       this.track.addEventListener(
         "touchstart",
         (e) => {
-          startX = e.touches[0].clientX;
+          startX = lastX = e.touches[0].clientX;
+          startY = lastY = e.touches[0].clientY;
           isDragging = true;
           if (this.autoplay) this.stopAutoplay();
         },
@@ -185,7 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
         "touchmove",
         (e) => {
           if (!isDragging) return;
-          currentX = e.touches[0].clientX;
+          lastX = e.touches[0].clientX;
+          lastY = e.touches[0].clientY;
         },
         { passive: true },
       );
@@ -193,47 +228,35 @@ document.addEventListener("DOMContentLoaded", function () {
       this.track.addEventListener("touchend", () => {
         if (!isDragging) return;
         isDragging = false;
-
-        const diff = startX - currentX;
-        const threshold = 50;
-
-        if (diff > threshold) {
-          this.next();
-        } else if (diff < -threshold) {
-          this.prev();
-        }
-
+        finish();
         if (this.autoplay) this.startAutoplay();
       });
 
+      this.track.addEventListener("touchcancel", () => {
+        isDragging = false;
+      });
+
       // Mouse drag support for desktop
-      let mouseStartX = 0;
       let isMouseDragging = false;
 
       this.track.addEventListener("mousedown", (e) => {
-        mouseStartX = e.clientX;
+        startX = lastX = e.clientX;
+        startY = lastY = e.clientY;
         isMouseDragging = true;
         this.track.style.cursor = "grabbing";
       });
 
       document.addEventListener("mousemove", (e) => {
         if (!isMouseDragging) return;
-        currentX = e.clientX;
+        lastX = e.clientX;
+        lastY = e.clientY;
       });
 
       document.addEventListener("mouseup", () => {
         if (!isMouseDragging) return;
         isMouseDragging = false;
         this.track.style.cursor = "grab";
-
-        const diff = mouseStartX - currentX;
-        const threshold = 50;
-
-        if (diff > threshold) {
-          this.next();
-        } else if (diff < -threshold) {
-          this.prev();
-        }
+        finish();
       });
 
       this.track.style.cursor = "grab";
@@ -309,13 +332,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let isDragging = false;
     let startX = 0;
-    let scrollLeft = 0;
     let currentTranslate = 0;
     let prevTranslate = 0;
-    let animationId = null;
-    let velocity = 0;
-    let lastX = 0;
-    let lastTime = 0;
 
     function getMaxTranslate() {
       const trackWidth = track.scrollWidth;
@@ -350,6 +368,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (leftBtn) {
       leftBtn.addEventListener("click", function () {
+        stopGlide();
         track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
         setTranslate(currentTranslate + scrollStep);
         prevTranslate = currentTranslate;
@@ -359,6 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (rightBtn) {
       rightBtn.addEventListener("click", function () {
+        stopGlide();
         track.style.transition = "transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
         setTranslate(currentTranslate - scrollStep);
         prevTranslate = currentTranslate;
@@ -366,85 +386,128 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // Touch events
-    viewport.addEventListener("touchstart", function (e) {
+    // Drag with the finger or mouse: the strip follows the pointer 1:1,
+    // then glides on with a short, gradually slowing momentum. A short swipe
+    // moves it a little, a fast flick moves it further.
+    var glideId = null;
+    var samples = [];
+    var touchAxis = null; // null until decided, then "x" or "y"
+    var touchStartY = 0;
+
+    function stopGlide() {
+      if (glideId) cancelAnimationFrame(glideId);
+      glideId = null;
+    }
+
+    function recordSample(x) {
+      var now = performance.now();
+      samples.push({ x: x, t: now });
+      while (samples.length > 2 && now - samples[0].t > 100) samples.shift();
+    }
+
+    function releaseVelocity() {
+      if (samples.length < 2) return 0;
+      var a = samples[0], b = samples[samples.length - 1];
+      if (performance.now() - b.t > 80) return 0; // finger rested before lifting
+      var dt = b.t - a.t;
+      if (dt <= 0) return 0;
+      var v = (b.x - a.x) / dt; // px per ms
+      return Math.max(-2.5, Math.min(2.5, v));
+    }
+
+    function glide(v) {
+      stopGlide();
+      var last = performance.now();
+      function step(now) {
+        var dt = Math.min(32, now - last);
+        last = now;
+        v *= Math.pow(0.95, dt / 16);
+        var before = currentTranslate;
+        setTranslate(currentTranslate + v * dt);
+        prevTranslate = currentTranslate;
+        if (Math.abs(v) < 0.02 || currentTranslate === before) {
+          glideId = null;
+          return;
+        }
+        glideId = requestAnimationFrame(step);
+      }
+      if (Math.abs(v) > 0.05) glideId = requestAnimationFrame(step);
+    }
+
+    function beginDrag(x) {
+      stopGlide();
       isDragging = true;
-      startX = e.touches[0].clientX;
+      startX = x;
       prevTranslate = currentTranslate;
-      lastX = startX;
-      lastTime = Date.now();
-      velocity = 0;
+      samples = [];
+      recordSample(x);
       track.style.transition = "none";
+    }
+
+    function moveDrag(x) {
+      recordSample(x);
+      setTranslate(prevTranslate + (x - startX));
+    }
+
+    function endDrag() {
+      isDragging = false;
+      prevTranslate = currentTranslate;
+      glide(releaseVelocity());
+    }
+
+    // Touch: decide the direction from the first few pixels. Vertical
+    // gestures are left to the page so scrolling down never drags the strip.
+    viewport.addEventListener("touchstart", function (e) {
+      touchAxis = null;
+      touchStartY = e.touches[0].clientY;
+      beginDrag(e.touches[0].clientX);
     }, { passive: true });
 
     viewport.addEventListener("touchmove", function (e) {
       if (!isDragging) return;
-      var currentX = e.touches[0].clientX;
-      var diff = currentX - startX;
-      var now = Date.now();
-      var dt = now - lastTime;
-      if (dt > 0) {
-        velocity = (currentX - lastX) / dt;
+      var x = e.touches[0].clientX;
+      var y = e.touches[0].clientY;
+      if (!touchAxis) {
+        var dx = Math.abs(x - startX), dy = Math.abs(y - touchStartY);
+        if (dx < 6 && dy < 6) return;
+        touchAxis = dx > dy ? "x" : "y";
       }
-      lastX = currentX;
-      lastTime = now;
-      setTranslate(prevTranslate + diff);
-    }, { passive: true });
+      if (touchAxis === "y") return;
+      if (e.cancelable) e.preventDefault();
+      moveDrag(x);
+    }, { passive: false });
 
     viewport.addEventListener("touchend", function () {
+      if (!isDragging) return;
+      if (touchAxis === "x") endDrag();
+      else isDragging = false;
+    });
+
+    viewport.addEventListener("touchcancel", function () {
       isDragging = false;
-      prevTranslate = currentTranslate;
-      // Momentum scroll
-      applyMomentum();
     });
 
     // Mouse drag
     viewport.addEventListener("mousedown", function (e) {
-      isDragging = true;
-      startX = e.clientX;
-      prevTranslate = currentTranslate;
-      lastX = startX;
-      lastTime = Date.now();
-      velocity = 0;
-      track.style.transition = "none";
+      beginDrag(e.clientX);
       e.preventDefault();
     });
 
     document.addEventListener("mousemove", function (e) {
       if (!isDragging) return;
-      var currentX = e.clientX;
-      var diff = currentX - startX;
-      var now = Date.now();
-      var dt = now - lastTime;
-      if (dt > 0) {
-        velocity = (currentX - lastX) / dt;
-      }
-      lastX = currentX;
-      lastTime = now;
-      setTranslate(prevTranslate + diff);
+      moveDrag(e.clientX);
     });
 
     document.addEventListener("mouseup", function () {
       if (!isDragging) return;
-      isDragging = false;
-      prevTranslate = currentTranslate;
-      applyMomentum();
+      endDrag();
     });
-
-    function applyMomentum() {
-      var momentum = velocity * 150;
-      if (Math.abs(momentum) > 5) {
-        track.style.transition = "transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
-        setTranslate(currentTranslate + momentum);
-        prevTranslate = currentTranslate;
-        setTimeout(function () { track.style.transition = "none"; }, 600);
-      }
-    }
 
     // Mouse wheel horizontal scroll
     viewport.addEventListener("wheel", function (e) {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
         e.preventDefault();
+        stopGlide();
         var delta = e.deltaX || e.deltaY;
         track.style.transition = "transform 0.15s ease-out";
         setTranslate(currentTranslate - delta);
