@@ -173,7 +173,12 @@
     <div class="product-modal" id="productModal">
       <div class="modal-backdrop"></div>
       <div class="modal-content">
-        <button class="modal-close" id="modalClose">&times;</button>
+        <button class="modal-close" id="modalClose" type="button" aria-label="Kapat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12" />
+            <path d="M18 6L6 18" />
+          </svg>
+        </button>
         <div class="modal-image">
           <img src="" alt="Ürün" id="modalImage" />
           <button class="modal-img-nav modal-img-prev" id="modalImgPrev" aria-label="Önceki resim">&#8249;</button>
@@ -194,10 +199,29 @@
             </div>
             <button type="button" class="add-to-cart-btn" id="modalAddToCart" data-tr="Sepete ekle" data-en="Add to basket">Sepete ekle</button>
           </div>
-          <p class="modal-order-feedback" id="modalOrderFeedback" hidden>
-            <span id="modalOrderFeedbackText"></span>
-            <button type="button" class="modal-order-feedback-link" id="modalGoToCart" data-tr="Sepete git" data-en="Go to basket">Sepete git</button>
-          </p>
+          <div class="cart-toast" id="modalOrderFeedback" role="status" aria-live="polite" hidden>
+            <div class="cart-toast-head">
+              <span class="cart-toast-check" aria-hidden="true">
+                <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <circle class="cart-toast-check-ring" cx="18" cy="18" r="16" />
+                  <path class="cart-toast-check-mark" d="M11 18.5l5 5 9-10" />
+                </svg>
+              </span>
+              <div class="cart-toast-text">
+                <strong class="cart-toast-title" data-tr="Sepete eklendi" data-en="Added to your basket">Sepete eklendi</strong>
+                <span class="cart-toast-item" id="modalOrderFeedbackText"></span>
+              </div>
+              <img class="cart-toast-thumb" id="cartToastThumb" src="" alt="" />
+            </div>
+            <div class="cart-toast-summary" id="cartToastSummary"></div>
+            <div class="cart-toast-actions">
+              <button type="button" class="cart-toast-secondary" id="modalContinue" data-tr="Ürünlere dön" data-en="Back to products">Ürünlere dön</button>
+              <button type="button" class="cart-toast-primary" id="modalGoToCart">
+                <span data-tr="Sepete git" data-en="Go to basket">Sepete git</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>
+              </button>
+            </div>
+          </div>
           <p class="modal-harvest" id="modalHarvest"></p>
           <div class="modal-analyses" id="modalAnalyses">
             <h4 class="modal-analyses-title" data-tr="Analizler" data-en="Analyses">Analizler</h4>
@@ -301,10 +325,12 @@
             <button class="lang-btn" data-lang="tr">TR</button>
           </div>
           <button class="cart-btn" id="cartBtn" type="button" aria-label="Sepet" aria-controls="cartDrawer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M6 7h12l-1 13H7L6 7z" />
-              <path d="M9 7V5a3 3 0 016 0v2" />
+            <svg class="cart-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
             </svg>
+            <span class="cart-btn-label" data-tr="Sepet" data-en="Basket">Sepet</span>
             <span class="cart-count" id="cartCount" hidden>0</span>
           </button>
           <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menü">
@@ -347,11 +373,19 @@
       <!-- Home Section -->
       <section class="hero" id="home">
         <div class="hero-content">
+          <span class="hero-ornament" aria-hidden="true"></span>
           <p
             class="hero-tagline"
             data-tr="Metabolik sağlığınıza, hiçbir kimyasalın girmediği kovanlarımızla değer katmak amacıyla, bilimin ışığında analizli ve güvenilir arı ürünleri üretiyoruz."
             data-en="To bring real value to your metabolic health through hives that no chemical ever enters, we produce lab-analyzed, reliable bee products guided by science."
-          >Metabolik sağlığınıza, hiçbir kimyasalın girmediği kovanlarımızla değer katmak amacıyla, bilimin ışığında analizli ve güvenilir arı ürünleri üretiyoruz.</p>
+          >Metabolik sağlığınıza, <span class="hero-highlight" data-tr="hiçbir kimyasalın girmediği kovanlarımızla" data-en="hives that no chemical ever enters">hiçbir kimyasalın girmediği kovanlarımızla</span> değer katmak amacıyla, bilimin ışığında <span class="hero-highlight" data-tr="analizli ve güvenilir" data-en="lab-analyzed, reliable">analizli ve güvenilir</span> arı ürünleri üretiyoruz.</p>
+          <a href="#products" class="hero-cta" id="heroCta">
+            <span data-tr="Analizli Bal Talep Et" data-en="Request Lab-Analyzed Honey">Analizli Bal Talep Et</span>
+            <svg class="hero-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v14" />
+              <path d="M6 13l6 6 6-6" />
+            </svg>
+          </a>
         </div>
 
         <!-- Products Section -->
@@ -405,8 +439,8 @@
                 data-origin-en="Yamanlar Mountain, Izmir"
                 data-series-tr="Koleksiyon Serisi"
                 data-series-en="Collection Series"
-                data-description-tr="Çiçek balı hasat ederken kovanlarda bıraktığımız çiçek ballarıyla, 1 ay hayıt ve son olarak çamla buluşan arılarımızın ürettiği eşsiz karışım! Sınırlı seri, özel hasat bir limited edition."
-                data-description-en="A unique blend made by our bees: the floral honey we left in the hives during the polyfloral harvest, joined by a month of chaste tree (vitex) and finally pine! A limited series from a special harvest, a true limited edition."
+                data-description-tr="Çiçek balı hasat ederken kovanlarda bıraktığımız çiçek ballarıyla, 1 ay hayıt ve son olarak çamla buluşan arılarımızın ürettiği eşsiz karışım! Sınırlı seri, özel hasat."
+                data-description-en="A unique blend made by our bees: the floral honey we left in the hives during the polyfloral harvest, joined by a month of chaste tree (vitex) and finally pine! A limited series from a special harvest."
                 data-variants='[{"weight":"750g","price":"1100₺"},{"weight":"500g","price":"750₺"}]'
                 data-harvest-tr="26 Ağustos 2026'da hasat edilmiştir."
                 data-harvest-en="Harvested on August 26, 2026."
@@ -480,11 +514,11 @@
                 data-origin="Yamanlar Mountain, Izmir"
                 data-origin-tr="Yamanlar Dağı, İzmir"
                 data-origin-en="Yamanlar Mountain, Izmir"
-                data-description-tr="Doğal arı poleni. Protein, vitamin ve antioksidanlar açısından zengin. 15 ve 22 Haziran 2026 hasatları stokta."
-                data-description-en="Natural bee pollen. Rich in protein, vitamins, and antioxidants. 15 and 22 June 2026 harvests in stock."
+                data-description-tr="Doğal arı poleni. Protein, vitamin ve antioksidanlar açısından zengin."
+                data-description-en="Natural bee pollen. Rich in protein, vitamins, and antioxidants."
                 data-variants='[{"weight":"75g","price":"150₺"},{"weight":"250g","price":"500₺"}]'
-                data-harvest-tr="21 Mayıs 2026 tükendi. 10 Haziran 2026 hasadı. tükendi. 15 Haziran 2026. Stokta var. 22 Haziran 2026. Stokta var."
-                data-harvest-en="21 May 2026 sold out. 10 June 2026 harvest. Sold out. 15 June 2026. In stock. 22 June 2026. In stock."
+                data-harvest-tr="Arılarımızın protein ve vitamin ihtiyacını karşılamak için kovandaki polen stoğunun en fazla %3'ünü alıyor, bu nedenle sınırlı miktarda polen satışı yapıyoruz. Talepleri, kovanlarımızın elverdiği ölçüde karşılıyoruz."
+                data-harvest-en="To meet our bees' protein and vitamin needs, we take at most 3% of the pollen stored in the hive, so we sell bee pollen in limited quantities. We fulfil requests as far as our hives allow."
               >
                 <div class="product-image">
                   <img src="/images/products/polen.jpg" alt="Polen" />

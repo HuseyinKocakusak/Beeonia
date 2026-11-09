@@ -752,17 +752,69 @@ document.addEventListener("DOMContentLoaded", function () {
     _modalQty = Math.min(99, _modalQty + 1);
     updateModalQty();
   });
-  document.getElementById("modalAddToCart").addEventListener("click", (e) => {
+  // Last item added from the pop-up, so the confirmation panel can be
+  // redrawn in the other language if the visitor switches.
+  let _lastAdded = null;
+  const modalAddBtn = document.getElementById("modalAddToCart");
+  let _addedTimer = null;
+
+  function renderOrderFeedback() {
+    if (!_lastAdded || !modalOrderFeedback) return;
+    const cart = window.beeoniaCart;
+    const name = cart.productName(_lastAdded.card);
+    modalOrderFeedbackText.textContent =
+      `${name} · ${_lastAdded.weight} × ${_lastAdded.qty}`;
+    const thumb = document.getElementById("cartToastThumb");
+    if (thumb) {
+      thumb.src = _lastAdded.img || "";
+      thumb.alt = name;
+    }
+    const sum = cart.summary();
+    const summaryEl = document.getElementById("cartToastSummary");
+    if (summaryEl) {
+      const countText =
+        currentLang === "tr"
+          ? `Sepetinizde <strong>${sum.count}</strong> ürün`
+          : `<strong>${sum.count}</strong> item${sum.count === 1 ? "" : "s"} in your basket`;
+      const totalText = sum.total
+        ? (currentLang === "tr" ? "Ara toplam " : "Subtotal ") +
+          `<strong>${cart.formatPrice(sum.total)}</strong>`
+        : "";
+      summaryEl.innerHTML = `<span>${countText}</span><span>${totalText}</span>`;
+    }
+  }
+
+  modalAddBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!currentModalCard || !_modalVariants.length) return;
     const variant = _modalVariants[_selectedVariant] || _modalVariants[0];
     window.beeoniaCart.add(currentModalCard, variant, _modalQty);
-    const name = window.beeoniaCart.productName(currentModalCard);
-    modalOrderFeedbackText.textContent =
-      currentLang === "tr"
-        ? `${name} (${variant.weight}) × ${_modalQty} sepete eklendi.`
-        : `${name} (${variant.weight}) × ${_modalQty} added to your basket.`;
+    _lastAdded = {
+      card: currentModalCard,
+      weight: variant.weight,
+      qty: _modalQty,
+      img: modalImage.getAttribute("src"),
+    };
+    renderOrderFeedback();
+    // Re-run the entrance animation even if the panel is already showing.
+    modalOrderFeedback.hidden = true;
+    void modalOrderFeedback.offsetWidth;
     modalOrderFeedback.hidden = false;
+    modalOrderFeedback.scrollIntoView({ block: "nearest", behavior: "smooth" });
+
+    // Briefly turn the button itself into a confirmation.
+    clearTimeout(_addedTimer);
+    modalAddBtn.classList.add("is-added");
+    modalAddBtn.textContent = currentLang === "tr" ? "✓ Eklendi" : "✓ Added";
+    _addedTimer = setTimeout(() => {
+      modalAddBtn.classList.remove("is-added");
+      modalAddBtn.textContent = modalAddBtn.getAttribute(`data-${currentLang}`);
+    }, 1400);
+  });
+
+  document.getElementById("modalContinue").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeModal();
   });
   document.getElementById("modalGoToCart").addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1027,6 +1079,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const count = state.items.reduce((n, it) => n + it.qty, 0);
       cartCount.textContent = String(count);
       cartCount.hidden = count === 0;
+      cartBtn.classList.toggle("has-items", count > 0);
       cartBtn.setAttribute("aria-label", `${t.basket} (${count})`);
 
       emptyEl.hidden = state.items.length > 0;
@@ -1171,11 +1224,90 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.addEventListener("languageChanged", render);
 
-    window.beeoniaCart = { add: add, open: open, productName: productName };
+    function summary() {
+      return {
+        count: state.items.reduce((n, it) => n + it.qty, 0),
+        total: state.items.reduce((n, it) => n + parsePrice(it.price) * it.qty, 0),
+      };
+    }
+
+    window.beeoniaCart = {
+      add: add,
+      open: open,
+      productName: productName,
+      summary: summary,
+      formatPrice: formatPrice,
+    };
 
     syncWithPage();
     save();
     render();
+  })();
+
+  // ========================================
+  // Hero button + "Detaylar için dokunun" attention effect
+  // ========================================
+  // When the visitor reaches the products (through the hero button, or by
+  // scrolling there for the first time) the tap labels sparkle for 1.5 s.
+  (function initTapHintAttention() {
+    const hints = () => document.querySelectorAll(".product-tap-hint");
+    let lastRun = 0;
+
+    function sparkle() {
+      const now = Date.now();
+      if (now - lastRun < 2000) return;
+      lastRun = now;
+      hints().forEach((el) => {
+        el.classList.remove("is-attention");
+        void el.offsetWidth; // restart the animation
+        el.classList.add("is-attention");
+      });
+      setTimeout(() => {
+        hints().forEach((el) => el.classList.remove("is-attention"));
+      }, 1500);
+    }
+
+    // Run once the smooth scroll started by the hero button has settled.
+    function afterScrollSettles(cb) {
+      let timer = null;
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        window.removeEventListener("scroll", onScroll);
+        cb();
+      };
+      const onScroll = () => {
+        clearTimeout(timer);
+        timer = setTimeout(finish, 140);
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      timer = setTimeout(finish, 400); // already in place: no scroll happens
+      setTimeout(finish, 1800); // safety net
+    }
+
+    const cta = document.getElementById("heroCta");
+    if (cta) {
+      cta.addEventListener("click", () => {
+        if (typeof gtag === "function") gtag("event", "hero_cta_click");
+        afterScrollSettles(sparkle);
+      });
+    }
+
+    // First natural arrival at the product cards.
+    const track = document.getElementById("productsTrack");
+    if (track && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((en) => en.isIntersecting)) {
+            io.disconnect();
+            setTimeout(sparkle, 300);
+          }
+        },
+        { threshold: 0.6 },
+      );
+      io.observe(track);
+    }
   })();
 
   // ========================================
