@@ -163,7 +163,12 @@
     <div class="product-modal" id="productModal">
       <div class="modal-backdrop"></div>
       <div class="modal-content">
-        <button class="modal-close" id="modalClose">&times;</button>
+        <button class="modal-close" id="modalClose" type="button" aria-label="Kapat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+            <path d="M6 6l12 12" />
+            <path d="M18 6L6 18" />
+          </svg>
+        </button>
         <div class="modal-image">
           <img src="" alt="Ürün" id="modalImage" />
           <button class="modal-img-nav modal-img-prev" id="modalImgPrev" aria-label="Önceki resim">&#8249;</button>
@@ -502,8 +507,8 @@
                 data-description-tr="Doğal arı poleni. Protein, vitamin ve antioksidanlar açısından zengin. 15 ve 22 Haziran 2026 hasatları stokta."
                 data-description-en="Natural bee pollen. Rich in protein, vitamins, and antioxidants. 15 and 22 June 2026 harvests in stock."
                 data-variants='[{"weight":"75g","price":"150₺"},{"weight":"250g","price":"500₺"}]'
-                data-harvest-tr="21 Mayıs 2026 tükendi. 10 Haziran 2026 hasadı. tükendi. 15 Haziran 2026. Stokta var. 22 Haziran 2026. Stokta var."
-                data-harvest-en="21 May 2026 sold out. 10 June 2026 harvest. Sold out. 15 June 2026. In stock. 22 June 2026. In stock."
+                data-harvest-tr="Arılarımızın protein ve vitamin ihtiyacını karşılamak için kovandaki polen stoğunun en fazla %3'ünü alıyor, bu nedenle sınırlı miktarda polen satışı yapıyoruz. Talepleri, kovanlarımızın elverdiği ölçüde karşılıyoruz."
+                data-harvest-en="To meet our bees' protein and vitamin needs, we take at most 3% of the pollen stored in the hive, so we sell bee pollen in limited quantities. We fulfil requests as far as our hives allow."
               >
                 <div class="product-image">
                   <img src="/images/products/polen.jpg" alt="Polen" />

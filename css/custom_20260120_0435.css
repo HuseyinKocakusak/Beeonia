@@ -1058,27 +1058,69 @@ button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
   border-radius: 50%;
-  /* Solid dark disc with a gold ring so the × stays visible over light
-     product photos (it sits on top of the image on phones). */
-  background: rgba(13, 16, 38, 0.88);
-  border: 1.5px solid var(--accent-gold);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  /* Dark disc, bright gold ring and an outer glow so the button stands out
+     on any product photo. The × is an SVG, so it is optically centred
+     regardless of font metrics. */
+  background: radial-gradient(circle at 50% 35%, #1d2348 0%, #0d1026 75%);
+  border: 2px solid var(--accent-gold-light);
+  box-shadow:
+    0 0 0 3px rgba(13, 16, 38, 0.55),
+    0 0 18px rgba(232, 197, 71, 0.55),
+    inset 0 0 10px rgba(232, 197, 71, 0.22);
   color: var(--accent-gold-light);
-  font-size: 1.9rem;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: var(--transition-smooth);
+  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.modal-close:hover {
+.modal-close svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  filter: drop-shadow(0 0 4px rgba(232, 197, 71, 0.6));
+}
+
+.modal-close:hover,
+.modal-close:focus-visible {
   background: var(--accent-gold);
   color: var(--bg-primary);
+  transform: rotate(90deg);
+  box-shadow:
+    0 0 0 3px rgba(13, 16, 38, 0.55),
+    0 0 26px rgba(232, 197, 71, 0.8);
+}
+
+.modal-close:hover svg,
+.modal-close:focus-visible svg {
+  filter: none;
+}
+
+/* Two glow pulses each time a product pop-up opens */
+.product-modal.active .modal-close {
+  animation: modal-close-glow 1.4s ease-out 0.35s 2;
+}
+
+@keyframes modal-close-glow {
+  0% {
+    box-shadow: 0 0 0 3px rgba(13, 16, 38, 0.55), 0 0 18px rgba(232, 197, 71, 0.55), 0 0 0 0 rgba(232, 197, 71, 0.7);
+  }
+  60% {
+    box-shadow: 0 0 0 3px rgba(13, 16, 38, 0.55), 0 0 28px rgba(232, 197, 71, 0.85), 0 0 0 12px rgba(232, 197, 71, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(13, 16, 38, 0.55), 0 0 18px rgba(232, 197, 71, 0.55), 0 0 0 0 rgba(232, 197, 71, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-modal.active .modal-close { animation: none; }
+  .modal-close:hover, .modal-close:focus-visible { transform: none; }
 }
 
 .modal-image {
