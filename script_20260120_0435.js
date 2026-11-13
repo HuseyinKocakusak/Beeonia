@@ -84,7 +84,12 @@ document.addEventListener("DOMContentLoaded", function () {
       rememberLanguage(lang);
       if (lang === pageLang) return;
       // Switch to the other language's address, keeping the section anchor.
-      window.location.href = (lang === "en" ? "/en/" : "/") + window.location.hash;
+      // Every page names its counterpart in a <link rel="alternate">.
+      const alt = document.querySelector(`link[rel="alternate"][hreflang="${lang}"]`);
+      const target = alt
+        ? new URL(alt.href).pathname
+        : lang === "en" ? "/en/" : "/";
+      window.location.href = target + window.location.hash;
     });
   });
 
@@ -977,6 +982,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Refresh names/prices from the page so a stored basket never shows
     // outdated prices; drop items whose product or size no longer exists.
     function syncWithPage() {
+      // Pages without product cards (gallery, about, ...) keep the stored
+      // basket as it is.
+      if (!document.querySelector(".product-card[data-product-id]")) return;
       state.items = state.items.filter((it) => {
         const card = findCard(it.id);
         if (!card) return false;
@@ -2651,6 +2659,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const grid = document.getElementById("scienceGrid");
     const paginationContainer = document.getElementById("sciencePagination");
     const categoryBtns = document.querySelectorAll(".category-btn");
+    // Only on the Literatür page: free-text search and a result count.
+    const searchInput = document.getElementById("scienceSearch");
+    const countEl = document.getElementById("scienceCount");
+    if (!grid || !paginationContainer) return;
 
     // Category label mapping for bilingual tags
     const categoryLabels = {
@@ -2675,9 +2687,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function getFilteredArticles() {
       var today = todayString();
       // YYYY-MM-DD strings compare correctly as text; future-dated articles stay hidden until their day.
+      var q = searchInput ? searchInput.value.trim().toLocaleLowerCase("tr") : "";
       let filtered = articles.filter(function(a) {
-        return a.date <= today &&
-          (currentCategory === "all" || a.categories.indexOf(currentCategory) !== -1);
+        if (a.date > today) return false;
+        if (currentCategory !== "all" && a.categories.indexOf(currentCategory) === -1) return false;
+        if (!q) return true;
+        var hay = (a.titleTr + " " + a.titleEn + " " + a.summaryTr + " " + a.summaryEn).toLocaleLowerCase("tr");
+        return hay.indexOf(q) !== -1;
       });
       // Sort by date descending (newest first)
       filtered.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
@@ -2734,7 +2750,16 @@ document.addEventListener("DOMContentLoaded", function () {
         '</div>';
       });
 
+      if (!pageArticles.length) {
+        html = '<p class="science-empty">' +
+          (currentLang === "tr" ? "Aramanızla eşleşen makale bulunamadı." : "No articles match your search.") + '</p>';
+      }
       grid.innerHTML = html;
+      if (countEl) {
+        countEl.textContent = currentLang === "tr"
+          ? filtered.length + " makale"
+          : filtered.length + (filtered.length === 1 ? " article" : " articles");
+      }
       renderPagination(filtered.length, totalPages);
     }
 
@@ -2815,6 +2840,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       renderArticles();
     });
+
+    if (searchInput) {
+      searchInput.addEventListener("input", function() {
+        currentPage = 1;
+        renderArticles();
+      });
+    }
 
     // Initial render
     renderArticles();
