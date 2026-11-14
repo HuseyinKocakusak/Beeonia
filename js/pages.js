@@ -7,7 +7,12 @@ document.addEventListener("DOMContentLoaded", function () {
   var here = window.location.pathname.replace(/index\.html$/, "");
   document.querySelectorAll(".nav-link").forEach(function (a) {
     var path = new URL(a.href, window.location.origin).pathname;
-    if (path === here && path !== "/" && path !== "/en/") {
+    // "Hakkımızda" in the menu points to the landing page's #about section,
+    // so on the About sub-page it is matched by the hash instead.
+    var hash = new URL(a.href, window.location.origin).hash;
+    var current = (path === here && path !== "/" && path !== "/en/" && !hash) ||
+      (hash === "#about" && (here === "/hakkimizda/" || here === "/en/about/"));
+    if (current) {
       a.classList.add("is-current");
       a.setAttribute("aria-current", "page");
     }

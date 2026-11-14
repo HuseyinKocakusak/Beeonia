@@ -26,7 +26,7 @@ PAGES = {
         "desc_en": "Beeonia products: pine honey, polyfloral honey, comb honey, bee pollen and propolis. Harvest dates, sizes and prices, laboratory reports and ordering via WhatsApp.",
     },
     "galeri": {
-        "tr": "/galeri/", "en": "/en/gallery/",
+        "tr": "/galeri.html", "en": "/en/gallery.html",
         "title_tr": "Galeri | BEEONIA - Arılıktan Kareler",
         "title_en": "Gallery | BEEONIA - Scenes from the Apiary",
         "desc_tr": "Beeonia arılıklarından fotoğraflar: Yamanlar Dağı, Selendi ve Menderes'te hasat, koloni bakımı ve gezginci arıcılık.",
@@ -164,7 +164,23 @@ def gallery_grid(src, tree):
     figs = []
     for it in find_all(tree.root, "polaroid-item"):
         img = find_all(it, "polaroid-photo")[0].children[0].attrs
-        date_en = text_of(src, find_all(it, "polaroid-date")[0])
+        date_node = find_all(it, "polaroid-date")[0]
+        date_en = text_of(src, date_node)
+        if "data-tr" in date_node.attrs:
+            # Items with their own translations (added in the 2026 season)
+            date_tr, date_en = date_node.attrs["data-tr"], date_node.attrs["data-en"]
+            loc = text_of(src, find_all(it, "polaroid-location")[0])
+            figs.append(f'''
+          <figure class="gallery-item">
+            <button type="button" class="gallery-open" aria-label="Fotoğrafı büyüt">
+              <img src="{esc(img.get("src"))}" alt="{esc(img.get("alt"))}" loading="lazy" />
+            </button>
+            <figcaption>
+              <span class="gallery-date" data-tr="{esc(date_tr)}" data-en="{esc(date_en)}">{esc(date_tr, False)}</span>
+              <span class="gallery-loc">{esc(loc, False)}</span>
+            </figcaption>
+          </figure>''')
+            continue
         loc = text_of(src, find_all(it, "polaroid-location")[0])
         m = re.match(r"(\w+)\s+(\d+)[.,]\s*(\d{4})", date_en)
         if m and m.group(1) in MONTHS:
@@ -268,7 +284,8 @@ def build(index_src, localize, Tree):
             doc = localize(head(index_src, name, lang) + body, lang)
             if lang == "en":
                 doc = to_en_links(doc)
-            out = os.path.join(ROOT, p[lang].strip("/"), "index.html")
+            rel = p[lang].strip("/")
+            out = os.path.join(ROOT, rel) if rel.endswith(".html") else os.path.join(ROOT, rel, "index.html")
             os.makedirs(os.path.dirname(out), exist_ok=True)
             with open(out, "w", encoding="utf-8") as f:
                 f.write(doc)
