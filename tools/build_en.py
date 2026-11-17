@@ -8,9 +8,9 @@ HTML that search engines download is already Turkish at "/" and English at
 canonical URL and locale.
 
 It also builds the sub-pages (Ürünler, Galeri, Hakkımızda, İletişim,
-Literatür) in both languages from pages/*.html; see tools/build_pages.py.
+Literatür) in both languages from tools/pages/*.html; see tools/build_pages.py.
 
-Run after every change to index.html or pages/*.html:
+Run after every change to index.html or tools/pages/*.html:
 
     python3 tools/build_en.py
 
